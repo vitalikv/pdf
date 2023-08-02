@@ -2,92 +2,12 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSG } from 'three-csg-ts';
 
+import { PanelUI } from './panelUI';
+import { PdfToSvg } from './pdfToSvg';
+
 let renderer, camera, scene;
 let controls;
-
-class Door {
-  constructor(scene, position, reflection) {
-    const door = new THREE.Mesh(this.createGeometry(), this.createMaterial());
-
-    door.castShadow = true;
-    door.receiveShadow = true;
-    this.csg(door);
-    if (reflection) this.setReflection(door.material);
-    door.position.copy(position);
-    scene.add(door);
-  }
-
-  createGeometry() {
-    const height = 1.9;
-    const arr = [new THREE.Vector2(-0.45, 0.05), new THREE.Vector2(-0.45, -0.05), new THREE.Vector2(0.45, -0.05), new THREE.Vector2(0.45, 0.05)];
-    const shape = new THREE.Shape(arr);
-    const geometry = new THREE.ExtrudeGeometry(shape, { bevelEnabled: false, depth: height });
-    geometry.rotateX(-Math.PI / 2);
-
-    return geometry;
-  }
-
-  csg(door) {
-    const side = [0.08, -0.08];
-
-    for (let i = 0; i < side.length; i++) {
-      const box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.7, 0.1), new THREE.MeshStandardMaterial({ color: 0x0000ff }));
-
-      box.position.y = 1.7 / 2 + 0.1;
-      box.position.z = side[i];
-
-      box.updateMatrix();
-      door.updateMatrix();
-
-      const subRes = CSG.subtract(door, box);
-      door.geometry.dispose();
-      door.geometry = subRes.geometry;
-    }
-  }
-
-  createMaterial() {
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
-    this.createTexture(material);
-
-    return material;
-  }
-
-  createTexture(material) {
-    new THREE.TextureLoader().load('img/1.jpg', function (image) {
-      const texture = image;
-      material.color = new THREE.Color(0xffffff);
-      texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-      texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      texture.repeat.x = 1.0;
-      texture.repeat.y = 1.0;
-      texture.needsUpdate = true;
-
-      material.map = texture;
-      material.needsUpdate = true;
-    });
-  }
-
-  setReflection(material) {
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    pmremGenerator.compileEquirectangularShader();
-
-    const cubeCamera = new THREE.CubeCamera(0.01, 10, new THREE.WebGLCubeRenderTarget(512, { encoding: THREE.sRGBEncoding }));
-
-    cubeCamera.position.copy(new THREE.Vector3(0, 1, 0));
-    cubeCamera.update(renderer, scene);
-
-    const envMap = pmremGenerator.fromEquirectangular(cubeCamera.renderTarget.texture).texture;
-    material.metalness = 0.7;
-    material.roughness = 0.0;
-    material.envMap = envMap;
-    material.needsUpdate = true;
-
-    envMap.dispose();
-    cubeCamera.renderTarget.texture.dispose();
-
-    pmremGenerator.dispose();
-  }
-}
+export let pdfToSvg;
 
 init();
 render();
@@ -156,6 +76,10 @@ function init() {
     },
     false
   );
+
+  const panelUI = new PanelUI();
+  panelUI.init();
+  pdfToSvg = new PdfToSvg();
 }
 
 function render() {

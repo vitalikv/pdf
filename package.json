@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --open --mode=development",
-    "dev":	"webpack --mode development"
+    "dev": "webpack --mode development"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,8 @@
     "webpack-dev-server": "^4.11.1"
   },
   "dependencies": {
+    "@types/pdfjs-dist": "^2.10.378",
+    "pdfjs-dist": "^3.9.179",
     "three": "^0.148.0",
     "three-csg-ts": "^3.1.11"
   }
