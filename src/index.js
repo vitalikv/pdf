@@ -1,18 +1,23 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { CSG } from 'three-csg-ts';
 
 import { PanelUI } from './panelUI';
 import { IsometricPdfToSvg } from './pdfToSvg';
 
-let renderer, camera, scene;
-let controls;
+let renderer, camera, scene, labelRenderer, controls;
 export let isometricPdfToSvg;
 
 init();
 render();
 
 function init() {
+  const div = document.createElement('div');
+  div.innerHTML = `<div style="position: fixed; top: 0px; bottom:0; left: 0; right: 0;"></div>`;
+  const container = div.children[0];
+  document.body.append(container);
+
   const bgColor = 0x263238 / 2;
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -22,7 +27,17 @@ function init() {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.outputEncoding = THREE.sRGBEncoding;
-  document.body.appendChild(renderer.domElement);
+  container.appendChild(renderer.domElement);
+
+  labelRenderer = new CSS2DRenderer();
+  labelRenderer.setSize(window.innerWidth, window.innerHeight);
+  labelRenderer.domElement.id = 'labels-container-div';
+  labelRenderer.domElement.style.position = 'absolute';
+  labelRenderer.domElement.style.top = '0px';
+  labelRenderer.domElement.style.left = '0px';
+  labelRenderer.domElement.style.width = '100%';
+  labelRenderer.domElement.style.height = '100%';
+  container.prepend(labelRenderer.domElement);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0xffffff);
@@ -61,7 +76,7 @@ function init() {
   camera.updateProjectionMatrix();
   window.camera = camera;
 
-  controls = new OrbitControls(camera, renderer.domElement);
+  controls = new OrbitControls(camera, container);
 
   const box = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshStandardMaterial({ color: 0x0000ff }));
   scene.add(box);

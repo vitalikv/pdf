@@ -11,12 +11,17 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 
 // конвертация pdf в svg и добавление на страницу
 export class IsometricPdfToSvg {
+  container;
   inputFile;
   сontainerSvg;
   degree = 0;
 
   constructor() {
     this.inputFile = this.createInputFile();
+  }
+
+  getContainer() {
+    this.container = document.querySelector('#labels-container-div');
   }
 
   createInputFile() {
@@ -43,6 +48,8 @@ export class IsometricPdfToSvg {
   }
 
   parsePdf({ file }) {
+    if (!this.container) this.getContainer();
+
     this.deleteSvg();
     //const pdf = new pdfjsLib.getDocument('./img/1.pdf');
     const pdf = new pdfjsLib.getDocument(file);
@@ -71,18 +78,19 @@ export class IsometricPdfToSvg {
     const svg = await svgGfx.getSVG(opList, viewport);
 
     const div = document.createElement('div');
-    div.style.cssText = 'position: absolute; z-index: 3; transform-origin: center center;';
+    div.style.cssText = 'position: absolute; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 4;';
     div.style.transform = 'rotate(0deg)';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
 
     this.сontainerSvg = div;
-    document.body.prepend(div);
+    this.container.prepend(div);
     div.prepend(svg);
 
     console.log(svg);
   }
 
   rotateSvg({ degree }) {
+    if (!this.сontainerSvg) return;
     this.degree += degree;
     this.сontainerSvg.style.transform = `rotate(${this.degree}deg)`;
   }
