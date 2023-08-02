@@ -12,6 +12,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 // конвертация pdf в svg и добавление на страницу
 export class PdfToSvg {
   сontainerSvg;
+  degree = 0;
 
   constructor() {
     //this.parsePdf();
@@ -47,6 +48,7 @@ export class PdfToSvg {
 
     const div = document.createElement('div');
     div.style.cssText = 'position: absolute; z-index: 3; transform-origin: center center;';
+    div.style.transform = 'rotate(0deg)';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
 
     this.сontainerSvg = div;
@@ -56,9 +58,15 @@ export class PdfToSvg {
     console.log(svg);
   }
 
+  rotateSvg({ degree }) {
+    this.degree += degree;
+    this.сontainerSvg.style.transform = `rotate(${this.degree}deg)`;
+  }
+
   deleteSvg() {
     if (!this.сontainerSvg) return;
 
+    this.degree = 0;
     this.сontainerSvg.remove();
   }
 }

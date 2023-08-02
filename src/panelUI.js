@@ -10,6 +10,8 @@ export class PanelUI {
     this.crPanel();
     this.input = this.crInputLoader();
     this.btns$[0] = this.crBtn({ txt: 'pdf' });
+    this.btns$[1] = this.crBtn({ txt: '-90' });
+    this.btns$[2] = this.crBtn({ txt: '90' });
 
     this.initEvent();
   }
@@ -22,6 +24,14 @@ export class PanelUI {
 
     this.btns$[0].onmousedown = () => {
       this.input.click();
+    };
+
+    this.btns$[1].onmousedown = () => {
+      pdfToSvg.rotateSvg({ degree: -90 });
+    };
+
+    this.btns$[2].onmousedown = () => {
+      pdfToSvg.rotateSvg({ degree: 90 });
     };
   }
 
