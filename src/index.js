@@ -3,11 +3,11 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSG } from 'three-csg-ts';
 
 import { PanelUI } from './panelUI';
-import { PdfToSvg } from './pdfToSvg';
+import { IsometricPdfToSvg } from './pdfToSvg';
 
 let renderer, camera, scene;
 let controls;
-export let pdfToSvg;
+export let isometricPdfToSvg;
 
 init();
 render();
@@ -79,7 +79,7 @@ function init() {
 
   const panelUI = new PanelUI();
   panelUI.init();
-  pdfToSvg = new PdfToSvg();
+  isometricPdfToSvg = new IsometricPdfToSvg();
 }
 
 function render() {

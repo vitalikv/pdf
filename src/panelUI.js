@@ -1,4 +1,4 @@
-import { pdfToSvg } from './index';
+import { isometricPdfToSvg } from './index';
 
 export class PanelUI {
   container$;
@@ -8,7 +8,7 @@ export class PanelUI {
 
   init() {
     this.crPanel();
-    this.input = this.crInputLoader();
+
     this.btns$[0] = this.crBtn({ txt: 'pdf' });
     this.btns$[1] = this.crBtn({ txt: '-90' });
     this.btns$[2] = this.crBtn({ txt: '90' });
@@ -23,15 +23,15 @@ export class PanelUI {
     };
 
     this.btns$[0].onmousedown = () => {
-      this.input.click();
+      isometricPdfToSvg.inputFile.click();
     };
 
     this.btns$[1].onmousedown = () => {
-      pdfToSvg.rotateSvg({ degree: -90 });
+      isometricPdfToSvg.rotateSvg({ degree: -90 });
     };
 
     this.btns$[2].onmousedown = () => {
-      pdfToSvg.rotateSvg({ degree: 90 });
+      isometricPdfToSvg.rotateSvg({ degree: 90 });
     };
   }
 
@@ -64,76 +64,5 @@ export class PanelUI {
     this.container$.querySelector('[nameId="btns"]').append(div);
 
     return div;
-  }
-
-  crInputLoader() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf';
-    input.style.cssText = 'position: absolute; display: none;';
-
-    input.onchange = (e) => {
-      if (e.target.files.length > 0) {
-        //if (file.type.indexOf('image') === -1) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-          pdfToSvg.parsePdf({ file: reader.result });
-        };
-        reader.readAsDataURL(e.target.files[0]);
-
-        input.value = '';
-      }
-    };
-
-    return input;
-  }
-}
-
-export class BtnAddTexture {
-  constructor({ elem, material, clDelT }) {
-    this.elem = null;
-    this.material = material;
-    this.clDelT = clDelT;
-    this.init({ elem });
-  }
-
-  init({ elem }) {
-    let div = document.createElement('div');
-    div.innerHTML = this.html();
-    this.elem = div.children[0];
-    elem.querySelector('[nameId="itemTexture"]').append(this.elem);
-
-    this.initEvent();
-
-    if (this.material.map && this.material.map.image) {
-      this.addDivImg({ src: this.material.map.image.src });
-    }
-  }
-
-  html() {
-    let style = `style="display: flex; flex-direction: column; justify-content: center; align-items: center; width: 66px; height: 66px; margin-left: 10px; border: 1px solid #4A4A4A; border-radius: 4px; box-sizing: border-box; font-size: 12px; color: #4A4A4A; cursor: pointer; user-select: none; overflow: hidden;"`;
-
-    let html = `<div nameId="addTexture" ${style} class="backgFFFFFF backgHoverD1D1D1">
-			<div style="display: none; width: 100%; height: 100%;">
-				<img src="" style="width: 66px; height: 66px;">
-			</div>					
-		</div>`;
-
-    return html;
-  }
-
-  initEvent() {
-    this.elem.onmousedown = (e) => {
-      input.click();
-      data = this;
-    };
-  }
-
-  addTexture({ src }) {
-    this.addDivImg({ src });
-
-    loadTexture({ material: this.material, src });
-    this.clDelT.show();
   }
 }

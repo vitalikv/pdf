@@ -10,12 +10,36 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 // https://github.com/mozilla/pdf.js/tree/master/examples/webpack  установка pdf.js для webpack (import * as pdfjsLib from 'pdfjs-dist/webpack';)
 
 // конвертация pdf в svg и добавление на страницу
-export class PdfToSvg {
+export class IsometricPdfToSvg {
+  inputFile;
   сontainerSvg;
   degree = 0;
 
   constructor() {
-    //this.parsePdf();
+    this.inputFile = this.createInputFile();
+  }
+
+  createInputFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf';
+    input.style.cssText = 'position: absolute; display: none;';
+
+    input.onchange = (e) => {
+      if (e.target.files.length > 0) {
+        if (e.target.files[0].type.indexOf('pdf') === -1) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.parsePdf({ file: reader.result });
+        };
+        reader.readAsDataURL(e.target.files[0]);
+
+        input.value = '';
+      }
+    };
+
+    return input;
   }
 
   parsePdf({ file }) {
