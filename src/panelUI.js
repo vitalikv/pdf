@@ -1,4 +1,4 @@
-import { isometricPdfToSvg } from './index';
+import { isometricPdfToSvg, isometricExportPdf } from './index';
 
 export class PanelUI {
   container$;
@@ -12,6 +12,7 @@ export class PanelUI {
     this.btns$[0] = this.crBtn({ txt: 'pdf' });
     this.btns$[1] = this.crBtn({ txt: '-90' });
     this.btns$[2] = this.crBtn({ txt: '90' });
+    this.btns$[3] = this.crBtn({ txt: 'Получить pdf' });
 
     this.initEvent();
   }
@@ -32,6 +33,10 @@ export class PanelUI {
 
     this.btns$[2].onmousedown = () => {
       isometricPdfToSvg.rotateSvg({ degree: 90 });
+    };
+
+    this.btns$[3].onmousedown = () => {
+      isometricExportPdf.export();
     };
   }
 

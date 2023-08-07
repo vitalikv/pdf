@@ -78,21 +78,34 @@ export class IsometricPdfToSvg {
     const svg = await svgGfx.getSVG(opList, viewport);
 
     const div = document.createElement('div');
-    div.style.cssText = 'position: absolute; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 4;';
+    div.style.cssText =
+      'position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 4;';
     div.style.transform = 'rotate(0deg)';
-    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
+    //div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
 
     this.сontainerSvg = div;
     this.container.prepend(div);
     div.prepend(svg);
 
-    console.log(svg);
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    //svg.removeAttribute('viewBox')
+
+    div.innerHTML = div.innerHTML
+      .replace('svg:svg', 'svg') // strip :svg to allow skipping namespace
+      .replace(/&lt;(\/|)svg:/g, '&lt;$1');
+
+    // svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    // svg.removeAttribute('version');
+
+    console.log(svg, page, viewport);
   }
 
   rotateSvg({ degree }) {
     if (!this.сontainerSvg) return;
     this.degree += degree;
-    this.сontainerSvg.style.transform = `rotate(${this.degree}deg)`;
+    this.сontainerSvg.children[0].style.transform = `rotate(${this.degree}deg)`;
   }
 
   deleteSvg() {

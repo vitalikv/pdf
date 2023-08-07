@@ -5,9 +5,10 @@ import { CSG } from 'three-csg-ts';
 
 import { PanelUI } from './panelUI';
 import { IsometricPdfToSvg } from './pdfToSvg';
+import { IsometricExportPdf } from './exportPdf';
 
 let renderer, camera, scene, labelRenderer, controls;
-export let isometricPdfToSvg;
+export let isometricPdfToSvg, isometricExportPdf;
 
 init();
 render();
@@ -95,6 +96,7 @@ function init() {
   const panelUI = new PanelUI();
   panelUI.init();
   isometricPdfToSvg = new IsometricPdfToSvg();
+  isometricExportPdf = new IsometricExportPdf();
 }
 
 function render() {
