@@ -1,4 +1,4 @@
-import { isometricPdfToSvg, isometricExportPdf } from './index';
+import { isometricPdfToSvg, isometricExportPdf, isometricNoteSvg } from './index';
 
 export class PanelUI {
   container$;
@@ -13,6 +13,7 @@ export class PanelUI {
     this.btns$[1] = this.crBtn({ txt: '-90' });
     this.btns$[2] = this.crBtn({ txt: '90' });
     this.btns$[3] = this.crBtn({ txt: 'Получить pdf' });
+    this.btns$[4] = this.crBtn({ txt: 'Выноска' });
 
     this.initEvent();
   }
@@ -37,6 +38,10 @@ export class PanelUI {
 
     this.btns$[3].onmousedown = () => {
       isometricExportPdf.export();
+    };
+
+    this.btns$[4].onmousedown = () => {
+      isometricNoteSvg.addNote({ text: ['ТК1-СПС31.1/1-И-1-012', ''] });
     };
   }
 

@@ -4,13 +4,17 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { CSG } from 'three-csg-ts';
 
 import { PanelUI } from './panelUI';
+import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
+import { IsometricNoteSvg } from './noteSvg';
 
 let renderer, camera, scene, labelRenderer, controls;
-export let isometricPdfToSvg, isometricExportPdf;
+export let mapControlInit;
+export let isometricModeService, isometricPdfToSvg, isometricExportPdf, isometricNoteSvg;
 
 init();
+initServ();
 render();
 
 function init() {
@@ -78,6 +82,7 @@ function init() {
   window.camera = camera;
 
   controls = new OrbitControls(camera, container);
+  mapControlInit = { control: controls };
 
   const box = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshStandardMaterial({ color: 0x0000ff }));
   scene.add(box);
@@ -92,11 +97,15 @@ function init() {
     },
     false
   );
+}
 
+function initServ() {
   const panelUI = new PanelUI();
   panelUI.init();
+  isometricModeService = new IsometricModeService();
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
+  isometricNoteSvg = new IsometricNoteSvg();
 }
 
 function render() {
