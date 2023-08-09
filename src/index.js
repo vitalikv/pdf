@@ -8,10 +8,11 @@ import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
 import { IsometricNoteSvg } from './noteSvg';
+import { IsometricCanvasPaint } from './canvasPaint';
 
-let renderer, camera, scene, labelRenderer, controls;
-export let mapControlInit;
-export let isometricModeService, isometricPdfToSvg, isometricExportPdf, isometricNoteSvg;
+let renderer, camera, labelRenderer, controls;
+export let scene, mapControlInit;
+export let isometricModeService, isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricCanvasPaint;
 
 init();
 initServ();
@@ -106,6 +107,7 @@ function initServ() {
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
   isometricNoteSvg = new IsometricNoteSvg();
+  isometricCanvasPaint = new IsometricCanvasPaint();
 }
 
 function render() {

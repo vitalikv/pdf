@@ -1,7 +1,7 @@
 import { jsPDF } from 'jspdf';
-import { svg2pdf } from 'svg2pdf.js';
+import { svg2pdf } from 'svg2pdf.js'; // npm i svg2pdf.js
 
-// npm i svg2pdf.js
+import { isometricPdfToSvg } from './index';
 
 export class IsometricExportPdf {
   constructor() {
@@ -29,8 +29,10 @@ export class IsometricExportPdf {
   export() {
     //this.createSvgCircle({ container: null, ind: 3, x: 100, y: 100 });
 
-    const div = document.querySelector('#labels-container-div');
-    var svg = div.children[0].children[0];
+    if (!isometricPdfToSvg.containerSvg) return;
+
+    let svg = isometricPdfToSvg.containerSvg.children[0];
+    if (!svg) return;
 
     const doc = new jsPDF({
       orientation: 'landscape',
@@ -43,8 +45,8 @@ export class IsometricExportPdf {
       .svg(svg, {
         x: 0,
         y: 0,
-        width: div.clientWidth,
-        height: div.clientHeight,
+        width: svg.clientWidth,
+        height: svg.clientHeight,
       })
       .then(() => {
         // save the created pdf
