@@ -27,7 +27,8 @@ export class IsometricNoteSvg {
 
   createContainerSvg() {
     const div = document.createElement('div');
-    div.style.cssText = 'position: absolute; width: 1px; user-select: none; z-index: 4;';
+    //div.style.cssText = 'position: absolute; width: 1px; user-select: none; z-index: 4;';
+    div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
 
     this.containerSvg = div;

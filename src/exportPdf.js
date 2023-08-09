@@ -1,37 +1,69 @@
 import { jsPDF } from 'jspdf';
 import { svg2pdf } from 'svg2pdf.js'; // npm i svg2pdf.js
+import html2canvas from 'html2canvas';
 
-import { isometricPdfToSvg } from './index';
+import { isometricPdfToSvg, isometricNoteSvg } from './index';
 
 export class IsometricExportPdf {
   constructor() {
     //this.export();
   }
 
-  export2() {
-    const table = document.querySelector('#labels-container-div');
+  export() {
+    if (!isometricPdfToSvg.containerPdf) return;
+
+    const container = isometricPdfToSvg.containerPdf;
+    const bound = document.querySelector('#labels-container-div').getBoundingClientRect();
+    const width = bound.width;
+    const height = bound.height;
+
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'px',
-      format: [table.clientWidth, table.clientHeight],
+      format: [width, height],
     });
-    console.log(pdf);
-    pdf.html(table, {
+
+    //const tasks = [isometricPdfToSvg.containerPdf, isometricNoteSvg.containerSvg].map((tab) => html2canvas(tab));
+    const tasks = [document.querySelector('#labels-container-div')].map((tab) => html2canvas(tab));
+
+    Promise.all(tasks).then((canvases) => {
+      for (const canvas of canvases) {
+        console.log(canvas);
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+      }
+
+      pdf.save('isometry.pdf');
+    });
+  }
+
+  export2() {
+    if (!isometricPdfToSvg.containerPdf) return;
+
+    const container = isometricPdfToSvg.containerPdf;
+    const bound = container.children[0].getBoundingClientRect();
+    const width = bound.width;
+    const height = bound.height;
+
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'px',
+      format: [width, height],
+    });
+
+    pdf.html(container, {
       callback: (pdf) => {
-        // pdf.addFileToVFS('Roboto-normal.ttf', font);
-        // pdf.addFont('Roboto-normal.ttf', 'Roboto', 'normal');
-        // pdf.setFont('Roboto');
-        pdf.save('CollisionsReport.pdf');
+        pdf.save('myPDF.pdf');
       },
     });
   }
 
-  export() {
+  exportSvgToPdf() {
     //this.createSvgCircle({ container: null, ind: 3, x: 100, y: 100 });
 
-    if (!isometricPdfToSvg.containerSvg) return;
+    if (!isometricPdfToSvg.containerPdf) return;
 
-    let svg = isometricPdfToSvg.containerSvg.children[0];
+    let svg = isometricPdfToSvg.containerPdf.children[0].children[0];
     if (!svg) return;
 
     const doc = new jsPDF({

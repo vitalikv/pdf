@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { scene, mapControlInit } from './index';
+import { scene, mapControlInit, isometricPdfToSvg } from './index';
 
 export class IsometricCanvasPaint {
   isDown = false;
@@ -10,14 +10,16 @@ export class IsometricCanvasPaint {
   offset = new THREE.Vector2();
 
   constructor() {
-    this.init();
+    //this.init();
   }
 
   init() {
     if (!this.container) this.getContainer();
 
-    const { canvas, context } = this.crCanvas({ width: this.container.clientWidth, height: this.container.clientHeight });
-    this.container.prepend(canvas);
+    // const { canvas, context } = this.crCanvas({ width: this.container.clientWidth, height: this.container.clientHeight });
+    // this.container.prepend(canvas);
+    this.canvas = isometricPdfToSvg.containerPdf.children[0].children[0];
+    const context = this.canvas.getContext('2d');
     this.context = context;
 
     this.elemBrush = this.createCircle();
@@ -99,6 +101,7 @@ export class IsometricCanvasPaint {
   };
 
   onmouseup = (event) => {
+    if (!this.isDown) return;
     this.isDown = false;
     mapControlInit.control.enabled = true;
     this.elemBrush.style.display = 'none';
@@ -107,8 +110,9 @@ export class IsometricCanvasPaint {
   activateBrush(event) {
     const context = this.context;
 
-    const x = event.clientX;
-    const y = event.clientY;
+    const bound = this.canvas.getBoundingClientRect();
+    const x = -bound.x + event.clientX;
+    const y = -bound.y + event.clientY;
 
     context.strokeStyle = '#fff';
     context.globalCompositeOperation = 'source-over';

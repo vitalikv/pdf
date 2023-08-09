@@ -13,7 +13,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 export class IsometricPdfToSvg {
   container;
   inputFile;
-  containerSvg;
+  containerPdf;
   degree = 0;
 
   constructor() {
@@ -70,22 +70,27 @@ export class IsometricPdfToSvg {
     );
   }
 
-  async addSvgPage(page) {
+  addSvgPage(page) {
     const viewport = page.getViewport({ scale: 1.5, rotation: -90 });
+
+    const div = document.createElement('div');
+    div.style.cssText =
+      'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
+    div.innerHTML = `<div style="display: flex; align-items: center; justify-content: center;"></div>`;
+
+    this.containerPdf = div;
+    this.container.prepend(div);
+
+    this.pdfToCanvas({ div, page, viewport });
+    //this.pdfToSvg({ div, page, viewport });
+  }
+
+  async pdfToSvg({ div, page, viewport }) {
     const opList = await page.getOperatorList();
     const svgGfx = new pdfjsLib.SVGGraphics(page.commonObjs, page.objs);
     //svgGfx.embedFonts = true;
     const svg = await svgGfx.getSVG(opList, viewport);
-
-    const div = document.createElement('div');
-    div.style.cssText =
-      'position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
-    div.style.transform = 'rotate(0deg)';
-    //div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
-
-    this.containerSvg = div;
-    this.container.prepend(div);
-    div.prepend(svg);
+    div.children[0].prepend(svg);
 
     svg.setAttribute('pdf', true);
     svg.setAttribute('width', '100%');
@@ -99,20 +104,48 @@ export class IsometricPdfToSvg {
 
     svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     svg.removeAttribute('version');
+  }
 
-    console.log(svg, page, viewport);
+  pdfToCanvas({ div, page, viewport }) {
+    const canvas = document.createElement('canvas');
+    div.children[0].appendChild(canvas);
+
+    const context = canvas.getContext('2d');
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+
+    //canvas.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
+    canvas.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
+
+    page.render({ canvasContext: context, viewport });
+
+    const bound = canvas.getBoundingClientRect();
+    const width = bound.width;
+    const height = bound.height;
+
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+
+    console.log(canvas);
   }
 
   rotateSvg({ degree }) {
-    if (!this.containerSvg) return;
+    if (!this.containerPdf) return;
     this.degree += degree;
-    this.containerSvg.children[0].style.transform = `rotate(${this.degree}deg)`;
+    this.containerPdf.children[0].style.transform = `rotate(${this.degree}deg)`;
+
+    const bound = this.containerPdf.children[0].getBoundingClientRect();
+    const width = bound.width;
+    const height = bound.height;
+
+    this.containerPdf.children[0].children[0].style.width = width + 'px';
+    this.containerPdf.children[0].children[0].style.height = height + 'px';
   }
 
   deleteSvg() {
-    if (!this.containerSvg) return;
+    if (!this.containerPdf) return;
 
     this.degree = 0;
-    this.containerSvg.remove();
+    this.containerPdf.remove();
   }
 }
