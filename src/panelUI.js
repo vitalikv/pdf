@@ -46,7 +46,7 @@ export class PanelUI {
     };
 
     this.btns$[5].onmousedown = () => {
-      isometricCanvasPaint.init();
+      isometricCanvasPaint.activateBrush();
     };
   }
 
