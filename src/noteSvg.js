@@ -26,7 +26,14 @@ export class IsometricNoteSvg {
   }
 
   createContainerSvg() {
+    const containerSvg = this.container.querySelector('[nameId="svgTools"]');
+    if (containerSvg) {
+      this.containerSvg = containerSvg;
+      return;
+    }
+
     const div = document.createElement('div');
+    div.setAttribute('nameId', 'svgTools');
     //div.style.cssText = 'position: absolute; width: 1px; user-select: none; z-index: 4;';
     div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
@@ -57,9 +64,9 @@ export class IsometricNoteSvg {
     this.containerSvg.children[0].append(svg2);
     this.containerSvg.children[0].append(svg3);
 
-    svg1['userData'] = { tag: 'line', line: svg1, point: svg2, label: svg3 };
-    svg2['userData'] = { tag: 'point', line: svg1, point: svg2, label: svg3 };
-    svg3['userData'] = { tag: 'label', line: svg1, point: svg2, label: svg3 };
+    svg1['userData'] = { note1: true, tag: 'line', line: svg1, point: svg2, label: svg3 };
+    svg2['userData'] = { note1: true, tag: 'point', line: svg1, point: svg2, label: svg3 };
+    svg3['userData'] = { note1: true, tag: 'label', line: svg1, point: svg2, label: svg3 };
   }
 
   // создаем svg точки
@@ -163,7 +170,7 @@ export class IsometricNoteSvg {
     this.clearSelectedObj();
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
-      if (svg.contains(event.target)) {
+      if (svg['userData'] && svg['userData'].note1 && svg.contains(event.target)) {
         this.isDown = true;
         this.selectedObj.el = svg;
         //this.selectedObj.type = 'svgCircle';
