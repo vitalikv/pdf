@@ -76,7 +76,7 @@ export class IsometricSvgRuler {
   }
 
   // создаем svg точки
-  createSvgCircle({ ind, x, y, r = 2.2 }) {
+  createSvgCircle({ ind, x, y, r = 4.2 }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 
     svg.setAttribute('cx', x);
@@ -112,6 +112,92 @@ export class IsometricSvgRuler {
     return svg;
   }
 
+  createDivText({ p1, p2 }) {
+    const container = document.createElement('div');
+
+    const elem = document.createElement('div');
+    elem.textContent = 'размер';
+    elem.style.fontSize = '20px';
+    //elem.style.fontFamily = 'arial,sans-serif';
+    elem.style.fontFamily = 'Gostcadkk';
+    elem.style.cursor = 'pointer';
+    elem.style.padding = '10px';
+    container.append(elem);
+
+    container.style.position = 'absolute';
+    container.style.top = '-99999px';
+    container.style.left = '-99999px';
+    container.style.transform = 'translateX(-50%) translateY(-50%)';
+    container.style.zIndex = '4';
+
+    this.containerSvg.append(container);
+    this.initEventLabel(container);
+
+    this.setPosRotDivText({ container, p1, p2 });
+
+    return container;
+  }
+
+  initEventLabel(container) {
+    const elem = container.children[0];
+
+    elem.onpointerdown = (e) => {
+      //e.preventDefault();
+      //e.stopPropagation();
+
+      const elem2 = document.createElement('input');
+      elem2.textContent = '';
+      elem2.style.background = 'rgb(255, 255, 255)';
+      elem2.style.border = '1px solid rgb(204, 204, 204)';
+      elem2.style.width = '100px';
+      elem2.style.fontSize = '20px';
+      elem2.style.fontFamily = 'Gostcadkk';
+      elem2.style.borderRadius = '4px';
+      elem2.style.padding = '10px';
+      container.append(elem2);
+
+      elem2.focus();
+
+      elem2.onkeydown = (e2) => {
+        if (e2.code === 'Enter') {
+          const txt = elem2.value;
+          container.children[1].remove();
+
+          if (txt !== '') elem.textContent = txt;
+          elem.style.display = '';
+        }
+      };
+
+      elem.style.display = 'none';
+    };
+  }
+
+  setPosRotDivText({ container, p1, p2 }) {
+    const cx1 = Number(p1.getAttribute('cx'));
+    const cy1 = Number(p1.getAttribute('cy'));
+    const cx2 = Number(p2.getAttribute('cx'));
+    const cy2 = Number(p2.getAttribute('cy'));
+
+    const dir = new THREE.Vector2(cx2, cy2).sub(new THREE.Vector2(cx1, cy1));
+    const pos = dir.clone().divideScalar(2).add(new THREE.Vector2(cx1, cy1));
+
+    const rad = Math.atan2(dir.x, dir.y);
+    const offset = rad < 0 ? -30 : 30;
+    const dir2 = new THREE.Vector2(cy1 - cy2, cx2 - cx1).normalize();
+    pos.sub(new THREE.Vector2(dir2.x * offset, dir2.y * offset));
+
+    container.style.top = pos.y + 'px';
+    container.style.left = pos.x + 'px';
+
+    //----
+    let rotY = Math.atan2(dir.x, dir.y);
+    rotY += rotY <= 0.001 ? Math.PI / 2 : -Math.PI / 2;
+    rotY = THREE.MathUtils.radToDeg(rotY);
+
+    const elem = container.children[0];
+    elem.style.transform = 'rotate(' + -rotY + 'deg)';
+  }
+
   onmousedown = (event) => {
     if (this.newNote.type === 'add') {
       this.clearSelectedObj();
@@ -136,6 +222,10 @@ export class IsometricSvgRuler {
     }
 
     if (this.newNote.type === 'move' && this.newNote.p2) {
+      const divText = this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
+
+      this.newNote.p2['userData'].divText = divText;
+
       this.newNote.type = '';
       this.newNote.p2 = null;
 
@@ -183,18 +273,26 @@ export class IsometricSvgRuler {
 
     if (!this.isDown) return;
 
-    let svg = this.selectedObj.el;
+    const svg = this.selectedObj.el;
+    let change = false;
 
     if (svg['userData'].tag === 'line') {
       this.moveSvgLine({ svg, event });
+      change = true;
     }
 
     if (svg['userData'].tag === 'p1') {
       this.moveSvgPoint({ svg, event, type: 'p1' });
+      change = true;
     }
 
     if (svg['userData'].tag === 'p2') {
       this.moveSvgPoint({ svg, event, type: 'p2' });
+      change = true;
+    }
+
+    if (change) {
+      this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
     }
 
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
@@ -297,6 +395,7 @@ export class IsometricSvgRuler {
       p2: svg['userData'].p2,
       p1line: svg['userData'].p1['userData'].line2,
       p2line: svg['userData'].p2['userData'].line2,
+      divText: svg['userData'].p2['userData'].divText,
     };
   }
 
@@ -310,6 +409,7 @@ export class IsometricSvgRuler {
     elems.p2.remove();
     elems.p1line.remove();
     elems.p2line.remove();
+    elems.divText.remove();
 
     this.clearSelectedObj();
   }
