@@ -1,4 +1,4 @@
-import { mapControlInit, isometricNoteSvg, isometricSvgRuler, isometricCanvasPaint } from './index';
+import { mapControlInit, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint } from './index';
 
 export class IsometricModeService {
   isDown = false;
@@ -17,12 +17,16 @@ export class IsometricModeService {
   onKeyDown = (event) => {
     if (event.code === 'Delete') {
       isometricNoteSvg.deleteNote();
+      isometricNoteSvg2.deleteNote();
       isometricSvgRuler.deleteNote();
     }
   };
 
   onmousedown = (event) => {
     let result = isometricNoteSvg.onmousedown(event);
+    if (result) return;
+
+    result = isometricNoteSvg2.onmousedown(event);
     if (result) return;
 
     result = isometricSvgRuler.onmousedown(event);
@@ -39,6 +43,7 @@ export class IsometricModeService {
 
   onmousemove = (event) => {
     isometricNoteSvg.onmousemove(event);
+    isometricNoteSvg2.onmousemove(event);
     isometricSvgRuler.onmousemove(event);
     isometricCanvasPaint.onmousemove(event);
 
@@ -47,6 +52,7 @@ export class IsometricModeService {
 
   onmouseup = (event) => {
     isometricNoteSvg.onmouseup(event);
+    isometricNoteSvg2.onmouseup(event);
     isometricSvgRuler.onmouseup(event);
     isometricCanvasPaint.onmouseup(event);
 

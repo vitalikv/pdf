@@ -1,4 +1,4 @@
-import { isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricSvgRuler, isometricCanvasPaint } from './index';
+import { isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint } from './index';
 
 export class PanelUI {
   container$;
@@ -13,9 +13,10 @@ export class PanelUI {
     this.btns$[1] = this.crBtn({ txt: '-90' });
     this.btns$[2] = this.crBtn({ txt: '90' });
     this.btns$[3] = this.crBtn({ txt: 'Получить pdf' });
-    this.btns$[4] = this.crBtn({ txt: 'Выноска' });
-    this.btns$[5] = this.crBtn({ txt: 'Размер' });
-    this.btns$[6] = this.crBtn({ txt: 'Ластик' });
+    this.btns$[4] = this.crBtn({ txt: 'Выноска 1' });
+    this.btns$[5] = this.crBtn({ txt: 'Выноска 2' });
+    this.btns$[6] = this.crBtn({ txt: 'Размер' });
+    this.btns$[7] = this.crBtn({ txt: 'Ластик' });
 
     this.initEvent();
   }
@@ -47,10 +48,14 @@ export class PanelUI {
     };
 
     this.btns$[5].onmousedown = () => {
-      isometricSvgRuler.addRuler({ text: ['ТК1-СПС31.1/1-И-1-012', ''] });
+      isometricNoteSvg2.addNote({ text: ['ТК1-СПС31.1/1-И-1-012', ''] });
     };
 
     this.btns$[6].onmousedown = () => {
+      isometricSvgRuler.addRuler({});
+    };
+
+    this.btns$[7].onmousedown = () => {
       isometricCanvasPaint.activateBrush();
     };
   }

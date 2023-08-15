@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import './style/main.css';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { CSG } from 'three-csg-ts';
@@ -8,12 +9,13 @@ import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
 import { IsometricNoteSvg } from './noteSvg';
+import { IsometricNoteSvg2 } from './noteSvg2';
 import { IsometricSvgRuler } from './svgRuler';
 import { IsometricCanvasPaint } from './canvasPaint';
 
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
-export let isometricModeService, isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricSvgRuler, isometricCanvasPaint;
+export let isometricModeService, isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint;
 
 init();
 initServ();
@@ -108,6 +110,7 @@ function initServ() {
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
   isometricNoteSvg = new IsometricNoteSvg();
+  isometricNoteSvg2 = new IsometricNoteSvg2();
   isometricSvgRuler = new IsometricSvgRuler();
   isometricCanvasPaint = new IsometricCanvasPaint();
 }

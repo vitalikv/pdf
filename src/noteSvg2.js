@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 import { mapControlInit } from './index';
 
-export class IsometricNoteSvg {
+export class IsometricNoteSvg2 {
   container;
   containerSvg;
   newNote = { add: false, data: null };
@@ -64,9 +64,9 @@ export class IsometricNoteSvg {
     this.containerSvg.children[0].append(svg2);
     this.containerSvg.children[0].append(svg3);
 
-    svg1['userData'] = { note1: true, tag: 'line', line: svg1, point: svg2, label: svg3 };
-    svg2['userData'] = { note1: true, tag: 'point', line: svg1, point: svg2, label: svg3 };
-    svg3['userData'] = { note1: true, tag: 'label', line: svg1, point: svg2, label: svg3 };
+    svg1['userData'] = { note2: true, tag: 'line', line: svg1, point: svg2, label: svg3 };
+    svg2['userData'] = { note2: true, tag: 'point', line: svg1, point: svg2, label: svg3 };
+    svg3['userData'] = { note2: true, tag: 'label', line: svg1, point: svg2, label: svg3, ...svg3['userData'] };
   }
 
   // создаем svg точки
@@ -111,7 +111,7 @@ export class IsometricNoteSvg {
     const elem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 
     elem.setAttribute('x', x);
-    elem.setAttribute('y', Number(y) - 10);
+    elem.setAttribute('y', y);
     elem.setAttribute('textLength', '110');
     //elem.setAttribute('lengthAdjust', ' spacingAndGlyphs');
     //elem.setAttribute('transform', 'rotate(' + rot + ', ' + (bbox.x + bbox.width / 2) + ',' + (bbox.y + bbox.height / 2) + ')');
@@ -130,15 +130,16 @@ export class IsometricNoteSvg {
 
   createSvgLabel({ ind, x, y, r, text }) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    //g.setAttribute('fill', 'none');
 
-    const svgCircle = this.createSvgCircle({ ind: 0, x, y, r });
     const svgLine = this.createSvgLine({ x1: -r + x, y1: 0 + y, x2: r + x, y2: 0 + y });
-    const svgText = this.createSvgText({ x, y, txt: text[0] });
+    const svgText1 = text[0] !== '' ? this.createSvgText({ x, y: Number(y) - 10, txt: text[0] }) : null;
+    const svgText2 = text[1] !== '' ? this.createSvgText({ x, y: Number(y) + 10, txt: text[1] }) : null;
 
-    g.append(svgCircle);
     g.append(svgLine);
-    g.append(svgText);
+    g.append(svgText1);
+    g.append(svgText2);
+
+    g['userData'] = { svgLine, svgText1, svgText2 };
 
     this.containerSvg.children[0].append(g);
 
@@ -164,14 +165,14 @@ export class IsometricNoteSvg {
     }
 
     if (!this.containerSvg) return;
-    event.preventDefault();
-    event.stopPropagation();
+    // event.preventDefault();
+    // event.stopPropagation();
 
     this.isDown = false;
     this.clearSelectedObj();
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
-      if (svg['userData'] && svg['userData'].note1 && svg.contains(event.target)) {
+      if (svg['userData'] && svg['userData'].note2 && svg.contains(event.target)) {
         this.isDown = true;
         this.selectedObj.el = svg;
         //this.selectedObj.type = 'svgCircle';
@@ -263,20 +264,12 @@ export class IsometricNoteSvg {
   }
 
   moveSvgLabel({ svg, event, moveLine = true }) {
-    const svgCircle = svg.children[0];
-    const svgLine = svg.children[1];
-    const svgText1 = svg.children[2];
+    const svgLine = svg['userData'].svgLine;
+    const svgText1 = svg['userData'].svgText1;
+    const svgText2 = svg['userData'].svgText2;
 
-    const x = event.clientX;
-    const y = event.clientY;
-    const offsetX = x - this.offset.x;
-    const offsetY = y - this.offset.y;
-
-    const cx = svgCircle.getAttribute('cx');
-    const cy = svgCircle.getAttribute('cy');
-
-    svgCircle.setAttribute('cx', Number(cx) + offsetX);
-    svgCircle.setAttribute('cy', Number(cy) + offsetY);
+    const offsetX = event.clientX - this.offset.x;
+    const offsetY = event.clientY - this.offset.y;
 
     if (svgLine) {
       const x1 = svgLine.getAttribute('x1');
@@ -298,14 +291,61 @@ export class IsometricNoteSvg {
       svgText1.setAttribute('y', Number(y) + offsetY);
     }
 
+    if (svgText2) {
+      const x = svgText2.getAttribute('x');
+      const y = svgText2.getAttribute('y');
+
+      svgText2.setAttribute('x', Number(x) + offsetX);
+      svgText2.setAttribute('y', Number(y) + offsetY);
+    }
+
     if (moveLine && svg['userData'].line) {
       const svgLine = svg['userData'].line;
 
-      const x = svgCircle.getAttribute('cx');
-      const y = svgCircle.getAttribute('cy');
+      const x = svgLine.getAttribute('x2');
+      const y = svgLine.getAttribute('y2');
+      svgLine.setAttribute('x2', Number(x) + offsetX);
+      svgLine.setAttribute('y2', Number(y) + offsetY);
 
-      svgLine.setAttribute('x2', Number(x));
-      svgLine.setAttribute('y2', Number(y));
+      this.setPosLabel({ svgLine, svgLabel: svg });
+    }
+  }
+
+  setPosLabel({ svgLine, svgLabel }) {
+    const x1 = svgLine.getAttribute('x1');
+    const y1 = svgLine.getAttribute('y1');
+    const x2 = svgLine.getAttribute('x2');
+    const y2 = svgLine.getAttribute('y2');
+
+    const dir = new THREE.Vector2(x2, y2).sub(new THREE.Vector2(x1, y1));
+
+    const rad = Math.atan2(dir.x, dir.y);
+    const offset = rad < 0 ? -1 : 1;
+
+    const svgLine2 = svgLabel['userData'].svgLine;
+    const svgText1 = svgLabel['userData'].svgText1;
+    const svgText2 = svgLabel['userData'].svgText2;
+
+    const xs1 = svgLine2.getAttribute('x1');
+    const xs2 = svgLine2.getAttribute('x2');
+    const offsetX = Number(xs2) - Number(xs1);
+
+    if (svgLine2) {
+      if (offset === -1) {
+        svgLine2.setAttribute('x1', Number(x2) - (Number(xs2) - Number(xs1)));
+        svgLine2.setAttribute('x2', Number(x2));
+      } else {
+        svgLine2.setAttribute('x1', Number(x2));
+        svgLine2.setAttribute('x2', Number(x2) + (Number(xs2) - Number(xs1)));
+      }
+    }
+
+    if (svgText1) {
+      svgText1.setAttribute('x', Number(x2) + (offsetX / 2) * offset);
+    }
+
+    if (svgText2) {
+      svgText2.setAttribute('x', Number(x2) + (offsetX / 2) * offset);
     }
   }
 
