@@ -64,9 +64,9 @@ export class IsometricNoteSvg {
     this.containerSvg.children[0].append(svg2);
     this.containerSvg.children[0].append(svg3);
 
-    svg1['userData'] = { note1: true, tag: 'line', line: svg1, point: svg2, label: svg3 };
-    svg2['userData'] = { note1: true, tag: 'point', line: svg1, point: svg2, label: svg3 };
-    svg3['userData'] = { note1: true, tag: 'label', line: svg1, point: svg2, label: svg3 };
+    svg1['userData'] = { note1: true, tag: 'line', lock: false, line: svg1, point: svg2, label: svg3 };
+    svg2['userData'] = { note1: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3 };
+    svg3['userData'] = { note1: true, tag: 'label', lock: false, line: svg1, point: svg2, label: svg3 };
   }
 
   // создаем svg точки
@@ -172,9 +172,15 @@ export class IsometricNoteSvg {
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].note1 && svg.contains(event.target)) {
-        this.isDown = true;
-        this.selectedObj.el = svg;
-        //this.selectedObj.type = 'svgCircle';
+        if (!svg['userData'].lock) {
+          this.isDown = true;
+          this.selectedObj.el = svg;
+          //this.selectedObj.type = 'svgCircle';
+        }
+
+        if (svg['userData'].tag === 'point' && event.button !== 0) {
+          this.setLockOnSvg(svg);
+        }
       }
     });
 
@@ -307,6 +313,18 @@ export class IsometricNoteSvg {
       svgLine.setAttribute('x2', Number(x));
       svgLine.setAttribute('y2', Number(y));
     }
+  }
+
+  setLockOnSvg(svg) {
+    const elems = { line: svg['userData'].line, point: svg['userData'].point, label: svg['userData'].label };
+
+    elems.line['userData'].lock = !elems.line['userData'].lock;
+    elems.point['userData'].lock = !elems.point['userData'].lock;
+    elems.label['userData'].lock = !elems.label['userData'].lock;
+
+    const fill = elems.point['userData'].lock ? '#000' : '#fff';
+
+    svg.setAttribute('fill', fill);
   }
 
   clearSelectedObj() {
