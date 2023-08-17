@@ -12,25 +12,30 @@ export class IsometricExportPdf {
   export() {
     if (!isometricPdfToSvg.containerPdf) return;
 
-    const container = isometricPdfToSvg.containerPdf;
-    const bound = document.querySelector('#labels-container-div').getBoundingClientRect();
-    const width = bound.width;
-    const height = bound.height;
-
     const pdf = new jsPDF({
       orientation: 'landscape',
       unit: 'px',
-      format: [width, height],
+      format: 'a4',
     });
+    pdf.internal.scaleFactor = 30;
+
+    const container = isometricPdfToSvg.containerPdf;
+    const bound = container.getBoundingClientRect();
+    const width = bound.width;
+    const height = bound.height;
+    const width2 = pdf.internal.pageSize.getWidth();
+    const height2 = pdf.internal.pageSize.getHeight();
+
+    const aspect = width / width2 > height / height2 ? width / width2 : height / height2;
 
     //const tasks = [isometricPdfToSvg.containerPdf, isometricNoteSvg.containerSvg].map((tab) => html2canvas(tab));
     const tasks = [document.querySelector('#labels-container-div')].map((tab) => html2canvas(tab));
 
     Promise.all(tasks).then((canvases) => {
       for (const canvas of canvases) {
-        console.log(canvas);
+        //console.log(canvas);
         const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', 0, 0, width, height);
+        pdf.addImage(imgData, 'PNG', 0, 0, width / aspect, height / aspect);
       }
 
       pdf.save('isometry.pdf');

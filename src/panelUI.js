@@ -17,6 +17,7 @@ export class PanelUI {
     this.btns$[5] = this.crBtn({ txt: 'Выноска 2' });
     this.btns$[6] = this.crBtn({ txt: 'Размер' });
     this.btns$[7] = this.crBtn({ txt: 'Ластик' });
+    this.btns$[8] = this.crList();
 
     this.initEvent();
   }
@@ -58,6 +59,10 @@ export class PanelUI {
     this.btns$[7].onmousedown = () => {
       isometricCanvasPaint.activateBrush();
     };
+
+    this.btns$[8].onchange = (e) => {
+      isometricPdfToSvg.setScale({ value: e.target.value });
+    };
   }
 
   crPanel() {
@@ -81,6 +86,25 @@ export class PanelUI {
     <div style="${css}">
       ${txt}
     </div>`;
+
+    let div = document.createElement('div');
+    div.innerHTML = html;
+    div = div.children[0];
+
+    this.container$.querySelector('[nameId="btns"]').append(div);
+
+    return div;
+  }
+
+  crList() {
+    const html = `
+    <select style="box-sizing: border-box; width: 100%; height: 30px; margin-top: 15px; font-size: 16px; text-align: center; color: #666; border-radius: 4px; border: 1px solid #ccc; background: #fff;">											
+      <option value="25">25</option>
+      <option value="50">50</option>
+      <option value="100" selected="">100</option>
+      <option value="150">150</option>
+      <option value="200">200</option>
+    </select>`;
 
     let div = document.createElement('div');
     div.innerHTML = html;

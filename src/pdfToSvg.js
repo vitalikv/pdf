@@ -14,6 +14,7 @@ export class IsometricPdfToSvg {
   container;
   inputFile;
   containerPdf;
+  canvasPdf;
   degree = 0;
 
   constructor() {
@@ -71,17 +72,17 @@ export class IsometricPdfToSvg {
   }
 
   addSvgPage(page) {
-    const viewport = page.getViewport({ scale: 1.5, rotation: -90 });
+    const viewport = page.getViewport({ scale: 4.5, rotation: -90 });
 
     const div = document.createElement('div');
     div.style.cssText =
       'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
-    div.innerHTML = `<div style="display: flex; align-items: center; justify-content: center;"></div>`;
+    div.innerHTML = `<div style="position: relative; width: 100%; height: 100%;"></div>`;
 
     this.containerPdf = div;
     this.container.prepend(div);
 
-    this.pdfToCanvas({ div, page, viewport });
+    this.canvasPdf = this.pdfToCanvas({ div: this.containerPdf.children[0], page, viewport });
     //this.pdfToSvg({ div, page, viewport });
   }
 
@@ -108,41 +109,85 @@ export class IsometricPdfToSvg {
 
   pdfToCanvas({ div, page, viewport }) {
     const canvas = document.createElement('canvas');
-    div.children[0].appendChild(canvas);
+    div.appendChild(canvas);
 
     const context = canvas.getContext('2d');
     canvas.height = viewport.height;
     canvas.width = viewport.width;
 
-    //canvas.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
-    canvas.style.cssText = 'width: 100%; height: 100%; object-fit: contain;';
+    //canvas.style.cssText = 'position: absolute; inset: 0px; width: 100%; height: 100%; object-fit: contain;';
 
     page.render({ canvasContext: context, viewport });
 
-    const bound = canvas.getBoundingClientRect();
+    canvas.style.cssText = 'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%);';
+
+    const bound = div.getBoundingClientRect();
     const width = bound.width;
     const height = bound.height;
 
-    // canvas.width = width;
-    // canvas.height = height;
+    div.style.width = width + 'px';
+    div.style.height = height + 'px';
 
-    canvas.style.width = width + 'px';
-    canvas.style.height = height + 'px';
+    div['userData'] = { width, height };
 
-    console.log(canvas);
+    this.updateSizePdf();
+
+    return canvas;
   }
 
   rotateSvg({ degree }) {
     if (!this.containerPdf) return;
     this.degree += degree;
+
+    const w = this.containerPdf.children[0].style.width;
+    const h = this.containerPdf.children[0].style.height;
+
     this.containerPdf.children[0].style.transform = `rotate(${this.degree}deg)`;
 
-    const bound = this.containerPdf.children[0].getBoundingClientRect();
-    const width = bound.width;
-    const height = bound.height;
+    const div = this.containerPdf.children[0];
+    div.style.width = h;
+    div.style.height = w;
+    const uW = div['userData'].width;
+    const uH = div['userData'].height;
+    div['userData'].width = uH;
+    div['userData'].height = uW;
+    //console.log(this.containerPdf.children[0].style.width);
 
-    this.containerPdf.children[0].children[0].style.width = width + 'px';
-    this.containerPdf.children[0].children[0].style.height = height + 'px';
+    this.updateSizePdf();
+  }
+
+  updateSizePdf() {
+    const div = this.containerPdf.children[0];
+    const canvas = div.children[0];
+
+    const width = canvas.width;
+    const height = canvas.height;
+
+    // const width2 = div.clientWidth;
+    // const height2 = div.clientHeight;
+    const width2 = parseInt(div.style.width, 10);
+    const height2 = parseInt(div.style.height, 10);
+
+    const aspect = width / width2 > height / height2 ? width / width2 : height / height2;
+
+    canvas.style.width = canvas.width / aspect + 'px';
+    canvas.style.height = canvas.height / aspect + 'px';
+  }
+
+  setScale({ value }) {
+    if (!this.containerPdf) return;
+    value = Number(value) / 100;
+
+    const div = this.containerPdf.children[0];
+    const w = div['userData'].width * value;
+    const h = div['userData'].height * value;
+
+    div.style.width = Math.round(w * 100) / 100 + 'px';
+    div.style.height = Math.round(h * 100) / 100 + 'px';
+
+    console.log(div, w, h, div.clientWidth, div.clientHeight, div.style.width, div.style.height);
+
+    this.updateSizePdf();
   }
 
   deleteSvg() {
