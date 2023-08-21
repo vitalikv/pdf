@@ -8,7 +8,7 @@ export class IsometricCutBox {
   isMove = false;
   container;
   elemCutBox = null;
-  offset = new THREE.Vector2();
+  startOffset = new THREE.Vector2();
   startPos = new THREE.Vector2();
   endPos = new THREE.Vector2();
 
@@ -19,7 +19,8 @@ export class IsometricCutBox {
 
   createElemCutBox() {
     const div = document.createElement('div');
-    div.style.cssText = 'position: absolute; width: 0; height: 0; line-height: 0; z-index: 100; visibility: hidden; border: 2px dashed #ff0000;';
+    div.style.cssText =
+      'position: absolute; width: 0; height: 0; line-height: 0; z-index: 100; visibility: hidden; border: 2px dashed #ff0000; box-sizing: border-box;';
     this.container.prepend(div);
 
     return div;
@@ -37,6 +38,10 @@ export class IsometricCutBox {
   activateCutBox() {
     if (!isometricPdfToSvg.canvasPdf) return;
     this.activated = true;
+
+    const bound = this.container.getBoundingClientRect();
+    this.startOffset.x = bound.left;
+    this.startOffset.y = bound.top;
   }
 
   deActivateCutBox() {
@@ -49,7 +54,10 @@ export class IsometricCutBox {
   }
 
   coords(event) {
-    return new THREE.Vector2(event.clientX, event.clientY);
+    const x = -this.startOffset.x + event.clientX;
+    const y = -this.startOffset.y + event.clientY;
+
+    return new THREE.Vector2(x, y);
   }
 
   onmousedown = (event) => {
@@ -57,8 +65,8 @@ export class IsometricCutBox {
 
     this.cutBoxVisibility('hidden');
 
-    this.offset = this.coords(event);
     this.startPos = this.coords(event);
+    this.endPos = this.coords(event);
 
     this.isDown = true;
 
@@ -72,8 +80,8 @@ export class IsometricCutBox {
 
     this.endPos = this.coords(event);
 
-    let x1 = this.offset.x;
-    let y1 = this.offset.y;
+    let x1 = this.startPos.x;
+    let y1 = this.startPos.y;
     let { x: x2, y: y2 } = this.coords(event);
 
     if (x1 === x2) {
@@ -114,7 +122,7 @@ export class IsometricCutBox {
     const w = Math.abs(this.startPos.x - this.endPos.x);
     const h = Math.abs(this.startPos.y - this.endPos.y);
 
-    if (w < 10 || h < 10) return;
+    if (w < 30 || h < 30) return;
 
     this.getFragment(x, y, w, h);
   }
@@ -124,11 +132,10 @@ export class IsometricCutBox {
 
     const canvas2 = document.createElement('canvas');
     const context = canvas2.getContext('2d');
-
-    const ratio = this.getRatioPdf();
     const bound = canvas.getBoundingClientRect();
-    offsetX = (offsetX - bound.x) * ratio;
-    offsetY = (offsetY - bound.y) * ratio;
+    const ratio = this.getRatioPdf();
+    offsetX = (-bound.x + this.startOffset.x + offsetX) * ratio;
+    offsetY = (-bound.y + this.startOffset.y + offsetY) * ratio;
 
     //console.log(bound.x, bound.y, offsetX, offsetY, ' | ', width * ratio, height * ratio);
 
