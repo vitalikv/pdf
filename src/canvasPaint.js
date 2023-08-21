@@ -6,33 +6,45 @@ export class IsometricCanvasPaint {
   activated = false;
   isDown = false;
   lineWidth = 20;
+  ratio = 1;
   canvas;
   context;
   elemBrush;
   offset = new THREE.Vector2();
 
   constructor() {
-    //this.activateBrush();
+    // if (!this.container) this.getContainer();
   }
 
   activateBrush() {
+    if (!isometricPdfToSvg.canvasPdf) return;
     if (!this.container) this.getContainer();
 
     // const { canvas, context } = this.crCanvas({ width: this.container.clientWidth, height: this.container.clientHeight });
     // this.container.prepend(canvas);
-    this.canvas = isometricPdfToSvg.containerPdf.children[0].children[0];
+    this.canvas = isometricPdfToSvg.canvasPdf;
 
     const context = this.canvas.getContext('2d');
     this.context = context;
     console.log(this.context);
 
-    const bound = isometricPdfToSvg.containerPdf.children[0].children[0].getBoundingClientRect();
+    const bound = isometricPdfToSvg.canvasPdf.getBoundingClientRect();
     this.x = this.canvas.width / bound.width;
     this.y = this.canvas.height / bound.height;
 
     if (!this.elemBrush) this.elemBrush = this.createCircle();
+    this.getRatioPdf();
     this.elemBrush.style.display = '';
     this.activated = true;
+  }
+
+  deActivateBrush() {
+    if (!this.elemBrush) return;
+
+    this.activated = false;
+    this.elemBrush.style.display = 'none';
+    this.elemBrush.style.top = '-99999px';
+    this.elemBrush.style.left = '-99999px';
   }
 
   getContainer() {
@@ -84,31 +96,28 @@ export class IsometricCanvasPaint {
     return div;
   }
 
-  setOffset(event) {
-    const bound = isometricPdfToSvg.containerPdf.children[0].getBoundingClientRect();
-    const x = -bound.x + event.clientX * this.x;
+  coords(event) {
+    const bound = isometricPdfToSvg.canvasPdf.getBoundingClientRect();
+    const x = (-bound.x + event.clientX) * this.x;
     const y = (-bound.y + event.clientY) * this.y;
-    this.offset = new THREE.Vector2(x, y);
+
+    return new THREE.Vector2(x, y);
+  }
+
+  setOffset(event) {
+    this.offset = this.coords(event);
   }
 
   onmousedown = (event) => {
     if (!this.activated) return;
 
     if (event.button !== 0) {
-      this.activated = false;
-      this.elemBrush.style.display = 'none';
-      this.elemBrush.style.top = '-99999px';
-      this.elemBrush.style.left = '-99999px';
-
+      this.deActivateBrush();
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
-
-    if (!isometricPdfToSvg.containerPdf.children[0].contains(event.target)) {
-      console.log(7777);
-    }
 
     this.isDown = true;
     mapControlInit.control.enabled = false;
@@ -142,16 +151,14 @@ export class IsometricCanvasPaint {
   showBrush(event) {
     const context = this.context;
 
-    const bound = isometricPdfToSvg.containerPdf.children[0].getBoundingClientRect();
-    const x = -bound.x + event.clientX * this.x;
-    const y = (-bound.y + event.clientY) * this.y;
+    const { x, y } = this.coords(event);
 
     context.strokeStyle = '#ff0000';
     context.globalCompositeOperation = 'source-over';
     context.lineJoin = context.lineCap = 'round';
 
     context.globalAlpha = '1';
-    context.lineWidth = this.lineWidth;
+    context.lineWidth = this.lineWidth * this.ratio;
     context.beginPath();
     context.moveTo(this.offset.x, this.offset.y);
     context.lineTo(x, y);
@@ -166,5 +173,19 @@ export class IsometricCanvasPaint {
 
     this.elemBrush.style.top = y2 + 'px';
     this.elemBrush.style.left = x2 + 'px';
+  }
+
+  getRatioPdf() {
+    const div = isometricPdfToSvg.containerPdf;
+    const canvas = isometricPdfToSvg.canvasPdf;
+
+    const scalePdf = isometricPdfToSvg.scalePdf;
+    const width = canvas.width / scalePdf;
+    const height = canvas.height / scalePdf;
+
+    const width2 = div.clientWidth;
+    const height2 = div.clientHeight;
+
+    this.ratio = width / width2 > height / height2 ? width / width2 : height / height2;
   }
 }

@@ -14,32 +14,14 @@ export class IsometricSvgRuler {
     //this.addNote();
   }
 
+  init({ container, containerSvg }) {
+    this.container = container;
+    this.containerSvg = containerSvg;
+  }
+
   addRuler(data) {
-    if (!this.container) this.getContainer();
-    if (!this.containerSvg) this.createContainerSvg();
     this.newNote.type = 'add';
     this.newNote.data = data;
-  }
-
-  getContainer() {
-    this.container = document.querySelector('#labels-container-div');
-  }
-
-  createContainerSvg() {
-    const containerSvg = this.container.querySelector('[nameId="svgTools"]');
-    if (containerSvg) {
-      this.containerSvg = containerSvg;
-      return;
-    }
-
-    const div = document.createElement('div');
-    div.setAttribute('nameId', 'svgTools');
-    //div.style.cssText = 'position: absolute; width: 1px; user-select: none; z-index: 4;';
-    div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
-    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
-
-    this.containerSvg = div;
-    this.container.prepend(div);
   }
 
   // создать выноску
@@ -246,10 +228,6 @@ export class IsometricSvgRuler {
       }
     });
 
-    if (this.isDown) {
-      mapControlInit.control.enabled = false;
-    }
-
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
 
     return this.isDown;
@@ -300,7 +278,6 @@ export class IsometricSvgRuler {
 
   onmouseup = (event) => {
     this.isDown = false;
-    mapControlInit.control.enabled = true;
   };
 
   moveSvgLine({ svg, event }) {

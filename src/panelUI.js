@@ -1,4 +1,4 @@
-import { isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint } from './index';
+import { isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint, isometricCutBox } from './index';
 
 export class PanelUI {
   container$;
@@ -18,6 +18,7 @@ export class PanelUI {
     this.btns$[6] = this.crBtn({ txt: 'Размер' });
     this.btns$[7] = this.crBtn({ txt: 'Ластик' });
     this.btns$[8] = this.crList();
+    this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
 
     this.initEvent();
   }
@@ -62,6 +63,14 @@ export class PanelUI {
 
     this.btns$[8].onchange = (e) => {
       isometricPdfToSvg.setScale({ value: e.target.value });
+    };
+
+    this.btns$[9].onmousedown = (e) => {
+      if (!isometricCutBox.activated) {
+        isometricCutBox.activateCutBox();
+      } else {
+        isometricCutBox.deActivateCutBox();
+      }
     };
   }
 

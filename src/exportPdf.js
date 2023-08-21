@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 import { svg2pdf } from 'svg2pdf.js'; // npm i svg2pdf.js
 import html2canvas from 'html2canvas';
 
-import { isometricPdfToSvg, isometricNoteSvg } from './index';
+import { isometricPdfToSvg, isometricSvgManager } from './index';
 
 export class IsometricExportPdf {
   constructor() {
@@ -12,32 +12,36 @@ export class IsometricExportPdf {
   export() {
     if (!isometricPdfToSvg.containerPdf) return;
 
+    const format = isometricPdfToSvg.format;
+
     const pdf = new jsPDF({
-      orientation: 'landscape',
+      orientation: format.orientation, // "portrait" or "landscape"
       unit: 'px',
-      format: 'a4',
+      format: format.size,
+      compress: true,
     });
     pdf.internal.scaleFactor = 30;
 
-    const container = isometricPdfToSvg.containerPdf;
-    const bound = container.getBoundingClientRect();
-    const width = bound.width;
-    const height = bound.height;
-    const width2 = pdf.internal.pageSize.getWidth();
-    const height2 = pdf.internal.pageSize.getHeight();
+    const widthPdf = pdf.internal.pageSize.getWidth();
+    const heightPdf = pdf.internal.pageSize.getHeight();
 
-    const aspect = width / width2 > height / height2 ? width / width2 : height / height2;
+    const divs = [isometricPdfToSvg.canvasPdf];
+    if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
 
-    //const tasks = [isometricPdfToSvg.containerPdf, isometricNoteSvg.containerSvg].map((tab) => html2canvas(tab));
-    const tasks = [document.querySelector('#labels-container-div')].map((tab) => html2canvas(tab));
+    const tasks = divs.map((div) => html2canvas(div, { backgroundColor: null, scale: 2 }));
+    //const tasks = [document.querySelector('#labels-container-div')].map((tab) => html2canvas(tab));
 
     Promise.all(tasks).then((canvases) => {
       for (const canvas of canvases) {
-        //console.log(canvas);
-        const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', 0, 0, width / aspect, height / aspect);
-      }
+        const width = parseInt(canvas.style.width, 10);
+        const height = parseInt(canvas.style.height, 10);
+        const aspect = width / widthPdf > height / heightPdf ? width / widthPdf : height / heightPdf;
+        const w = width / aspect;
+        const h = height / aspect;
 
+        const imgData = canvas.toDataURL('image/png');
+        pdf.addImage(imgData, 'PNG', 0, 0, w, h);
+      }
       pdf.save('isometry.pdf');
     });
   }

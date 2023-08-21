@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { mapControlInit } from './index';
+import { mapControlInit, isometricSvgManager } from './index';
 
 export class IsometricNoteSvg {
   container;
@@ -14,32 +14,14 @@ export class IsometricNoteSvg {
     //this.addNote();
   }
 
+  init({ container, containerSvg }) {
+    this.container = container;
+    this.containerSvg = containerSvg;
+  }
+
   addNote(data) {
-    if (!this.container) this.getContainer();
-    if (!this.containerSvg) this.createContainerSvg();
     this.newNote.add = true;
     this.newNote.data = data;
-  }
-
-  getContainer() {
-    this.container = document.querySelector('#labels-container-div');
-  }
-
-  createContainerSvg() {
-    const containerSvg = this.container.querySelector('[nameId="svgTools"]');
-    if (containerSvg) {
-      this.containerSvg = containerSvg;
-      return;
-    }
-
-    const div = document.createElement('div');
-    div.setAttribute('nameId', 'svgTools');
-    //div.style.cssText = 'position: absolute; width: 1px; user-select: none; z-index: 4;';
-    div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
-    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
-
-    this.containerSvg = div;
-    this.container.prepend(div);
   }
 
   // создать выноску
@@ -167,6 +149,8 @@ export class IsometricNoteSvg {
     event.preventDefault();
     event.stopPropagation();
 
+    if (this.selectedObj.el) this.actElem(this.selectedObj.el);
+
     this.isDown = false;
     this.clearSelectedObj();
 
@@ -176,6 +160,7 @@ export class IsometricNoteSvg {
           this.isDown = true;
           this.selectedObj.el = svg;
           //this.selectedObj.type = 'svgCircle';
+          this.actElem(svg, true);
         }
 
         if (svg['userData'].tag === 'point' && event.button !== 0) {
@@ -183,10 +168,6 @@ export class IsometricNoteSvg {
         }
       }
     });
-
-    if (this.isDown) {
-      mapControlInit.control.enabled = false;
-    }
 
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
 
@@ -216,7 +197,6 @@ export class IsometricNoteSvg {
 
   onmouseup = (event) => {
     this.isDown = false;
-    mapControlInit.control.enabled = true;
   };
 
   moveSvgLine({ svg, event }) {
@@ -313,6 +293,20 @@ export class IsometricNoteSvg {
       svgLine.setAttribute('x2', Number(x));
       svgLine.setAttribute('y2', Number(y));
     }
+  }
+
+  actElem(svg, act = false) {
+    const elems = { line: svg['userData'].line, point: svg['userData'].point, label: svg['userData'].label };
+
+    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+
+    elems.line.setAttribute('stroke', stroke);
+    elems.point.setAttribute('stroke', stroke);
+
+    const svgCircle = elems.label.children[0];
+    const svgLine = elems.label.children[1];
+    svgCircle.setAttribute('stroke', stroke);
+    svgLine.setAttribute('stroke', stroke);
   }
 
   setLockOnSvg(svg) {

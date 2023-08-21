@@ -8,14 +8,24 @@ import { PanelUI } from './panelUI';
 import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
+import { IsometricSvgManager } from './svgManager';
 import { IsometricNoteSvg } from './noteSvg';
 import { IsometricNoteSvg2 } from './noteSvg2';
 import { IsometricSvgRuler } from './svgRuler';
 import { IsometricCanvasPaint } from './canvasPaint';
+import { IsometricCutBox } from './cutBox';
 
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
-export let isometricModeService, isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint;
+export let isometricModeService,
+  isometricPdfToSvg,
+  isometricExportPdf,
+  isometricSvgManager,
+  isometricNoteSvg,
+  isometricNoteSvg2,
+  isometricSvgRuler,
+  isometricCanvasPaint,
+  isometricCutBox;
 
 init();
 initServ();
@@ -109,10 +119,14 @@ function initServ() {
   isometricModeService = new IsometricModeService();
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
+  isometricSvgManager = new IsometricSvgManager();
   isometricNoteSvg = new IsometricNoteSvg();
   isometricNoteSvg2 = new IsometricNoteSvg2();
   isometricSvgRuler = new IsometricSvgRuler();
   isometricCanvasPaint = new IsometricCanvasPaint();
+  isometricCutBox = new IsometricCutBox();
+
+  isometricSvgManager.init();
 }
 
 function render() {
