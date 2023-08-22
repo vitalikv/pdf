@@ -25,25 +25,104 @@ export class IsometricExportPdf {
     const widthPdf = pdf.internal.pageSize.getWidth();
     const heightPdf = pdf.internal.pageSize.getHeight();
 
+    // this.getScreen({ widthPdf, heightPdf });
+    // return;
+
     const divs = [isometricPdfToSvg.canvasPdf];
     if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
 
     const tasks = divs.map((div) => html2canvas(div, { backgroundColor: null, scale: 2 }));
-    //const tasks = [document.querySelector('#labels-container-div')].map((tab) => html2canvas(tab));
 
     Promise.all(tasks).then((canvases) => {
-      for (const canvas of canvases) {
-        const width = parseInt(canvas.style.width, 10);
-        const height = parseInt(canvas.style.height, 10);
-        const aspect = width / widthPdf > height / heightPdf ? width / widthPdf : height / heightPdf;
-        const w = width / aspect;
-        const h = height / aspect;
+      const canvas = document.createElement('canvas');
+      canvas.width = isometricPdfToSvg.canvasPdf.width;
+      canvas.height = isometricPdfToSvg.canvasPdf.height;
+      const context = canvas.getContext('2d');
 
-        const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', 0, 0, w, h);
+      const width = parseInt(isometricPdfToSvg.canvasPdf.style.width, 10);
+      const height = parseInt(isometricPdfToSvg.canvasPdf.style.height, 10);
+      const aspect = width / widthPdf > height / heightPdf ? width / widthPdf : height / heightPdf;
+      const w = width / aspect;
+      const h = height / aspect;
+
+      for (const canvas2 of canvases) {
+        const hRatio = canvas.width / canvas2.width;
+        const vRatio = canvas.height / canvas2.height;
+        const ratio = Math.max(hRatio, vRatio);
+        const centerShift_x = (canvas.width - canvas2.width * ratio) / 2;
+        const centerShift_y = (canvas.height - canvas2.height * ratio) / 2;
+
+        context.drawImage(canvas2, 0, 0, canvas2.width, canvas2.height, centerShift_x, centerShift_y, canvas2.width * ratio, canvas2.height * ratio);
       }
+
+      const strMime = 'image/png';
+      const imgData = canvas.toDataURL(strMime);
+
+      pdf.addImage(imgData, 'PNG', 0, 0, w, h);
       pdf.save('isometry.pdf');
     });
+
+    // Promise.all(tasks).then((canvases) => {
+    //   for (const canvas of canvases) {
+    //     const width = parseInt(canvas.style.width, 10);
+    //     const height = parseInt(canvas.style.height, 10);
+    //     const aspect = width / widthPdf > height / heightPdf ? width / widthPdf : height / heightPdf;
+    //     const w = width / aspect;
+    //     const h = height / aspect;
+
+    //     const imgData = canvas.toDataURL('image/png');
+    //     pdf.addImage(imgData, 'PNG', 0, 0, w, h);
+    //   }
+    //   pdf.save('isometry.pdf');
+    // });
+  }
+
+  getScreen() {
+    const scalePdf = isometricPdfToSvg.scalePdf;
+    //isometricPdfToSvg.setScale({ value: 100 });
+
+    const divs = [isometricPdfToSvg.canvasPdf];
+    if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
+
+    const scale = 2;
+    const tasks = divs.map((div) => html2canvas(div, { backgroundColor: null, scale }));
+
+    const bound = isometricPdfToSvg.canvasPdf.getBoundingClientRect();
+
+    Promise.all(tasks).then((canvases) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = isometricPdfToSvg.canvasPdf.width;
+      canvas.height = isometricPdfToSvg.canvasPdf.height;
+      const context = canvas.getContext('2d');
+
+      for (const canvas2 of canvases) {
+        const hRatio = canvas.width / canvas2.width;
+        const vRatio = canvas.height / canvas2.height;
+        const ratio = Math.max(hRatio, vRatio);
+        const centerShift_x = (canvas.width - canvas2.width * ratio) / 2;
+        const centerShift_y = (canvas.height - canvas2.height * ratio) / 2;
+
+        context.drawImage(canvas2, 0, 0, canvas2.width, canvas2.height, centerShift_x, centerShift_y, canvas2.width * ratio, canvas2.height * ratio);
+      }
+
+      const strMime = 'image/png';
+      const imgData = canvas.toDataURL(strMime);
+
+      this.saveImg({
+        data: imgData.replace(strMime, 'image/octet-stream'),
+        name: 'isometry.png',
+      });
+    });
+  }
+
+  saveImg({ name, data }) {
+    const link = document.createElement('a');
+
+    document.body.appendChild(link);
+    link.download = name;
+    link.href = data;
+    link.click();
+    document.body.removeChild(link);
   }
 
   export2() {

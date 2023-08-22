@@ -16,7 +16,7 @@ export class IsometricPdfToSvg {
   containerPdf;
   canvasPdf;
   scalePdf = 1;
-  format = { size: 'a4', orientation: 'landscape' };
+  format = { size: 'a3', orientation: 'landscape' };
 
   constructor() {
     this.inputFile = this.createInputFile();
