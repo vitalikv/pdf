@@ -127,7 +127,8 @@ export class IsometricPdfToSvg {
 
     page.render({ canvasContext: context, viewport });
 
-    canvas.style.cssText = 'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%);';
+    canvas.style.cssText =
+      'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%); border: 1px solid #515151;';
 
     return canvas;
   }
@@ -193,6 +194,7 @@ export class IsometricPdfToSvg {
 
     canvas.style.width = (canvas.width / aspect) * this.scalePdf + 'px';
     canvas.style.height = (canvas.height / aspect) * this.scalePdf + 'px';
+    canvas.style.border = '1px solid #515151';
   }
 
   setScale({ value }) {

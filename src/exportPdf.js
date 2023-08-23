@@ -81,8 +81,9 @@ export class IsometricExportPdf {
     const scalePdf = isometricPdfToSvg.scalePdf;
     //isometricPdfToSvg.setScale({ value: 100 });
 
-    const divs = [isometricPdfToSvg.canvasPdf];
-    if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
+    const container = document.querySelector('#labels-container-div');
+    const divs = [container];
+    //if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
 
     const scale = 2;
     const tasks = divs.map((div) => html2canvas(div, { backgroundColor: null, scale }));

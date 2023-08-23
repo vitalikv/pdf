@@ -30,7 +30,12 @@ export class IsometricCutBox {
     if (!this.activated) return;
 
     if (event.code === 'Enter') {
-      this.cutPdfImage();
+      this.cutPdfImage(1);
+      this.cutBoxVisibility('hidden');
+    }
+
+    if (event.code === 'Delete') {
+      this.cutPdfImage(2);
       this.cutBoxVisibility('hidden');
     }
   };
@@ -116,15 +121,20 @@ export class IsometricCutBox {
     this.isMove = false;
   };
 
-  cutPdfImage() {
+  cutPdfImage(type) {
     const x = Math.min(this.startPos.x, this.endPos.x);
     const y = Math.min(this.startPos.y, this.endPos.y);
     const w = Math.abs(this.startPos.x - this.endPos.x);
     const h = Math.abs(this.startPos.y - this.endPos.y);
 
-    if (w < 30 || h < 30) return;
+    if (type === 1) {
+      if (w < 30 || h < 30) return;
+      this.getFragment(x, y, w, h);
+    }
 
-    this.getFragment(x, y, w, h);
+    if (type === 2) {
+      this.cleareFragment(x, y, w, h);
+    }
   }
 
   getFragment(offsetX, offsetY, width, height) {
@@ -147,6 +157,18 @@ export class IsometricCutBox {
 
     isometricPdfToSvg.canvasPdf = canvas2;
     isometricPdfToSvg.updateCanvasPdf();
+  }
+
+  cleareFragment(offsetX, offsetY, width, height) {
+    const canvas = isometricPdfToSvg.canvasPdf;
+    const context = canvas.getContext('2d');
+
+    const bound = canvas.getBoundingClientRect();
+    const ratio = this.getRatioPdf();
+    offsetX = (-bound.x + this.startOffset.x + offsetX) * ratio;
+    offsetY = (-bound.y + this.startOffset.y + offsetY) * ratio;
+
+    context.clearRect(offsetX, offsetY, width * ratio, height * ratio);
   }
 
   getRatioPdf() {

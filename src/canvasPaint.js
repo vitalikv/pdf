@@ -70,6 +70,10 @@ export class IsometricCanvasPaint {
   }
 
   createCircle() {
+    if (this.elemBrush) {
+      this.elemBrush.remove();
+    }
+
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     const radius = this.lineWidth / 2;
@@ -94,6 +98,12 @@ export class IsometricCanvasPaint {
     this.container.prepend(div);
 
     return div;
+  }
+
+  setSize(value) {
+    this.lineWidth = Number(value);
+
+    this.elemBrush = this.createCircle();
   }
 
   coords(event) {
