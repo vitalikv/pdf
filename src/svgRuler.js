@@ -8,6 +8,7 @@ export class IsometricSvgRuler {
   newNote = { type: '', data: null, p2: null };
   isDown = false;
   offset = new THREE.Vector2();
+  actInput = null;
   selectedObj = { el: null, type: '' };
 
   constructor() {
@@ -19,9 +20,24 @@ export class IsometricSvgRuler {
     this.containerSvg = containerSvg;
   }
 
-  addRuler(data) {
-    this.newNote.type = 'add';
-    this.newNote.data = data;
+  addRuler(event, data) {
+    this.clearSelectedObj();
+
+    this.newNote.type = '';
+    this.newNote.data = null;
+
+    if (event.button === 0) {
+      const bound = this.container.getBoundingClientRect();
+      const x = -bound.x + event.clientX;
+      const y = -bound.y + event.clientY;
+
+      const { svg1, svg2, svg3 } = this.createElement({ btn: true, x, y, data });
+
+      this.newNote.type = 'move';
+      this.newNote.p2 = svg3;
+
+      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    }
   }
 
   // создать выноску
@@ -124,8 +140,8 @@ export class IsometricSvgRuler {
     const elem = container.children[0];
 
     elem.onpointerdown = (e) => {
-      //e.preventDefault();
-      //e.stopPropagation();
+      e.preventDefault();
+      e.stopPropagation();
 
       const elem2 = document.createElement('input');
       elem2.textContent = '';
@@ -142,16 +158,33 @@ export class IsometricSvgRuler {
 
       elem2.onkeydown = (e2) => {
         if (e2.code === 'Enter') {
-          const txt = elem2.value;
-          container.children[1].remove();
-
-          if (txt !== '') elem.textContent = txt;
-          elem.style.display = '';
+          this.deleteInput();
         }
       };
 
+      elem2.onblur = (e2) => {
+        this.deleteInput();
+      };
+
+      this.actInput = { elem, elem2 };
+
       elem.style.display = 'none';
     };
+  }
+
+  deleteInput(target = null) {
+    if (!this.actInput) return;
+    const { elem, elem2 } = this.actInput;
+
+    if (target === elem2) return;
+
+    const txt = elem2.value;
+    if (txt !== '') elem.textContent = txt;
+    elem.style.display = '';
+
+    elem2.onblur = null;
+    elem2.remove();
+    this.actInput = null;
   }
 
   setPosRotDivText({ container, p1, p2 }) {
@@ -181,50 +214,32 @@ export class IsometricSvgRuler {
   }
 
   onmousedown = (event) => {
-    if (this.newNote.type === 'add') {
-      this.clearSelectedObj();
-
-      this.newNote.type = '';
-      this.newNote.data = null;
-
-      if (event.button === 0) {
-        const bound = this.container.getBoundingClientRect();
-        const x = -bound.x + event.clientX;
-        const y = -bound.y + event.clientY;
-
-        const { svg1, svg2, svg3 } = this.createElement({ btn: true, x, y, data: this.newNote.data });
-
-        this.newNote.type = 'move';
-        this.newNote.p2 = svg3;
-
-        this.offset = new THREE.Vector2(event.clientX, event.clientY);
-      }
-
-      return;
-    }
-
     if (this.newNote.type === 'move' && this.newNote.p2) {
       const divText = this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
 
       this.newNote.p2['userData'].divText = divText;
 
-      this.newNote.type = '';
-      this.newNote.p2 = null;
+      this.newNote.type = 'move2';
+      //this.newNote.p2 = this.newNote.p2['userData'].line;
 
       return;
     }
 
-    if (!this.containerSvg) return;
-    event.preventDefault();
-    event.stopPropagation();
+    if (this.newNote.type === 'move2' && this.newNote.p2) {
+      this.newNote.type = '';
+      this.newNote.p2 = null;
+      return;
+    }
 
+    if (!this.containerSvg) return;
+
+    if (this.selectedObj.el) this.actElem(this.selectedObj.el);
     this.isDown = false;
-    this.clearSelectedObj();
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].ruler && svg.contains(event.target)) {
         this.isDown = true;
-        this.selectedObj.el = svg;
+        this.actElem(svg, true);
       }
     });
 
@@ -246,6 +261,15 @@ export class IsometricSvgRuler {
       svgLine.setAttribute('y2', Number(y));
 
       this.moveSvgPoint({ svg: this.newNote.p2, event, type: 'p2' });
+      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    }
+
+    if (this.newNote.type === 'move2' && this.newNote.p2) {
+      const svg = this.newNote.p2['userData'].line;
+
+      this.moveSvgLine({ svg, event });
+      this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
+
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
     }
 
@@ -352,6 +376,30 @@ export class IsometricSvgRuler {
 
       svgLine.setAttribute('x1', Number(x));
       svgLine.setAttribute('y1', Number(y));
+    }
+  }
+
+  actElem(svg, act = false) {
+    const elems = {
+      line: svg['userData'].line,
+      p1: svg['userData'].p1,
+      p2: svg['userData'].p2,
+      p1line: svg['userData'].p1['userData'].line2,
+      p2line: svg['userData'].p2['userData'].line2,
+    };
+
+    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+
+    elems.line.setAttribute('stroke', stroke);
+    elems.p1.setAttribute('stroke', stroke);
+    elems.p2.setAttribute('stroke', stroke);
+    elems.p1line.setAttribute('stroke', stroke);
+    elems.p2line.setAttribute('stroke', stroke);
+
+    if (act) {
+      this.selectedObj.el = svg;
+    } else {
+      this.clearSelectedObj();
     }
   }
 

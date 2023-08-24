@@ -7,6 +7,7 @@ export class IsometricSvgManager {
   containerSvg;
   isDown = false;
   isMove = false;
+  mode = { type: '', data: null };
   selectedObj = { el: null, type: '' };
 
   onKeyDown = (event) => {
@@ -23,6 +24,7 @@ export class IsometricSvgManager {
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
     isometricSvgRuler.init({ container, containerSvg });
+    isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
   }
 
@@ -51,15 +53,57 @@ export class IsometricSvgManager {
     container.prepend(div);
   }
 
-  onmousedown = (event) => {
-    let result = null;
-    result = isometricCutBox.onmousedown(event);
-    if (!result) result = isometricNoteSvg.onmousedown(event);
-    if (!result) result = isometricNoteSvg2.onmousedown(event);
-    if (!result) result = isometricSvgRuler.onmousedown(event);
-    if (!result) result = isometricCanvasPaint.onmousedown(event);
+  setMode({ type, data } = { type: '', data: null }) {
+    const disabledType = this.cleareMode();
 
-    if (result) {
+    this.mode.type = type;
+    this.mode.data = data;
+
+    if (this.mode.type === 'brush') {
+      if (this.mode.type !== disabledType) {
+        isometricCanvasPaint.activateBrush();
+      } else {
+        this.mode.type = '';
+      }
+    }
+
+    if (this.mode.type === 'cutBox') {
+      if (this.mode.type !== disabledType) {
+        isometricCutBox.activateCutBox();
+      } else {
+        this.mode.type = '';
+      }
+    }
+  }
+
+  cleareMode() {
+    let disabledType = '';
+
+    if (this.mode.type === 'brush') {
+      isometricCanvasPaint.deActivateBrush();
+      disabledType = 'brush';
+    }
+
+    if (this.mode.type === 'cutBox') {
+      isometricCutBox.deActivateCutBox();
+      disabledType = 'cutBox';
+    }
+
+    this.mode.type = '';
+    this.mode.data = null;
+
+    return disabledType;
+  }
+
+  onmousedown = (event) => {
+    this.unselectAllNotes(event);
+
+    const actMode = this.checkMode(event);
+    if (actMode) return;
+
+    let result = this.checkClick(event);
+
+    if (actMode || result) {
       this.isDown = true;
       mapControlInit.control.enabled = false;
     }
@@ -89,6 +133,88 @@ export class IsometricSvgManager {
     this.isMove = false;
     mapControlInit.control.enabled = true;
   };
+
+  checkMode(event) {
+    if (this.mode.type === '') return false;
+
+    if (this.mode.type === 'addNote1') {
+      isometricNoteSvg.addNote(event, this.mode.data);
+      this.cleareMode();
+    }
+
+    if (this.mode.type === 'addNote2') {
+      isometricNoteSvg2.addNote(event, this.mode.data);
+      this.cleareMode();
+    }
+
+    if (this.mode.type === 'moveRuler') {
+      isometricSvgRuler.onmousedown(event);
+      this.cleareMode();
+    }
+
+    if (this.mode.type === 'nextRuler') {
+      isometricSvgRuler.onmousedown(event);
+      this.setMode({ type: 'moveRuler', data: null });
+    }
+
+    if (this.mode.type === 'addRuler') {
+      isometricSvgRuler.addRuler(event, this.mode.data);
+      this.setMode({ type: 'nextRuler', data: null });
+    }
+
+    if (this.mode.type === 'brush') {
+      isometricCanvasPaint.onmousedown(event);
+    }
+
+    if (this.mode.type === 'cutBox') {
+      isometricCutBox.onmousedown(event);
+    }
+
+    return true;
+  }
+
+  checkClick(event) {
+    let result = null;
+
+    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+      if (svg['userData'] && svg.contains(event.target)) {
+        if (svg['userData'].note1) {
+          isometricNoteSvg.onmousedown(event);
+          result = true;
+        }
+
+        if (svg['userData'].note2) {
+          isometricNoteSvg2.onmousedown(event);
+          result = true;
+        }
+
+        if (svg['userData'].ruler) {
+          isometricSvgRuler.onmousedown(event);
+          result = true;
+        }
+      }
+    });
+
+    return result;
+  }
+
+  unselectAllNotes(event) {
+    isometricSvgRuler.deleteInput(event.target);
+
+    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+      if (svg['userData']) {
+        if (svg['userData'].note1) {
+          isometricNoteSvg.actElem(svg, false);
+        }
+        if (svg['userData'].note2) {
+          isometricNoteSvg2.actElem(svg, false);
+        }
+        if (svg['userData'].ruler) {
+          isometricSvgRuler.actElem(svg, false);
+        }
+      }
+    });
+  }
 
   deleteElem() {
     isometricNoteSvg.deleteNote();

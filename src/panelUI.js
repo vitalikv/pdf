@@ -1,4 +1,13 @@
-import { isometricPdfToSvg, isometricExportPdf, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint, isometricCutBox } from './index';
+import {
+  isometricPdfToSvg,
+  isometricExportPdf,
+  isometricSvgManager,
+  isometricNoteSvg,
+  isometricNoteSvg2,
+  isometricSvgRuler,
+  isometricCanvasPaint,
+  isometricCutBox,
+} from './index';
 
 export class PanelUI {
   container$;
@@ -46,19 +55,20 @@ export class PanelUI {
     };
 
     this.btns$[4].onmousedown = () => {
-      isometricNoteSvg.addNote({ text: ['ТК1-СПС31.1/1-И-1-012', ''] });
+      isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['ТК1-СПС31.1/1-И-1-012', ''] } });
     };
 
     this.btns$[5].onmousedown = () => {
-      isometricNoteSvg2.addNote({ text: ['ТК1-СПС31.1/1-И-1-012', ''] });
+      isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['ТК1-СПС31.1/1-И-1-012', ''] } });
     };
 
     this.btns$[6].onmousedown = () => {
-      isometricSvgRuler.addRuler({});
+      isometricSvgManager.setMode({ type: 'addRuler' });
+      //isometricSvgRuler.addRuler({});
     };
 
     this.btns$[7].onmousedown = () => {
-      isometricCanvasPaint.activateBrush();
+      isometricSvgManager.setMode({ type: 'brush' });
     };
 
     this.btns$[8].onchange = (e) => {
@@ -66,11 +76,13 @@ export class PanelUI {
     };
 
     this.btns$[9].onmousedown = (e) => {
-      if (!isometricCutBox.activated) {
-        isometricCutBox.activateCutBox();
-      } else {
-        isometricCutBox.deActivateCutBox();
-      }
+      isometricSvgManager.setMode({ type: 'cutBox' });
+
+      // if (!isometricCutBox.activated) {
+      //   isometricCutBox.activateCutBox();
+      // } else {
+      //   isometricCutBox.deActivateCutBox();
+      // }
     };
   }
 

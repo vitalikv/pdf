@@ -4,6 +4,7 @@ import { scene, mapControlInit, isometricPdfToSvg } from './index';
 
 export class IsometricCanvasPaint {
   activated = false;
+  container;
   isDown = false;
   lineWidth = 20;
   ratio = 1;
@@ -12,13 +13,12 @@ export class IsometricCanvasPaint {
   elemBrush;
   offset = new THREE.Vector2();
 
-  constructor() {
-    // if (!this.container) this.getContainer();
+  init({ container }) {
+    this.container = container;
   }
 
   activateBrush() {
     if (!isometricPdfToSvg.canvasPdf) return;
-    if (!this.container) this.getContainer();
 
     // const { canvas, context } = this.crCanvas({ width: this.container.clientWidth, height: this.container.clientHeight });
     // this.container.prepend(canvas);
@@ -45,10 +45,6 @@ export class IsometricCanvasPaint {
     this.elemBrush.style.display = 'none';
     this.elemBrush.style.top = '-99999px';
     this.elemBrush.style.left = '-99999px';
-  }
-
-  getContainer() {
-    this.container = document.querySelector('#labels-container-div');
   }
 
   crCanvas({ width, height }) {
@@ -120,14 +116,6 @@ export class IsometricCanvasPaint {
 
   onmousedown = (event) => {
     if (!this.activated) return;
-
-    if (event.button !== 0) {
-      this.deActivateBrush();
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
 
     this.isDown = true;
     mapControlInit.control.enabled = false;

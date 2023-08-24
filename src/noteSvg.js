@@ -19,9 +19,16 @@ export class IsometricNoteSvg {
     this.containerSvg = containerSvg;
   }
 
-  addNote(data) {
-    this.newNote.add = true;
-    this.newNote.data = data;
+  addNote(event, data) {
+    this.clearSelectedObj();
+
+    if (event.button === 0) {
+      const bound = this.container.getBoundingClientRect();
+      const x = -bound.x + event.clientX;
+      const y = -bound.y + event.clientY;
+
+      this.createElement({ btn: true, x, y, data });
+    }
   }
 
   // создать выноску
@@ -128,38 +135,14 @@ export class IsometricNoteSvg {
   }
 
   onmousedown = (event) => {
-    if (this.newNote.add) {
-      this.clearSelectedObj();
-
-      if (event.button === 0) {
-        const bound = this.container.getBoundingClientRect();
-        const x = -bound.x + event.clientX;
-        const y = -bound.y + event.clientY;
-
-        this.createElement({ btn: true, x, y, data: this.newNote.data });
-      }
-
-      this.newNote.add = false;
-      this.newNote.data = null;
-
-      return;
-    }
-
-    if (!this.containerSvg) return;
-    event.preventDefault();
-    event.stopPropagation();
-
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
 
     this.isDown = false;
-    this.clearSelectedObj();
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].note1 && svg.contains(event.target)) {
         if (!svg['userData'].lock) {
           this.isDown = true;
-          this.selectedObj.el = svg;
-          //this.selectedObj.type = 'svgCircle';
           this.actElem(svg, true);
         }
 
@@ -307,6 +290,12 @@ export class IsometricNoteSvg {
     const svgLine = elems.label.children[1];
     svgCircle.setAttribute('stroke', stroke);
     svgLine.setAttribute('stroke', stroke);
+
+    if (act) {
+      this.selectedObj.el = svg;
+    } else {
+      this.clearSelectedObj();
+    }
   }
 
   setLockOnSvg(svg) {
