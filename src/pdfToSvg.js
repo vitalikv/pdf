@@ -171,6 +171,8 @@ export class IsometricPdfToSvg {
     ctx.drawImage(image, 0, 0);
     ctx.restore();
 
+    canvas.style.top = this.canvasPdf.style.top;
+    canvas.style.left = this.canvasPdf.style.left;
     this.canvasPdf = canvas;
 
     this.updateCanvasPdf();
@@ -192,8 +194,10 @@ export class IsometricPdfToSvg {
 
     const aspect = width / width2 > height / height2 ? width / width2 : height / height2;
 
+    canvas.style.position = 'absolute';
     canvas.style.width = (canvas.width / aspect) * this.scalePdf + 'px';
     canvas.style.height = (canvas.height / aspect) * this.scalePdf + 'px';
+    canvas.style.transform = 'translateX(-50%) translateY(-50%)';
     canvas.style.border = '1px solid #515151';
   }
 

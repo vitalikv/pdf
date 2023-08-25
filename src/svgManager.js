@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { mapControlInit, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint, isometricCutBox } from './index';
+import { mapControlInit, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint, isometricCutBox, isometricMovePdf } from './index';
 
 export class IsometricSvgManager {
   container;
@@ -98,12 +98,16 @@ export class IsometricSvgManager {
   onmousedown = (event) => {
     this.unselectAllNotes(event);
 
-    const actMode = this.checkMode(event);
-    if (actMode) return;
+    let result = isometricMovePdf.onmousedown(event);
 
-    let result = this.checkClick(event);
+    if (!result) {
+      const actMode = this.checkMode(event);
+      if (actMode) return;
+    }
 
-    if (actMode || result) {
+    if (!result) result = this.checkClick(event);
+
+    if (result) {
       this.isDown = true;
       mapControlInit.control.enabled = false;
     }
@@ -115,6 +119,7 @@ export class IsometricSvgManager {
     //if (!this.isDown) return;
     this.isMove = true;
 
+    isometricMovePdf.onmousemove(event);
     isometricCutBox.onmousemove(event);
     isometricNoteSvg.onmousemove(event);
     isometricNoteSvg2.onmousemove(event);
@@ -123,6 +128,7 @@ export class IsometricSvgManager {
   };
 
   onmouseup = (event) => {
+    isometricMovePdf.onmouseup(event);
     isometricCutBox.onmouseup(event);
     isometricNoteSvg.onmouseup(event);
     isometricNoteSvg2.onmouseup(event);
