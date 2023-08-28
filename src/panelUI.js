@@ -88,7 +88,7 @@ export class PanelUI {
     };
 
     this.btns$[10].onmousedown = (e) => {
-      isometricStampLogo.addStamp('1');
+      isometricStampLogo.addStamp('3');
     };
   }
 

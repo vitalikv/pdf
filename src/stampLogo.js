@@ -26,12 +26,13 @@ export class IsometricStampLogo {
     let url = '';
     if (type === '1') url = 'img/stamp/logo1.jpg';
     if (type === '2') url = 'img/stamp/logo2.jpg';
+    if (type === '3') url = 'img/stamp/CS.svg';
 
     const data = await this.xhrImg_1(url);
 
     const div = document.createElement('div');
     div.innerHTML = `
-    <div style="position: absolute; width: 420px; height: 200px; background: #fff; z-index: 5; border: 1px solid #D1D1D1;">
+    <div style="position: absolute; width: 420px; height: 200px; z-index: 5;">
       <img src="${data}" style="width: 100%; height: 100%; object-fit: contain;">
     </div>`;
     const elem = div.children[0];
@@ -149,6 +150,8 @@ export class IsometricStampLogo {
         this.isDown = true;
         this.selectedObj.el = svg;
         this.selectedObj.type = 'svgCircle';
+
+        this.activateStamp();
       }
     });
 
@@ -158,6 +161,7 @@ export class IsometricStampLogo {
         this.selectedObj.el = stamp;
         this.selectedObj.type = 'div';
 
+        this.activateStamp();
         this.setPosArrSvgCircle();
       }
     });
@@ -252,7 +256,45 @@ export class IsometricStampLogo {
     divStamp.style.height = bound1.top - bound0.top + 'px';
   }
 
+  activateStamp() {
+    if (!this.selectedObj.el) return;
+
+    let stamp = null;
+
+    if (this.selectedObj.type === 'div') {
+      stamp = this.selectedObj.el;
+    }
+
+    if (this.selectedObj.type === 'svgCircle') {
+      stamp = this.selectedObj.el['userData'].divStamp;
+    }
+
+    if (stamp) {
+      stamp.style.border = '1px solid #D1D1D1';
+    }
+  }
+
+  deActivateStamp() {
+    if (!this.selectedObj.el) return;
+
+    let stamp = null;
+
+    if (this.selectedObj.type === 'div') {
+      stamp = this.selectedObj.el;
+    }
+
+    if (this.selectedObj.type === 'svgCircle') {
+      stamp = this.selectedObj.el['userData'].divStamp;
+    }
+
+    if (stamp) {
+      stamp.style.border = 'none';
+    }
+  }
+
   clearSelectedObj() {
+    this.deActivateStamp();
+
     this.selectedObj.el = null;
     this.selectedObj.type = '';
   }
