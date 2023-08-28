@@ -12,6 +12,7 @@ import { IsometricSvgManager } from './svgManager';
 import { IsometricNoteSvg } from './noteSvg';
 import { IsometricNoteSvg2 } from './noteSvg2';
 import { IsometricSvgRuler } from './svgRuler';
+import { IsometricStampLogo } from './stampLogo';
 import { IsometricCanvasPaint } from './canvasPaint';
 import { IsometricCutBox } from './cutBox';
 import { IsometricMovePdf } from './movePdf';
@@ -25,6 +26,7 @@ export let isometricModeService,
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
+  isometricStampLogo,
   isometricCanvasPaint,
   isometricCutBox,
   isometricMovePdf;
@@ -125,6 +127,7 @@ function initServ() {
   isometricNoteSvg = new IsometricNoteSvg();
   isometricNoteSvg2 = new IsometricNoteSvg2();
   isometricSvgRuler = new IsometricSvgRuler();
+  isometricStampLogo = new IsometricStampLogo();
   isometricCanvasPaint = new IsometricCanvasPaint();
   isometricCutBox = new IsometricCutBox();
   isometricMovePdf = new IsometricMovePdf();

@@ -7,6 +7,7 @@ import {
   isometricSvgRuler,
   isometricCanvasPaint,
   isometricCutBox,
+  isometricStampLogo,
 } from './index';
 
 export class PanelUI {
@@ -28,6 +29,7 @@ export class PanelUI {
     this.btns$[7] = this.crBtn({ txt: 'Ластик' });
     this.btns$[8] = this.crList();
     this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
+    this.btns$[10] = this.crBtn({ txt: 'Штамп' });
 
     this.initEvent();
   }
@@ -83,6 +85,10 @@ export class PanelUI {
       // } else {
       //   isometricCutBox.deActivateCutBox();
       // }
+    };
+
+    this.btns$[10].onmousedown = (e) => {
+      isometricStampLogo.addStamp('1');
     };
   }
 
