@@ -9,6 +9,8 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 // npm install pdfjs-dist @types/pdfjs-dist  установка @types
 // https://github.com/mozilla/pdf.js/tree/master/examples/webpack  установка pdf.js для webpack (import * as pdfjsLib from 'pdfjs-dist/webpack';)
 
+import { isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+
 // конвертация pdf в svg и добавление на страницу
 export class IsometricPdfToSvg {
   container;
@@ -17,6 +19,7 @@ export class IsometricPdfToSvg {
   canvasPdf;
   scalePdf = 1;
   format = { size: 'a3', orientation: 'landscape' };
+  svgTest;
 
   constructor() {
     this.inputFile = this.createInputFile();
@@ -94,6 +97,8 @@ export class IsometricPdfToSvg {
     this.canvasPdf = this.pdfToCanvas({ div: this.containerPdf, page, viewport });
     this.updateCanvasPdf();
     //this.pdfToSvg({ div, page, viewport });
+
+    this.svgTest = this.createSvgLine({});
   }
 
   async pdfToSvg({ div, page, viewport }) {
@@ -205,14 +210,68 @@ export class IsometricPdfToSvg {
     if (!this.canvasPdf) return;
     value = Number(value) / 100;
 
+    const ratio = value / this.scalePdf;
+    const bound = this.canvasPdf.getBoundingClientRect();
+
     this.scalePdf = value;
 
     this.updateCanvasPdf();
+
+    this.testScale(this.canvasPdf, ratio, bound);
+    isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
+    isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
+    isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
   }
 
   deletePdf() {
     if (!this.containerPdf) return;
 
     this.containerPdf.remove();
+  }
+
+  //---------
+  createSvgLine({ x1 = 845, y1 = 400, x2 = 900, y2 = 900 }) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+
+    svg.setAttribute('x1', x1);
+    svg.setAttribute('y1', y1);
+    svg.setAttribute('x2', x2);
+    svg.setAttribute('y2', y2);
+    svg.setAttribute('stroke-width', '2px');
+    //svg.setAttribute('stroke', 'rgb(255, 162, 23)');
+    svg.setAttribute('stroke', 'rgb(255, 0, 0)');
+    //svg.setAttribute('display', 'none');
+
+    const container = document.querySelector('#labels-container-div');
+    const containerSvg = container.querySelector('[nameId="svgTools"');
+    containerSvg.children[0].prepend(svg);
+
+    console.log(containerSvg, svg);
+    return svg;
+  }
+
+  testScale(canvas, ratio, bound2) {
+    const bound = canvas.getBoundingClientRect();
+    const boundC = this.containerPdf.getBoundingClientRect();
+
+    const svg = this.svgTest;
+
+    let x1 = svg.getAttribute('x1');
+    let y1 = svg.getAttribute('y1');
+    let x2 = svg.getAttribute('x2');
+    let y2 = svg.getAttribute('y2');
+    //scalePdf = ratio < 1 ? scalePdf * 1 : scalePdf * -1;
+
+    x1 = (x1 - bound2.x) * ratio + bound.x;
+    y1 = (y1 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+    x2 = (x2 - bound2.x) * ratio + bound.x;
+    y2 = (y2 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+
+    console.log('-------------', boundC.y * -ratio - boundC.y);
+
+    svg.setAttribute('x1', Number(x1));
+    svg.setAttribute('y1', Number(y1));
+    svg.setAttribute('x2', Number(x2));
+    svg.setAttribute('y2', Number(y2));
   }
 }

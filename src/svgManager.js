@@ -26,6 +26,7 @@ export class IsometricSvgManager {
     isometricSvgRuler.init({ container, containerSvg });
     isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
+    isometricMovePdf.init({ containerSvg });
   }
 
   getContainer() {

@@ -31,7 +31,7 @@ export class IsometricExportPdf {
     const divs = [isometricPdfToSvg.canvasPdf];
     if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
 
-    const tasks = divs.map((div) => html2canvas(div, { backgroundColor: null, scale: 2 }));
+    const tasks = divs.map((div) => html2canvas(div, { backgroundColor: null, scale: 2, logging: false }));
 
     Promise.all(tasks).then((canvases) => {
       const canvas = document.createElement('canvas');

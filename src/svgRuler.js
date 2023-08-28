@@ -260,14 +260,22 @@ export class IsometricSvgRuler {
       svgLine.setAttribute('x2', Number(x));
       svgLine.setAttribute('y2', Number(y));
 
-      this.moveSvgPoint({ svg: this.newNote.p2, event, type: 'p2' });
+      const offsetX = event.clientX - this.offset.x;
+      const offsetY = event.clientY - this.offset.y;
+      const offset = new THREE.Vector2(offsetX, offsetY);
+
+      this.moveSvgPoint({ svg: this.newNote.p2, offset, type: 'p2' });
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
     }
 
     if (this.newNote.type === 'move2' && this.newNote.p2) {
       const svg = this.newNote.p2['userData'].line;
 
-      this.moveSvgLine({ svg, event });
+      const offsetX = event.clientX - this.offset.x;
+      const offsetY = event.clientY - this.offset.y;
+      const offset = new THREE.Vector2(offsetX, offsetY);
+
+      this.moveSvgLine({ svg, offset });
       this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
 
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
@@ -276,20 +284,23 @@ export class IsometricSvgRuler {
     if (!this.isDown) return;
 
     const svg = this.selectedObj.el;
+    const offsetX = event.clientX - this.offset.x;
+    const offsetY = event.clientY - this.offset.y;
+    const offset = new THREE.Vector2(offsetX, offsetY);
     let change = false;
 
     if (svg['userData'].tag === 'line') {
-      this.moveSvgLine({ svg, event });
+      this.moveSvgLine({ svg, offset });
       change = true;
     }
 
     if (svg['userData'].tag === 'p1') {
-      this.moveSvgPoint({ svg, event, type: 'p1' });
+      this.moveSvgPoint({ svg, offset, type: 'p1' });
       change = true;
     }
 
     if (svg['userData'].tag === 'p2') {
-      this.moveSvgPoint({ svg, event, type: 'p2' });
+      this.moveSvgPoint({ svg, offset, type: 'p2' });
       change = true;
     }
 
@@ -304,9 +315,9 @@ export class IsometricSvgRuler {
     this.isDown = false;
   };
 
-  moveSvgLine({ svg, event }) {
-    const offsetX = event.clientX - this.offset.x;
-    const offsetY = event.clientY - this.offset.y;
+  moveSvgLine({ svg, offset, type = 'def' }) {
+    const offsetX = offset.x;
+    const offsetY = offset.y;
 
     const x1 = svg.getAttribute('x1');
     const y1 = svg.getAttribute('y1');
@@ -320,21 +331,46 @@ export class IsometricSvgRuler {
 
     if (svg['userData'].p1) {
       const svgPoint = svg['userData'].p1;
-      this.moveSvgPoint({ svg: svgPoint, event, type: 'p1', moveLine: false });
+      this.moveSvgPoint({ svg: svgPoint, offset, type: 'p1', moveLine: false });
     }
 
     if (svg['userData'].p2) {
       const svgLabel = svg['userData'].p2;
-      this.moveSvgPoint({ svg: svgLabel, event, type: 'p2', moveLine: false });
+      this.moveSvgPoint({ svg: svgLabel, offset, type: 'p2', moveLine: false });
+    }
+
+    if (type === 'offsetPdf') {
+      this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
+
+      const svgP1 = svg['userData'].p1;
+      const svgP2 = svg['userData'].p2;
+
+      if (svgP1) {
+        const svgLine = svgP1['userData'].line2;
+
+        const x2 = svgLine.getAttribute('x2');
+        const y2 = svgLine.getAttribute('y2');
+
+        svgLine.setAttribute('x2', Number(x2) + offsetX);
+        svgLine.setAttribute('y2', Number(y2) + offsetY);
+      }
+
+      if (svgP2) {
+        const svgLine = svgP2['userData'].line2;
+
+        const x2 = svgLine.getAttribute('x2');
+        const y2 = svgLine.getAttribute('y2');
+
+        svgLine.setAttribute('x2', Number(x2) + offsetX);
+        svgLine.setAttribute('y2', Number(y2) + offsetY);
+      }
     }
   }
 
-  moveSvgPoint({ svg, event, type, moveLine = true }) {
+  moveSvgPoint({ svg, offset, type, moveLine = true }) {
     const svgCircle = svg;
-    const x = event.clientX;
-    const y = event.clientY;
-    const offsetX = x - this.offset.x;
-    const offsetY = y - this.offset.y;
+    const offsetX = offset.x;
+    const offsetY = offset.y;
 
     const cx = svgCircle.getAttribute('cx');
     const cy = svgCircle.getAttribute('cy');
@@ -422,6 +458,82 @@ export class IsometricSvgRuler {
       p2line: svg['userData'].p2['userData'].line2,
       divText: svg['userData'].p2['userData'].divText,
     };
+  }
+
+  scale(canvas, ratio, bound2) {
+    const svgArr = [];
+
+    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+      if (svg['userData']) {
+        if (svg['userData'].ruler && svg['userData'].tag === 'line') {
+          svgArr.push(svg);
+        }
+      }
+    });
+
+    const bound = canvas.getBoundingClientRect();
+    const boundC = this.container.getBoundingClientRect();
+
+    svgArr.forEach((svg) => {
+      const x1 = svg.getAttribute('x1');
+      const y1 = svg.getAttribute('y1');
+      const x2 = svg.getAttribute('x2');
+      const y2 = svg.getAttribute('y2');
+
+      const nx1 = (x1 - bound2.x) * ratio + bound.x;
+      const ny1 = (y1 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+      const nx2 = (x2 - bound2.x) * ratio + bound.x;
+      const ny2 = (y2 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+
+      svg.setAttribute('x1', Number(nx1));
+      svg.setAttribute('y1', Number(ny1));
+      svg.setAttribute('x2', Number(nx2));
+      svg.setAttribute('y2', Number(ny2));
+
+      const offset1 = new THREE.Vector2(nx1 - x1, ny1 - y1);
+      const offset2 = new THREE.Vector2(nx2 - x2, ny2 - y2);
+
+      if (svg['userData'].p1) {
+        const svgPoint = svg['userData'].p1;
+        this.moveSvgPoint({ svg: svgPoint, offset: offset1, type: 'p1', moveLine: false });
+      }
+
+      if (svg['userData'].p2) {
+        const svgLabel = svg['userData'].p2;
+        this.moveSvgPoint({ svg: svgLabel, offset: offset2, type: 'p2', moveLine: false });
+      }
+
+      this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
+
+      const svgP1 = svg['userData'].p1;
+      const svgP2 = svg['userData'].p2;
+
+      if (svgP1) {
+        const svgLine = svgP1['userData'].line2;
+
+        const x2 = svgLine.getAttribute('x2');
+        const y2 = svgLine.getAttribute('y2');
+
+        const nx2 = (x2 - bound2.x) * ratio + bound.x;
+        const ny2 = (y2 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+
+        svgLine.setAttribute('x2', Number(nx2));
+        svgLine.setAttribute('y2', Number(ny2));
+      }
+
+      if (svgP2) {
+        const svgLine = svgP2['userData'].line2;
+
+        const x2 = svgLine.getAttribute('x2');
+        const y2 = svgLine.getAttribute('y2');
+
+        const nx2 = (x2 - bound2.x) * ratio + bound.x;
+        const ny2 = (y2 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+
+        svgLine.setAttribute('x2', Number(nx2));
+        svgLine.setAttribute('y2', Number(ny2));
+      }
+    });
   }
 
   // удаляем активную выноску

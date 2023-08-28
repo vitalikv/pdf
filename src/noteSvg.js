@@ -162,17 +162,20 @@ export class IsometricNoteSvg {
     if (!this.isDown) return;
 
     let svg = this.selectedObj.el;
+    const offsetX = event.clientX - this.offset.x;
+    const offsetY = event.clientY - this.offset.y;
+    const offset = new THREE.Vector2(offsetX, offsetY);
 
     if (svg['userData'].tag === 'line') {
-      this.moveSvgLine({ svg, event });
+      this.moveSvgLine({ svg, offset });
     }
 
     if (svg['userData'].tag === 'point') {
-      this.moveSvgPoint({ svg, event });
+      this.moveSvgPoint({ svg, offset });
     }
 
     if (svg['userData'].tag === 'label') {
-      this.moveSvgLabel({ svg, event });
+      this.moveSvgLabel({ svg, offset });
     }
 
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
@@ -182,9 +185,9 @@ export class IsometricNoteSvg {
     this.isDown = false;
   };
 
-  moveSvgLine({ svg, event }) {
-    const offsetX = event.clientX - this.offset.x;
-    const offsetY = event.clientY - this.offset.y;
+  moveSvgLine({ svg, offset }) {
+    const offsetX = offset.x;
+    const offsetY = offset.y;
 
     const x1 = svg.getAttribute('x1');
     const y1 = svg.getAttribute('y1');
@@ -198,21 +201,19 @@ export class IsometricNoteSvg {
 
     if (svg['userData'].point) {
       const svgPoint = svg['userData'].point;
-      this.moveSvgPoint({ svg: svgPoint, event, moveLine: false });
+      this.moveSvgPoint({ svg: svgPoint, offset, moveLine: false });
     }
 
     if (svg['userData'].label) {
       const svgLabel = svg['userData'].label;
-      this.moveSvgLabel({ svg: svgLabel, event, moveLine: false });
+      this.moveSvgLabel({ svg: svgLabel, offset, moveLine: false });
     }
   }
 
-  moveSvgPoint({ svg, event, moveLine = true }) {
+  moveSvgPoint({ svg, offset, moveLine = true }) {
     const svgCircle = svg;
-    const x = event.clientX;
-    const y = event.clientY;
-    const offsetX = x - this.offset.x;
-    const offsetY = y - this.offset.y;
+    const offsetX = offset.x;
+    const offsetY = offset.y;
 
     const cx = svgCircle.getAttribute('cx');
     const cy = svgCircle.getAttribute('cy');
@@ -231,15 +232,13 @@ export class IsometricNoteSvg {
     }
   }
 
-  moveSvgLabel({ svg, event, moveLine = true }) {
+  moveSvgLabel({ svg, offset, moveLine = true }) {
     const svgCircle = svg.children[0];
     const svgLine = svg.children[1];
     const svgText1 = svg.children[2];
 
-    const x = event.clientX;
-    const y = event.clientY;
-    const offsetX = x - this.offset.x;
-    const offsetY = y - this.offset.y;
+    const offsetX = offset.x;
+    const offsetY = offset.y;
 
     const cx = svgCircle.getAttribute('cx');
     const cy = svgCircle.getAttribute('cy');
@@ -322,6 +321,51 @@ export class IsometricNoteSvg {
     const svg = this.selectedObj.el;
 
     return { line: svg['userData'].line, point: svg['userData'].point, label: svg['userData'].label };
+  }
+
+  scale(canvas, ratio, bound2) {
+    const svgArr = [];
+
+    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+      if (svg['userData']) {
+        if (svg['userData'].note1 && svg['userData'].tag === 'line') {
+          svgArr.push(svg);
+        }
+      }
+    });
+
+    const bound = canvas.getBoundingClientRect();
+    const boundC = this.container.getBoundingClientRect();
+
+    svgArr.forEach((svg) => {
+      const x1 = svg.getAttribute('x1');
+      const y1 = svg.getAttribute('y1');
+      const x2 = svg.getAttribute('x2');
+      const y2 = svg.getAttribute('y2');
+
+      const nx1 = (x1 - bound2.x) * ratio + bound.x;
+      const ny1 = (y1 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+      const nx2 = (x2 - bound2.x) * ratio + bound.x;
+      const ny2 = (y2 - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
+
+      svg.setAttribute('x1', Number(nx1));
+      svg.setAttribute('y1', Number(ny1));
+      svg.setAttribute('x2', Number(nx2));
+      svg.setAttribute('y2', Number(ny2));
+
+      const offset1 = new THREE.Vector2(nx1 - x1, ny1 - y1);
+      const offset2 = new THREE.Vector2(nx2 - x2, ny2 - y2);
+
+      if (svg['userData'].point) {
+        const svgPoint = svg['userData'].point;
+        this.moveSvgPoint({ svg: svgPoint, offset: offset1, moveLine: false });
+      }
+
+      if (svg['userData'].label) {
+        const svgLabel = svg['userData'].label;
+        this.moveSvgLabel({ svg: svgLabel, offset: offset2, moveLine: false });
+      }
+    });
   }
 
   // удаляем активную выноску
