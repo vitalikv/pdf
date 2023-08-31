@@ -9,7 +9,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 // npm install pdfjs-dist @types/pdfjs-dist  установка @types
 // https://github.com/mozilla/pdf.js/tree/master/examples/webpack  установка pdf.js для webpack (import * as pdfjsLib from 'pdfjs-dist/webpack';)
 
-import { isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
 
 // конвертация pdf в svg и добавление на страницу
 export class IsometricPdfToSvg {
@@ -133,8 +133,11 @@ export class IsometricPdfToSvg {
     page.render({ canvasContext: context, viewport });
 
     canvas.style.cssText =
-      'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%); border: 1px solid #515151;';
+      'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%); border: 1px solid #515151; z-index: 222;';
 
+    canvas.onmousedown = (e) => {
+      console.log(e);
+    };
     return canvas;
   }
 
@@ -178,10 +181,38 @@ export class IsometricPdfToSvg {
 
     canvas.style.top = this.canvasPdf.style.top;
     canvas.style.left = this.canvasPdf.style.left;
-    this.canvasPdf = canvas;
 
+    const bound1 = this.canvasPdf.getBoundingClientRect();
+
+    this.canvasPdf = canvas;
+    canvas.onmousedown = (e) => {
+      console.log(e);
+    };
     this.updateCanvasPdf();
+
+    const bound2 = this.canvasPdf.getBoundingClientRect();
+    const rw = bound2.width / bound1.width;
+    const rh = bound2.width / bound2.height;
+
+    const x = 850;
+    const y = 340;
+    const x2 = y * rw;
+    const y2 = x * rw;
+
+    this.testRot(bound1, bound2);
+    console.log(x2, y2, bound2.height, bound1.width);
   };
+
+  rotate(x, y, a) {
+    var cos = Math.cos,
+      sin = Math.sin,
+      a = (a * Math.PI) / 180;
+
+    let xr = x * cos(a) - y * sin(a);
+    let yr = x * sin(a) + y * cos(a);
+
+    return [xr, yr];
+  }
 
   updateCanvasPdf() {
     if (this.containerPdf.children[0]) this.containerPdf.children[0].remove();
@@ -218,6 +249,7 @@ export class IsometricPdfToSvg {
     this.updateCanvasPdf();
 
     this.testScale(this.canvasPdf, ratio, bound);
+    isometricSvgLine.scale(this.canvasPdf, ratio, bound);
     isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
     isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
     isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
@@ -230,7 +262,7 @@ export class IsometricPdfToSvg {
   }
 
   //---------
-  createSvgLine({ x1 = 845, y1 = 400, x2 = 900, y2 = 900 }) {
+  createSvgLine({ x1 = 845, y1 = 425, x2 = 887, y2 = 998 }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
 
     svg.setAttribute('x1', x1);
@@ -273,5 +305,35 @@ export class IsometricPdfToSvg {
     svg.setAttribute('y1', Number(y1));
     svg.setAttribute('x2', Number(x2));
     svg.setAttribute('y2', Number(y2));
+  }
+
+  testRot(bound1, bound2) {
+    const ratio = bound2.height / bound1.width;
+    const offX = bound2.x * ratio;
+    const offY = bound1.x * ratio;
+
+    const svg = this.svgTest;
+
+    let x1 = svg.getAttribute('x1');
+    let y1 = svg.getAttribute('y1');
+    let x2 = svg.getAttribute('x2');
+    let y2 = svg.getAttribute('y2');
+
+    let nx1 = x1 - bound1.x;
+    let ny1 = y1 - bound1.y;
+    let nx2 = x2 - bound1.x;
+    let ny2 = y2 - bound1.y;
+
+    let mx1 = ny1 * ratio + bound2.x;
+    let my1 = nx1 * ratio + bound2.y;
+    let mx2 = ny2 * ratio + bound2.x;
+    let my2 = nx2 * ratio + bound2.y;
+
+    console.log(mx1 * ratio, my1 * ratio);
+
+    svg.setAttribute('x1', Number(mx1));
+    svg.setAttribute('y1', Number(my1));
+    svg.setAttribute('x2', Number(mx2));
+    svg.setAttribute('y2', Number(my2));
   }
 }

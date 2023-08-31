@@ -30,6 +30,7 @@ export class PanelUI {
     this.btns$[8] = this.crList();
     this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
+    this.btns$[11] = this.crBtn({ txt: 'Линия' });
 
     this.initEvent();
   }
@@ -89,6 +90,10 @@ export class PanelUI {
 
     this.btns$[10].onmousedown = (e) => {
       isometricStampLogo.addStamp('3');
+    };
+
+    this.btns$[11].onmousedown = (e) => {
+      isometricSvgManager.setMode({ type: 'line' });
     };
   }
 

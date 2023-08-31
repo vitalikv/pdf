@@ -1,6 +1,15 @@
 import * as THREE from 'three';
 
-import { mapControlInit, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricCanvasPaint, isometricCutBox, isometricMovePdf } from './index';
+import {
+  mapControlInit,
+  isometricSvgLine,
+  isometricNoteSvg,
+  isometricNoteSvg2,
+  isometricSvgRuler,
+  isometricCanvasPaint,
+  isometricCutBox,
+  isometricMovePdf,
+} from './index';
 
 export class IsometricSvgManager {
   container;
@@ -21,6 +30,7 @@ export class IsometricSvgManager {
   init() {
     const container = this.getContainer();
     const containerSvg = this.getContainerSvg();
+    isometricSvgLine.init({ container, containerSvg });
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
     isometricSvgRuler.init({ container, containerSvg });
@@ -122,6 +132,7 @@ export class IsometricSvgManager {
 
     isometricMovePdf.onmousemove(event);
     isometricCutBox.onmousemove(event);
+    isometricSvgLine.onmousemove(event);
     isometricNoteSvg.onmousemove(event);
     isometricNoteSvg2.onmousemove(event);
     isometricSvgRuler.onmousemove(event);
@@ -131,6 +142,7 @@ export class IsometricSvgManager {
   onmouseup = (event) => {
     isometricMovePdf.onmouseup(event);
     isometricCutBox.onmouseup(event);
+    isometricSvgLine.onmouseup(event);
     isometricNoteSvg.onmouseup(event);
     isometricNoteSvg2.onmouseup(event);
     isometricSvgRuler.onmouseup(event);
@@ -143,6 +155,21 @@ export class IsometricSvgManager {
 
   checkMode(event) {
     if (this.mode.type === '') return false;
+
+    if (this.mode.type === 'nextLine') {
+      if (event.button === 2) {
+        isometricSvgLine.stopLine();
+        this.cleareMode();
+      } else {
+        isometricSvgLine.onmousedown(event);
+        this.setMode({ type: 'nextLine', data: null });
+      }
+    }
+
+    if (this.mode.type === 'line') {
+      isometricSvgLine.addLine(event);
+      this.setMode({ type: 'nextLine', data: null });
+    }
 
     if (this.mode.type === 'addNote1') {
       isometricNoteSvg.addNote(event, this.mode.data);
@@ -185,6 +212,11 @@ export class IsometricSvgManager {
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg.contains(event.target)) {
+        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+          isometricSvgLine.onmousedown(event);
+          result = true;
+        }
+
         if (svg['userData'].note1) {
           isometricNoteSvg.onmousedown(event);
           result = true;
@@ -210,6 +242,12 @@ export class IsometricSvgManager {
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
+        if (isometricSvgLine.selectedObj.el && svg['userData'].lineI) {
+          if (isometricSvgLine.selectedObj.el === svg) {
+            isometricSvgLine.actElem(svg, false);
+          }
+        }
+
         if (svg['userData'].note1) {
           isometricNoteSvg.actElem(svg, false);
         }
@@ -224,6 +262,7 @@ export class IsometricSvgManager {
   }
 
   deleteElem() {
+    isometricSvgLine.deleteLine();
     isometricNoteSvg.deleteNote();
     isometricNoteSvg2.deleteNote();
     isometricSvgRuler.deleteNote();

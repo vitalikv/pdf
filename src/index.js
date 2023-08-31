@@ -9,6 +9,7 @@ import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
 import { IsometricSvgManager } from './svgManager';
+import { IsometricSvgLine } from './svgLine';
 import { IsometricNoteSvg } from './noteSvg';
 import { IsometricNoteSvg2 } from './noteSvg2';
 import { IsometricSvgRuler } from './svgRuler';
@@ -23,6 +24,7 @@ export let isometricModeService,
   isometricPdfToSvg,
   isometricExportPdf,
   isometricSvgManager,
+  isometricSvgLine,
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
@@ -37,7 +39,7 @@ render();
 
 function init() {
   const div = document.createElement('div');
-  div.innerHTML = `<div style="position: fixed; top: 0px; bottom:0; left: 0; right: 0;"></div>`;
+  div.innerHTML = `<div style="position: fixed; top: 70px; bottom:0; left: 0; right: 0;"></div>`;
   const container = div.children[0];
   document.body.append(container);
 
@@ -124,6 +126,7 @@ function initServ() {
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
   isometricSvgManager = new IsometricSvgManager();
+  isometricSvgLine = new IsometricSvgLine();
   isometricNoteSvg = new IsometricNoteSvg();
   isometricNoteSvg2 = new IsometricNoteSvg2();
   isometricSvgRuler = new IsometricSvgRuler();

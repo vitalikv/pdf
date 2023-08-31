@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricPdfToSvg, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricPdfToSvg, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
 
 export class IsometricMovePdf {
   containerSvg;
@@ -48,6 +48,10 @@ export class IsometricMovePdf {
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
+        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+          isometricSvgLine.moveSvgLine({ svg, offset });
+        }
+
         if (svg['userData'].note1 && svg['userData'].tag === 'line') {
           isometricNoteSvg.moveSvgLine({ svg, offset });
         }
