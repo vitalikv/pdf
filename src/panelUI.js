@@ -5,6 +5,7 @@ import {
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
+  isometricNoteText,
   isometricCanvasPaint,
   isometricCutBox,
   isometricStampLogo,
@@ -31,6 +32,7 @@ export class PanelUI {
     this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
     this.btns$[11] = this.crBtn({ txt: 'Линия' });
+    this.btns$[12] = this.crBtn({ txt: 'Текст' });
 
     this.initEvent();
   }
@@ -94,6 +96,10 @@ export class PanelUI {
 
     this.btns$[11].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'line' });
+    };
+
+    this.btns$[12].onmousedown = (e) => {
+      isometricSvgManager.setMode({ type: 'addText' });
     };
   }
 

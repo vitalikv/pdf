@@ -1,4 +1,4 @@
-import { mapControlInit, isometricSvgManager, isometricStampLogo } from './index';
+import { mapControlInit, isometricSvgManager, isometricNoteText, isometricStampLogo } from './index';
 
 export class IsometricModeService {
   isDown = false;
@@ -26,6 +26,7 @@ export class IsometricModeService {
 
   onmousedown = (event) => {
     let result = isometricStampLogo.onmousedown(event);
+    if (!result) isometricNoteText.onmousedown(event);
     if (result) return;
 
     isometricSvgManager.onmousedown(event);
@@ -38,6 +39,7 @@ export class IsometricModeService {
 
   onmousemove = (event) => {
     isometricStampLogo.onmousemove(event);
+    isometricNoteText.onmousemove(event);
 
     isometricSvgManager.onmousemove(event);
 
@@ -46,6 +48,7 @@ export class IsometricModeService {
 
   onmouseup = (event) => {
     isometricStampLogo.onmouseup(event);
+    isometricNoteText.onmouseup(event);
 
     isometricSvgManager.onmouseup(event);
 

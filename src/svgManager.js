@@ -6,6 +6,7 @@ import {
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
+  isometricNoteText,
   isometricCanvasPaint,
   isometricCutBox,
   isometricMovePdf,
@@ -34,6 +35,7 @@ export class IsometricSvgManager {
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
     isometricSvgRuler.init({ container, containerSvg });
+    isometricNoteText.init({ container });
     isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
     isometricMovePdf.init({ containerSvg });
@@ -196,6 +198,11 @@ export class IsometricSvgManager {
       this.setMode({ type: 'nextRuler', data: null });
     }
 
+    if (this.mode.type === 'addText') {
+      isometricNoteText.addText(event);
+      this.cleareMode();
+    }
+
     if (this.mode.type === 'brush') {
       isometricCanvasPaint.onmousedown(event);
     }
@@ -266,5 +273,6 @@ export class IsometricSvgManager {
     isometricNoteSvg.deleteNote();
     isometricNoteSvg2.deleteNote();
     isometricSvgRuler.deleteNote();
+    isometricNoteText.deleteNote();
   }
 }
