@@ -46,12 +46,10 @@ export class IsometricMovePdf {
   moveSvg(offset) {
     if (!this.containerSvg) return;
 
+    isometricSvgLine.moveOffset(offset);
+
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
-        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
-          isometricSvgLine.moveSvgLine({ svg, offset });
-        }
-
         if (svg['userData'].note1 && svg['userData'].tag === 'line') {
           isometricNoteSvg.moveSvgLine({ svg, offset });
         }

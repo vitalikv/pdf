@@ -163,8 +163,9 @@ export class IsometricSvgManager {
         isometricSvgLine.stopLine();
         this.cleareMode();
       } else {
-        isometricSvgLine.onmousedown(event);
-        this.setMode({ type: 'nextLine', data: null });
+        const result = isometricSvgLine.addNextLine(event);
+        if (result) this.cleareMode();
+        else this.setMode({ type: 'nextLine', data: null });
       }
     }
 
@@ -219,7 +220,7 @@ export class IsometricSvgManager {
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg.contains(event.target)) {
-        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+        if (svg['userData'].lineI) {
           isometricSvgLine.onmousedown(event);
           result = true;
         }
@@ -269,7 +270,7 @@ export class IsometricSvgManager {
   }
 
   deleteElem() {
-    isometricSvgLine.deleteLine();
+    isometricSvgLine.deleteObj();
     isometricNoteSvg.deleteNote();
     isometricNoteSvg2.deleteNote();
     isometricSvgRuler.deleteNote();
