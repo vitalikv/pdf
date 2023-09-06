@@ -55,7 +55,7 @@ export class IsometricNoteSvg {
 
     svg1['userData'] = { note1: true, tag: 'line', lock: false, line: svg1, point: svg2, label: svg3 };
     svg2['userData'] = { note1: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3 };
-    svg3['userData'] = { note1: true, tag: 'label', lock: false, line: svg1, point: svg2, label: svg3 };
+    svg3['userData'] = { note1: true, tag: 'label', lock: false, line: svg1, point: svg2, label: svg3, ...svg3['userData'] };
   }
 
   // создаем svg точки
@@ -123,11 +123,15 @@ export class IsometricNoteSvg {
 
     const svgCircle = this.createSvgCircle({ ind: 0, x, y, r });
     const svgLine = this.createSvgLine({ x1: -r + x, y1: 0 + y, x2: r + x, y2: 0 + y });
-    const svgText = this.createSvgText({ x, y, txt: text[0] });
+    const svgText1 = text[0] !== '' ? this.createSvgText({ x, y: Number(y) - 0, txt: text[0] }) : null;
+    const svgText2 = text[1] !== '' ? this.createSvgText({ x, y: Number(y) + 20, txt: text[1] }) : null;
 
     g.append(svgCircle);
     g.append(svgLine);
-    g.append(svgText);
+    g.append(svgText1);
+    g.append(svgText2);
+
+    g['userData'] = { svgCircle, svgLine, svgText1, svgText2 };
 
     this.containerSvg.children[0].append(g);
 
@@ -233,9 +237,10 @@ export class IsometricNoteSvg {
   }
 
   moveSvgLabel({ svg, offset, moveLine = true }) {
-    const svgCircle = svg.children[0];
-    const svgLine = svg.children[1];
-    const svgText1 = svg.children[2];
+    const svgCircle = svg['userData'].svgCircle;
+    const svgLine = svg['userData'].svgLine;
+    const svgText1 = svg['userData'].svgText1;
+    const svgText2 = svg['userData'].svgText2;
 
     const offsetX = offset.x;
     const offsetY = offset.y;
@@ -264,6 +269,14 @@ export class IsometricNoteSvg {
 
       svgText1.setAttribute('x', Number(x) + offsetX);
       svgText1.setAttribute('y', Number(y) + offsetY);
+    }
+
+    if (svgText2) {
+      const x = svgText2.getAttribute('x');
+      const y = svgText2.getAttribute('y');
+
+      svgText2.setAttribute('x', Number(x) + offsetX);
+      svgText2.setAttribute('y', Number(y) + offsetY);
     }
 
     if (moveLine && svg['userData'].line) {

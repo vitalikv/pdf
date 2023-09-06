@@ -60,11 +60,11 @@ export class PanelUI {
     };
 
     this.btns$[4].onmousedown = () => {
-      isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['ТК1-СПС31.1/1-И-1-012', ''] } });
+      isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС31.1/1-И-1-012'] } });
     };
 
     this.btns$[5].onmousedown = () => {
-      isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['ТК1-СПС31.1/1-И-1-012', ''] } });
+      isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['2', 'ТК1-СПС31.1/1-И-1-012'] } });
     };
 
     this.btns$[6].onmousedown = () => {
