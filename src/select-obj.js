@@ -22,7 +22,9 @@ export class IsometricModeService {
     }
   };
 
-  onKeyUp = (event) => {};
+  onKeyUp = (event) => {
+    isometricSvgManager.onKeyUp(event);
+  };
 
   onmousedown = (event) => {
     let result = isometricStampLogo.onmousedown(event);

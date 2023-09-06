@@ -9,6 +9,7 @@ import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
 import { IsometricSvgManager } from './svgManager';
+import { IsometricSelectBox } from './selectBox';
 import { IsometricSvgLine } from './svgLine';
 import { IsometricNoteSvg } from './noteSvg';
 import { IsometricNoteSvg2 } from './noteSvg2';
@@ -25,6 +26,7 @@ export let isometricModeService,
   isometricPdfToSvg,
   isometricExportPdf,
   isometricSvgManager,
+  isometricSelectBox,
   isometricSvgLine,
   isometricNoteSvg,
   isometricNoteSvg2,
@@ -128,6 +130,7 @@ function initServ() {
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
   isometricSvgManager = new IsometricSvgManager();
+  isometricSelectBox = new IsometricSelectBox();
   isometricSvgLine = new IsometricSvgLine();
   isometricNoteSvg = new IsometricNoteSvg();
   isometricNoteSvg2 = new IsometricNoteSvg2();
