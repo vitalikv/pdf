@@ -37,7 +37,7 @@ export class IsometricSvgManager {
   init() {
     const container = this.getContainer();
     const containerSvg = this.getContainerSvg();
-    isometricSelectBox.init({ container });
+    isometricSelectBox.init({ container, containerSvg });
     isometricSvgLine.init({ container, containerSvg });
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
@@ -118,9 +118,9 @@ export class IsometricSvgManager {
   onmousedown = (event) => {
     this.unselectAllNotes(event);
 
-    isometricSelectBox.onmousedown(event);
+    let result = isometricSelectBox.onmousedown(event);
 
-    let result = isometricMovePdf.onmousedown(event);
+    if (!result) result = isometricMovePdf.onmousedown(event);
 
     if (!result) {
       const actMode = this.checkMode(event);
