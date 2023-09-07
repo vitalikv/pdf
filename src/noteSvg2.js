@@ -54,7 +54,7 @@ export class IsometricNoteSvg2 {
     this.containerSvg.children[0].append(svg3);
 
     svg1['userData'] = { note2: true, tag: 'line', lock: false, line: svg1, point: svg2, label: svg3 };
-    svg2['userData'] = { note2: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3 };
+    svg2['userData'] = { note2: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3, crossOffset: false };
     svg3['userData'] = { note2: true, tag: 'label', lock: false, line: svg1, point: svg2, label: svg3, ...svg3['userData'] };
   }
 
@@ -173,6 +173,7 @@ export class IsometricNoteSvg2 {
 
     if (svg['userData'].tag === 'point') {
       this.moveSvgPoint({ svg, offset });
+      this.addLink({ svgPoint: svg, event });
     }
 
     if (svg['userData'].tag === 'label') {
@@ -418,5 +419,153 @@ export class IsometricNoteSvg2 {
     elems.label.remove();
 
     this.clearSelectedObj();
+  }
+
+  addLink({ svgPoint, event }) {
+    const arrLines = [];
+    const arrPoints = [];
+
+    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+      if (svg['userData']) {
+        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+          arrLines.push(svg);
+        }
+        if (svg['userData'].lineI && svg['userData'].tag === 'point') {
+          const display = svg.getAttribute('display');
+          if (display !== 'none') arrPoints.push(svg);
+        }
+        // if (svg['userData'].lineI && svg['userData'].tag === 'dline') {
+        //   arrLines.push(svg);
+        // }
+        if (svg['userData'].lineI && svg['userData'].tag === 'dpoint') {
+          arrPoints.push(svg);
+        }
+      }
+    });
+
+    const pos = this.getCoord(event);
+    let minDist = Infinity;
+    const result = { obj: null, type: '', pos: new THREE.Vector2() };
+
+    arrPoints.forEach((point) => {
+      const pos2 = this.getCoordPoint(point);
+
+      const dist = pos.distanceTo(pos2);
+      if (dist < minDist) {
+        minDist = dist;
+        result.obj = point;
+        result.pos = pos2;
+        result.type = 'point';
+      }
+    });
+
+    arrLines.forEach((line) => {
+      const pos2 = this.getCoordLine(line);
+      const posPr = this.spPoint(pos2.a, pos2.b, pos);
+      const onLine = this.calScal(pos2.a, pos2.b, pos);
+
+      if (onLine) {
+        const dist = pos.distanceTo(posPr);
+        if (dist < minDist) {
+          minDist = dist;
+          result.obj = line;
+          result.pos = posPr;
+          result.type = 'line';
+        }
+      }
+    });
+
+    let resultCross = null;
+
+    // нашли ближайшую точку с которой есть пересечение
+    if (minDist < 10) {
+      if (result.type === 'point') {
+        const cx2 = Number(svgPoint.getAttribute('cx'));
+        const cy2 = Number(svgPoint.getAttribute('cy'));
+        const offset = new THREE.Vector2(result.pos.x - cx2, result.pos.y - cy2);
+
+        this.moveSvgPoint({ svg: svgPoint, offset });
+      }
+      if (result.type === 'line') {
+        const cx2 = Number(svgPoint.getAttribute('cx'));
+        const cy2 = Number(svgPoint.getAttribute('cy'));
+        const offset = new THREE.Vector2(result.pos.x - cx2, result.pos.y - cy2);
+
+        this.moveSvgPoint({ svg: svgPoint, offset });
+      }
+
+      svgPoint['userData'].crossOffset = true;
+
+      resultCross = true;
+    } else if (svgPoint['userData'].crossOffset) {
+      svgPoint['userData'].crossOffset = false;
+      const cx2 = Number(svgPoint.getAttribute('cx'));
+      const cy2 = Number(svgPoint.getAttribute('cy'));
+
+      const offset = new THREE.Vector2(pos.x - cx2, pos.y - cy2);
+
+      this.moveSvgPoint({ svg: svgPoint, offset });
+    }
+
+    return resultCross;
+  }
+
+  getCoord(event) {
+    const bound = this.container.getBoundingClientRect();
+    const x = -bound.x + event.clientX;
+    const y = -bound.y + event.clientY;
+
+    return new THREE.Vector2(x, y);
+  }
+
+  getCoordPoint(svg) {
+    const cx = Number(svg.getAttribute('cx'));
+    const cy = Number(svg.getAttribute('cy'));
+
+    return new THREE.Vector2(cx, cy);
+  }
+
+  getCoordLine(svg) {
+    const cx1 = Number(svg.getAttribute('x1'));
+    const cy1 = Number(svg.getAttribute('y1'));
+    const cx2 = Number(svg.getAttribute('x2'));
+    const cy2 = Number(svg.getAttribute('y2'));
+
+    return { a: new THREE.Vector2(cx1, cy1), b: new THREE.Vector2(cx2, cy2) };
+  }
+
+  // проекция точки(С) на прямую (A,B)
+  spPoint(A, B, C) {
+    let x1 = A.x,
+      y1 = A.y,
+      x2 = B.x,
+      y2 = B.y,
+      x3 = C.x,
+      y3 = C.y;
+
+    let px = x2 - x1;
+    let py = y2 - y1;
+    let dAB = px * px + py * py;
+
+    let u = ((x3 - x1) * px + (y3 - y1) * py) / dAB;
+    let x = x1 + u * px;
+    let y = y1 + u * py;
+
+    return new THREE.Vector2(x, y);
+  }
+
+  // опредяляем, надодится точка D за пределами прямой или нет (точка D пересекает прямую АВ, идущая перпендикулярна от точки С)
+  calScal(A, B, C) {
+    let AB = { x: B.x - A.x, y: B.y - A.y };
+    let CD = { x: C.x - A.x, y: C.y - A.y };
+    const r1 = AB.x * CD.x + AB.y * CD.y; // скалярное произведение векторов
+
+    AB = { x: A.x - B.x, y: A.y - B.y };
+    CD = { x: C.x - B.x, y: C.y - B.y };
+    const r2 = AB.x * CD.x + AB.y * CD.y;
+
+    const cross = r1 < 0 || r2 < 0 ? false : true; // если true , то точка D находится на отрезке AB
+
+    return cross;
   }
 }
