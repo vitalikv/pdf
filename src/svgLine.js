@@ -34,7 +34,7 @@ export class IsometricSvgLine {
       const line1 = this.newNote.arr.l[ind];
       const line2 = this.newNote.arr.l[ind + 1];
       const pCenter = line2['userData'].p1;
-      this.addCorner({ line1, line2, pCenter });
+      this.addCorner({ line1, line2, pCenter, type: 'newline' });
     }
 
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
@@ -104,7 +104,7 @@ export class IsometricSvgLine {
   }
 
   // координаты создаваемой точки/стыка на линии (перед углом)
-  getCoordPointOnLine({ line, ind, pCenter = null }) {
+  getCoordPointOnLine({ line, ind = 0, pCenter = null }) {
     const pos = this.getCoordLine(line);
 
     let pos1 = pos.a;
@@ -145,9 +145,8 @@ export class IsometricSvgLine {
 
     const p2 = this.newNote.p2;
 
-    const result = this.svgPointCross({ p2, event, type: 'mouseup' });
+    const result = this.endMovePoint({ svg: p2, event });
     if (result) {
-      this.addCorner({ line1: result.line1, line2: result.line2, pCenter: result.pCenter });
       this.stopLine(false);
       return true;
     }
@@ -158,30 +157,35 @@ export class IsometricSvgLine {
   }
 
   // создаем автоматический угол
-  addCorner({ line1, line2, pCenter }) {
+  addCorner({ line1, line2, pCenter, type = '' }) {
     const degree = this.getAngleLines({ line1, line2, pCenter });
 
-    if (degree > 150 || degree < 10) return;
+    if (degree > 150) return;
 
     const res1 = this.getCoordPointOnLine({ line: line1, ind: 1, pCenter });
     const res2 = this.getCoordPointOnLine({ line: line2, ind: 2, pCenter });
 
+    let pd1 = res1.ind === 1 ? line1['userData'].pd1 : line1['userData'].pd2;
+    let pd2 = res2.ind === 1 ? line2['userData'].pd1 : line2['userData'].pd2;
+    if (pd1 && pd2) return;
+
     if (res1.dist > 40 && res2.dist > 40) {
+      const stroke = type === 'newline' ? '#ff0000' : '#000000';
+
       // создаем 2 точки перед углом
-      const pd2 = this.createSvgCircle({ ind: 0, x: res1.pos.x, y: res1.pos.y });
-      const pd1 = this.createSvgCircle({ ind: 0, x: res2.pos.x, y: res2.pos.y });
+      const pd2 = this.createSvgCircle({ ind: 0, x: res1.pos.x, y: res1.pos.y, stroke });
+      const pd1 = this.createSvgCircle({ ind: 0, x: res2.pos.x, y: res2.pos.y, stroke });
       this.containerSvg.children[0].append(pd1);
       this.containerSvg.children[0].append(pd2);
 
       // создаем 2 линии для угла
       const x = Number(pCenter.getAttribute('cx'));
       const y = Number(pCenter.getAttribute('cy'));
-      const ld2 = this.createSvgLine({ x1: res1.pos.x, y1: res1.pos.y, x2: x, y2: y, stroke: '#ff0000' });
-      const ld1 = this.createSvgLine({ x1: res2.pos.x, y1: res2.pos.y, x2: x, y2: y, stroke: '#ff0000' });
+      const ld2 = this.createSvgLine({ x1: res1.pos.x, y1: res1.pos.y, x2: x, y2: y, stroke });
+      const ld1 = this.createSvgLine({ x1: res2.pos.x, y1: res2.pos.y, x2: x, y2: y, stroke });
       this.containerSvg.children[0].append(ld1);
       this.containerSvg.children[0].append(ld2);
 
-      let _pd2 = pd2;
       if (res1.ind === 2) {
         line1['userData'].pd2 = pd2;
         line1['userData'].ld2 = ld2;
@@ -207,15 +211,13 @@ export class IsometricSvgLine {
       ld1['userData'].pCenter = pCenter;
       ld1['userData'].ld = ld2;
       ld1['userData'].line = line2;
-      ld1['userData'].pd1 = pd1;
-      ld1['userData'].pd2 = pd2;
+      ld1['userData'].pd = pd1;
 
       ld2['userData'].tag = 'dline';
       ld2['userData'].pCenter = pCenter;
       ld2['userData'].ld = ld1;
       ld2['userData'].line = line1;
-      ld2['userData'].pd1 = pd1;
-      ld2['userData'].pd2 = pd2;
+      ld2['userData'].pd = pd2;
 
       pCenter['userData'].pds.push(pd1, pd2);
 
@@ -236,8 +238,8 @@ export class IsometricSvgLine {
     const y2 = y;
 
     const line = this.createSvgLine({ x1, y1, x2, y2, stroke: '#ff0000' });
-    const p1 = ps1 ? ps1 : this.createSvgCircle({ ind: 0, x: x1, y: y1 });
-    const p2 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
+    const p1 = ps1 ? ps1 : this.createSvgCircle({ ind: 0, x: x1, y: y1, stroke: '#ff0000' });
+    const p2 = this.createSvgCircle({ ind: 0, x: x1, y: y1, stroke: '#ff0000' });
 
     this.containerSvg.children[0].append(line);
     if (!ps1) this.containerSvg.children[0].append(p1);
@@ -274,7 +276,7 @@ export class IsometricSvgLine {
   }
 
   // создаем svg точки
-  createSvgCircle({ ind, x, y, r = 3.2 }) {
+  createSvgCircle({ ind, x, y, r = '3.2', stroke = '#000000' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 
     svg.setAttribute('cx', x);
@@ -282,10 +284,10 @@ export class IsometricSvgLine {
 
     svg.setAttribute('r', r);
     svg.setAttribute('stroke-width', '2px');
-    svg.setAttribute('stroke', '#ff0000');
+    svg.setAttribute('stroke', stroke);
     svg.setAttribute('transform-origin', 'center');
 
-    svg.setAttribute('fill', '#ff0000');
+    svg.setAttribute('fill', stroke);
     svg.setAttribute('ind', ind);
 
     svg.setAttributeNS(null, 'style', 'transform: translateX(0) translateY(0);');
@@ -379,19 +381,50 @@ export class IsometricSvgLine {
     if (!svg) return;
 
     if (svg['userData'].tag === 'point') {
-      const result = this.svgPointCross({ p2: svg, event, type: 'mouseup' });
-
-      if (result) {
-        this.addCorner({ line1: result.line1, line2: result.line2, pCenter: result.pCenter });
-
-        if (result.line1['userData'].ld1) {
-          this.actElem(result.line1['userData'].ld1, false);
-        } else if (result.line1['userData'].ld2) {
-          this.actElem(result.line1['userData'].ld2, false);
-        }
-      }
+      this.endMovePoint({ svg, event });
     }
   };
+
+  // заканчиваем перетаскивание точки на другой точке
+  endMovePoint({ svg, event }) {
+    const result = this.svgPointCross({ p2: svg, event, type: 'mouseup' });
+
+    if (result) {
+      const point = result.point;
+
+      if (result.tag === 'point') {
+        const lines = point['userData'].lines;
+
+        if (lines.length === 2) {
+          this.addCorner({ line1: lines[0], line2: lines[1], pCenter: point });
+
+          if (lines[0]['userData'].ld1) {
+            this.actElem(lines[0]['userData'].ld1, false);
+          } else if (lines[0]['userData'].ld2) {
+            this.actElem(lines[0]['userData'].ld2, false);
+          }
+        }
+      }
+      // перетащили на точку с углом, создаем связь с углом и обновляем угол
+      if (result.tag === 'dpoint') {
+        const { pCenter, pd1, ld1 } = this.getElemsCorner(point);
+
+        const line = result.line;
+
+        const res1 = this.getCoordPointOnLine({ line, pCenter });
+        const ind1 = res1.ind;
+
+        line['userData']['ld' + ind1] = ld1;
+        line['userData']['pd' + ind1] = pd1;
+        line['userData']['p' + ind1] = pCenter;
+        pCenter['userData'].lines.push(line);
+
+        this.moveSvgPoint({ svg: pCenter, offset: new THREE.Vector2() });
+      }
+    }
+
+    return result ? true : false;
+  }
 
   moveSvgLine({ svg, offset }) {
     const offsetX = offset.x;
@@ -502,6 +535,8 @@ export class IsometricSvgLine {
         svgLd.setAttribute('y2', Number(y2) + offsetY);
       }
     });
+
+    this.updateCorner({ point: svg });
   }
 
   // пересечение перетаскиваемой точки с другой точкой
@@ -514,7 +549,12 @@ export class IsometricSvgLine {
     this.containerSvg.children[0].childNodes.forEach((svg) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'point') {
-          arrPoints.push(svg);
+          const display = svg.getAttribute('display');
+          if (display !== 'none') arrPoints.push(svg);
+        }
+        if (svg['userData'].lineI && svg['userData'].tag === 'dpoint') {
+          const { line1 } = this.getElemsCorner(svg);
+          if (!line1) arrPoints.push(svg);
         }
       }
     });
@@ -553,6 +593,8 @@ export class IsometricSvgLine {
       svgLine.setAttribute('x' + ind, Number(cx));
       svgLine.setAttribute('y' + ind, Number(cy));
 
+      const tag = svgCross['userData'].tag;
+
       if (type === 'mouseup') {
         let index = p2['userData'].lines.indexOf(svgLine);
         if (index > -1) p2['userData'].lines.splice(index, 1);
@@ -564,14 +606,14 @@ export class IsometricSvgLine {
           svgLine['userData'].p2 = svgCircle;
         }
 
-        svgCircle['userData'].lines.push(svgLine);
+        if (tag === 'point') svgCircle['userData'].lines.push(svgLine);
 
         if (svgLine['userData'].p1 === svgLine['userData'].p2) {
           this.deleteLine(svgLine);
         }
       }
 
-      resultCross = { line1: svgCircle['userData'].lines[0], line2: svgCircle['userData'].lines[1], pCenter: svgCircle };
+      resultCross = { tag, point: svgCircle, line: svgLine };
     } else if (p2['userData'].crossOffset) {
       p2['userData'].crossOffset = false;
 
@@ -580,6 +622,88 @@ export class IsometricSvgLine {
     }
 
     return resultCross;
+  }
+
+  // перемещения угла
+  updateCorner({ point }) {
+    const arrPs = [];
+
+    if (point['userData'].lines.length === 2) {
+      const pCenter = point;
+      const lines2 = pCenter['userData'].lines;
+      if (lines2.length !== 2) return;
+
+      const line1 = lines2[0];
+      const line2 = lines2[1];
+
+      this.addCorner({ line1, line2, pCenter });
+      this.delCorner({ line1, line2, pCenter });
+    }
+
+    point['userData'].lines.forEach((line) => {
+      const p1 = line['userData'].p1;
+      const p2 = line['userData'].p2;
+
+      const pCenter = point !== p1 ? p1 : p2;
+      const lines2 = pCenter['userData'].lines;
+      if (lines2.length !== 2) return;
+
+      const line1 = lines2[0];
+      const line2 = lines2[1];
+
+      this.addCorner({ line1, line2, pCenter });
+      this.delCorner({ line1, line2, pCenter });
+    });
+  }
+
+  delCorner({ line1, line2, pCenter }) {
+    const degree = this.getAngleLines({ line1, line2, pCenter });
+    const res1 = this.getCoordPointOnLine({ line: line1, pCenter });
+    const res2 = this.getCoordPointOnLine({ line: line2, pCenter });
+
+    let stop = true;
+    if (degree > 150 || res1.dist < 40 || res2.dist < 40) stop = false;
+    if (stop) return;
+
+    let ind1 = res1.ind;
+    let ind2 = res2.ind;
+    const cx = Number(pCenter.getAttribute('cx'));
+    const cy = Number(pCenter.getAttribute('cy'));
+
+    let pd1 = ind1 === 1 ? line1['userData'].pd1 : line1['userData'].pd2;
+    let pd2 = ind2 === 1 ? line2['userData'].pd1 : line2['userData'].pd2;
+
+    let ld1 = ind1 === 1 ? line1['userData'].ld1 : line1['userData'].ld2;
+    let ld2 = ind2 === 1 ? line2['userData'].ld1 : line2['userData'].ld2;
+
+    if (!pd1 && !pd2) return;
+
+    if (pd1) {
+      pd1.remove();
+      ld1.remove();
+      line1['userData']['ld' + ind1] = null;
+      line1['userData']['pd' + ind1] = null;
+    }
+
+    if (pd2) {
+      pd2.remove();
+      ld2.remove();
+      line2['userData']['ld' + ind2] = null;
+      line2['userData']['pd' + ind2] = null;
+    }
+
+    let index = pCenter['userData'].pds.indexOf(pd1);
+    if (index > -1) pCenter['userData'].pds.splice(index, 1);
+
+    index = pCenter['userData'].pds.indexOf(pd2);
+    if (index > -1) pCenter['userData'].pds.splice(index, 1);
+
+    line1.setAttribute('x' + ind1, cx);
+    line1.setAttribute('y' + ind1, cy);
+    line2.setAttribute('x' + ind2, cx);
+    line2.setAttribute('y' + ind2, cy);
+
+    pCenter.setAttribute('display', '');
   }
 
   clearSelectedObj() {
@@ -597,6 +721,8 @@ export class IsometricSvgLine {
       svg.setAttribute('fill', stroke);
     } else if (svg['userData'].tag === 'dline') {
       this.actCorner(svg, act);
+    } else if (svg['userData'].tag === 'dpoint') {
+      this.actCorner(svg, act);
     } else {
       return;
     }
@@ -611,10 +737,7 @@ export class IsometricSvgLine {
   actCorner(svg, act = false) {
     const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
 
-    const pd1 = svg['userData'].pd1;
-    const pd2 = svg['userData'].pd2;
-    const pCenter = svg['userData'].pCenter;
-    const ld = svg['userData'].ld;
+    const { ld1, ld2, pd1, pd2, pCenter } = this.getElemsCorner(svg);
 
     svg.setAttribute('stroke', stroke);
 
@@ -632,9 +755,65 @@ export class IsometricSvgLine {
       pCenter.setAttribute('stroke', stroke);
       pCenter.setAttribute('fill', stroke);
     }
-    if (ld) {
-      ld.setAttribute('stroke', stroke);
+    if (ld1) {
+      ld1.setAttribute('stroke', stroke);
     }
+    if (ld2) {
+      ld2.setAttribute('stroke', stroke);
+    }
+  }
+
+  // получаем элементы угла
+  getElemsCorner(svg) {
+    let pd = null;
+    let ld = null;
+    let po = null;
+
+    const elems = { ld1: null, ld2: null, pd1: null, pd2: null, pCenter: null, line1: null, line2: null };
+
+    if (svg['userData'].tag === 'dpoint') {
+      pd = svg;
+    }
+    if (svg['userData'].tag === 'dline') {
+      ld = svg;
+    }
+    if (svg['userData'].tag === 'point') {
+      po = svg;
+    }
+
+    if (pd) {
+      elems.pd1 = pd;
+      elems.ld1 = elems.pd1['userData'].ld;
+      elems.line1 = elems.ld1['userData'].line;
+      elems.pCenter = elems.ld1['userData'].pCenter;
+      elems.pd2 = elems.pCenter['userData'].pds[0] === elems.pd1 ? elems.pCenter['userData'].pds[1] : elems.pCenter['userData'].pds[0];
+      elems.ld2 = elems.pd2['userData'].ld;
+      elems.line2 = elems.ld2['userData'].line;
+    }
+    if (ld) {
+      elems.ld1 = ld;
+      elems.pd1 = elems.ld1['userData'].pd;
+      elems.pCenter = elems.ld1['userData'].pCenter;
+      elems.line1 = elems.ld1['userData'].line;
+      elems.pd2 = elems.pCenter['userData'].pds[0] === elems.pd1 ? elems.pCenter['userData'].pds[1] : elems.pCenter['userData'].pds[0];
+      elems.ld2 = elems.pd2['userData'].ld;
+      elems.line2 = elems.ld2['userData'].line;
+    }
+    if (po) {
+      elems.pCenter = po;
+      elems.pd1 = po['userData'].pds[0];
+      if (elems.pd1) {
+        elems.ld1 = elems.pd1['userData'].ld;
+        elems.line1 = elems.ld1['userData'].line;
+      }
+      elems.pd2 = po['userData'].pds[1];
+      if (elems.pd1) {
+        elems.ld2 = elems.pd2['userData'].ld;
+        elems.line2 = elems.ld2['userData'].line;
+      }
+    }
+
+    return elems;
   }
 
   stopLine(del = true) {
@@ -678,6 +857,7 @@ export class IsometricSvgLine {
 
     line.remove();
     if (p2) p2.remove();
+    if (p1 && p1['userData'].lines.length === 0) p1.remove();
   }
 
   moveOffset(offset) {
@@ -908,6 +1088,11 @@ export class IsometricSvgLine {
   deleteLine(line) {
     const p1 = line['userData'].p1;
     const p2 = line['userData'].p2;
+    const ld1 = line['userData'].ld1;
+    const ld2 = line['userData'].ld2;
+
+    if (ld1) ld1['userData'].line = null;
+    if (ld2) ld2['userData'].line = null;
 
     let index = p1['userData'].lines.indexOf(line);
     if (index > -1) p1['userData'].lines.splice(index, 1);
@@ -948,6 +1133,12 @@ export class IsometricSvgLine {
         arrPoints.push(p);
       }
 
+      const ld1 = line['userData'].ld1;
+      const ld2 = line['userData'].ld2;
+
+      if (ld1) ld1['userData'].line = null;
+      if (ld2) ld2['userData'].line = null;
+
       // удаляем линию
       line.remove();
     });
@@ -970,6 +1161,34 @@ export class IsometricSvgLine {
       line['userData'].p2 = p2;
       p1['userData'].lines.push(line);
       p2['userData'].lines.push(line);
+
+      //--------
+
+      [p1, p2].forEach((pCenter, i) => {
+        const { pd1, ld1, pd2, ld2 } = this.getElemsCorner(pCenter);
+
+        const res1 = this.getCoordPointOnLine({ line, pCenter });
+        const ind1 = res1.ind;
+
+        let pd = null;
+        let ld = null;
+
+        if (ind1 === 1) {
+          pd = pd1;
+          ld = ld1;
+        }
+        if (ind1 === 2) {
+          pd = pd2;
+          ld = ld2;
+        }
+
+        if (pd && ld) {
+          line['userData']['ld' + ind1] = ld;
+          line['userData']['pd' + ind1] = pd;
+
+          this.moveSvgPoint({ svg: pCenter, offset: new THREE.Vector2() });
+        }
+      });
     }
 
     arrPoints.forEach((p) => {
@@ -981,29 +1200,61 @@ export class IsometricSvgLine {
 
   // удаляем угол
   deleteCorner(elem) {
-    const elems = { l1: null, l2: null, line1: null, line2: null };
+    let ld1 = null;
+    let ld2 = null;
+    let pd1 = null;
+    let pd2 = null;
+    let pCenter = null;
+    let line1 = null;
+    let line2 = null;
 
     if (elem['userData'].tag === 'dline') {
-      elems.l1 = elem;
-      elems.l2 = elem['userData'].ld;
+      ld1 = elem;
+      ld2 = elem['userData'].ld;
+      pd1 = ld1['userData'].pd;
+      pd2 = ld2['userData'].pd;
+      pCenter = elem['userData'].pCenter;
 
-      elems.line1 = elems.l1['userData'].line;
-      elems.line2 = elems.l2['userData'].line;
+      line1 = ld1['userData'].line;
+      line2 = ld2['userData'].line;
     }
 
-    if (elems.line1['userData'].ld1 === elems.l1) {
-      elems.line1['userData'].ld1 = null;
-    } else if (elems.line1['userData'].ld2 === elems.l1) {
-      elems.line1['userData'].ld2 = null;
+    const ind1 = line1['userData'].pd1 === pd1 ? 1 : 2;
+    const ind2 = line2['userData'].pd1 === pd2 ? 1 : 2;
+
+    line1['userData']['ld' + ind1] = null;
+    line1['userData']['pd' + ind1] = null;
+    line2['userData']['ld' + ind2] = null;
+    line2['userData']['pd' + ind2] = null;
+
+    const cx1 = Number(pd1.getAttribute('cx'));
+    const cy1 = Number(pd1.getAttribute('cy'));
+    const newP1 = this.createSvgCircle({ ind: 0, x: cx1, y: cy1 });
+    this.containerSvg.children[0].append(newP1);
+    newP1['userData'].lines.push(line1);
+
+    if (ind1 === 1) {
+      line1['userData'].p1 = newP1;
+    } else {
+      line1['userData'].p2 = newP1;
     }
 
-    if (elems.line2['userData'].ld1 === elems.l2) {
-      elems.line2['userData'].ld1 = null;
-    } else if (elems.line2['userData'].ld2 === elems.l2) {
-      elems.line2['userData'].ld2 = null;
+    const cx2 = Number(pd2.getAttribute('cx'));
+    const cy2 = Number(pd2.getAttribute('cy'));
+    const newP2 = this.createSvgCircle({ ind: 0, x: cx2, y: cy2 });
+    this.containerSvg.children[0].append(newP2);
+    newP2['userData'].lines.push(line2);
+
+    if (ind2 === 1) {
+      line2['userData'].p1 = newP2;
+    } else {
+      line2['userData'].p2 = newP2;
     }
 
-    elems.l1.remove();
-    elems.l2.remove();
+    pCenter.remove();
+    pd1.remove();
+    pd2.remove();
+    ld1.remove();
+    ld2.remove();
   }
 }
