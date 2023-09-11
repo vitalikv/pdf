@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+import { isometricNoteSvg, isometricNoteSvg2 } from './index';
+
 export class IsometricSvgLine {
   container;
   containerSvg;
@@ -271,6 +273,7 @@ export class IsometricSvgLine {
     svg['userData'].pd2 = null;
     svg['userData'].ld1 = null;
     svg['userData'].ld2 = null;
+    svg['userData'].links = [];
 
     return svg;
   }
@@ -537,6 +540,10 @@ export class IsometricSvgLine {
     });
 
     this.updateCorner({ point: svg });
+
+    svg['userData'].lines.forEach((svgLine) => {
+      isometricNoteSvg.updataPos(svgLine);
+    });
   }
 
   // пересечение перетаскиваемой точки с другой точкой

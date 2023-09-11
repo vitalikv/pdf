@@ -54,7 +54,7 @@ export class IsometricNoteSvg2 {
     this.containerSvg.children[0].append(svg3);
 
     svg1['userData'] = { note2: true, tag: 'line', lock: false, line: svg1, point: svg2, label: svg3 };
-    svg2['userData'] = { note2: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3, crossOffset: false };
+    svg2['userData'] = { note2: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3, crossOffset: false, link: null };
     svg3['userData'] = { note2: true, tag: 'label', lock: false, line: svg1, point: svg2, label: svg3, ...svg3['userData'] };
   }
 
@@ -185,6 +185,11 @@ export class IsometricNoteSvg2 {
 
   onmouseup = (event) => {
     this.isDown = false;
+
+    const svg = this.selectedObj.el;
+    if (svg && svg['userData'].tag === 'point') {
+      this.addLink({ svgPoint: svg, event, mouseup: true });
+    }
   };
 
   moveSvgLine({ svg, offset }) {
@@ -421,7 +426,7 @@ export class IsometricNoteSvg2 {
     this.clearSelectedObj();
   }
 
-  addLink({ svgPoint, event }) {
+  addLink({ svgPoint, event, mouseup = false }) {
     const arrLines = [];
     const arrPoints = [];
 
@@ -494,20 +499,81 @@ export class IsometricNoteSvg2 {
         this.moveSvgPoint({ svg: svgPoint, offset });
       }
 
+      if (mouseup) {
+        if (result.type === 'line') {
+          this.addLinkUp({ svgPoint, result });
+        }
+      }
+
       svgPoint['userData'].crossOffset = true;
 
       resultCross = true;
-    } else if (svgPoint['userData'].crossOffset) {
-      svgPoint['userData'].crossOffset = false;
-      const cx2 = Number(svgPoint.getAttribute('cx'));
-      const cy2 = Number(svgPoint.getAttribute('cy'));
+    } else {
+      if (svgPoint['userData'].crossOffset) {
+        svgPoint['userData'].crossOffset = false;
+        const cx2 = Number(svgPoint.getAttribute('cx'));
+        const cy2 = Number(svgPoint.getAttribute('cy'));
 
-      const offset = new THREE.Vector2(pos.x - cx2, pos.y - cy2);
+        const offset = new THREE.Vector2(pos.x - cx2, pos.y - cy2);
 
-      this.moveSvgPoint({ svg: svgPoint, offset });
+        this.moveSvgPoint({ svg: svgPoint, offset });
+      }
+
+      if (mouseup) {
+        this.unLink(svgPoint);
+      }
     }
 
     return resultCross;
+  }
+
+  // убираем привязку выноски к линии
+  unLink(svgPoint) {
+    const link = svgPoint['userData'].link;
+    if (!link) return;
+
+    //console.log(svgPoint['userData'].link, link.obj['userData'].links);
+
+    const links = link.obj['userData'].links;
+
+    let index = links.indexOf(svgPoint);
+    if (index > -1) links.splice(index, 1);
+
+    svgPoint['userData'].link = null;
+  }
+
+  // добавляем привязку выноски к линии
+  addLinkUp({ svgPoint, result }) {
+    const line = result.obj;
+    svgPoint['userData'].link = { obj: line, dist: 0 };
+
+    const pos = this.getCoordLine(line);
+    const fullDist = pos.a.distanceTo(pos.b);
+    const distFirst = pos.a.distanceTo(result.pos);
+    const dist = Math.round((distFirst / fullDist) * 100) / 100;
+
+    svgPoint['userData'].link.dist = dist;
+
+    line['userData'].links.push(svgPoint);
+
+    //console.log(svgPoint['userData'].link, line['userData'].links);
+  }
+
+  // двигаем выноску вслед за привязанным объектом
+  updataPos(line) {
+    line['userData'].links.forEach((svgPoint) => {
+      const { dist } = svgPoint['userData'].link;
+
+      const coord = this.getCoordLine(line);
+      let pos = new THREE.Vector2().subVectors(coord.b, coord.a);
+      pos = new THREE.Vector2().addScaledVector(pos, dist);
+      pos.add(coord.a);
+
+      svgPoint.setAttribute('cx', pos.x);
+      svgPoint.setAttribute('cy', pos.y);
+      svgPoint['userData'].line.setAttribute('x1', pos.x);
+      svgPoint['userData'].line.setAttribute('y1', pos.y);
+    });
   }
 
   getCoord(event) {
