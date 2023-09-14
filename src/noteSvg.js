@@ -38,6 +38,8 @@ export class IsometricNoteSvg {
     let x2 = 400;
     let y2 = 400;
 
+    const id = data.passport.id;
+
     if (btn) {
       x1 = x;
       y1 = y;
@@ -49,6 +51,10 @@ export class IsometricNoteSvg {
     const svg2 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
     const svg3 = this.createSvgLabel({ ind: 0, x: x2, y: y2, r: 60, text: data.text });
 
+    svg1.setAttribute('id', id);
+    svg2.setAttribute('id', id);
+    svg3.setAttribute('id', id);
+
     this.containerSvg.children[0].append(svg1);
     this.containerSvg.children[0].append(svg2);
     this.containerSvg.children[0].append(svg3);
@@ -56,6 +62,8 @@ export class IsometricNoteSvg {
     svg1['userData'] = { note1: true, tag: 'line', lock: false, line: svg1, point: svg2, label: svg3 };
     svg2['userData'] = { note1: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3, crossOffset: false, link: null };
     svg3['userData'] = { note1: true, tag: 'label', lock: false, line: svg1, point: svg2, label: svg3, ...svg3['userData'] };
+
+    return { svg1, svg2, svg3 };
   }
 
   // создаем svg точки
@@ -316,12 +324,18 @@ export class IsometricNoteSvg {
     }
   }
 
-  setLockOnSvg(svg) {
+  setLockOnSvg(svg, lock = null) {
     const elems = { line: svg['userData'].line, point: svg['userData'].point, label: svg['userData'].label };
 
-    elems.line['userData'].lock = !elems.line['userData'].lock;
-    elems.point['userData'].lock = !elems.point['userData'].lock;
-    elems.label['userData'].lock = !elems.label['userData'].lock;
+    if (lock !== null) {
+      elems.line['userData'].lock = lock;
+      elems.point['userData'].lock = lock;
+      elems.label['userData'].lock = lock;
+    } else {
+      elems.line['userData'].lock = !elems.line['userData'].lock;
+      elems.point['userData'].lock = !elems.point['userData'].lock;
+      elems.label['userData'].lock = !elems.label['userData'].lock;
+    }
 
     const fill = elems.point['userData'].lock ? '#000' : '#fff';
 
@@ -339,7 +353,19 @@ export class IsometricNoteSvg {
 
     const svg = this.selectedObj.el;
 
-    return { line: svg['userData'].line, point: svg['userData'].point, label: svg['userData'].label };
+    return this.getStructureNote(svg);
+  }
+
+  getStructureNote(svg) {
+    const label = svg['userData'].label;
+    const labelEls = {
+      svgCircle: label['userData'].svgCircle,
+      svgLine: label['userData'].svgLine,
+      svgText1: label['userData'].svgText1,
+      svgText2: label['userData'].svgText2,
+    };
+
+    return { line: svg['userData'].line, point: svg['userData'].point, label, labelEls };
   }
 
   scale(canvas, ratio, bound2) {
@@ -399,7 +425,7 @@ export class IsometricNoteSvg {
     this.clearSelectedObj();
   }
 
-  addLink({ svgPoint, event, mouseup = false }) {
+  addLink({ svgPoint, event, mouseup = false, pos = null }) {
     const arrLines = [];
     const arrPoints = [];
 
@@ -421,7 +447,7 @@ export class IsometricNoteSvg {
       }
     });
 
-    const pos = this.getCoord(event);
+    if (!pos) pos = this.getCoord(event);
     let minDist = Infinity;
     const result = { obj: null, type: '', pos: new THREE.Vector2() };
 

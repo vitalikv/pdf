@@ -11,6 +11,8 @@ import {
   isometricCanvasPaint,
   isometricCutBox,
   isometricMovePdf,
+  isometricSvgSave,
+  isometricSvgLoad,
 } from './index';
 
 export class IsometricSvgManager {
@@ -46,6 +48,8 @@ export class IsometricSvgManager {
     isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
     isometricMovePdf.init({ containerSvg });
+    isometricSvgSave.init({ container, containerSvg });
+    isometricSvgLoad.init({ container, containerSvg });
   }
 
   getContainer() {

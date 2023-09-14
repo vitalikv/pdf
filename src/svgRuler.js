@@ -41,7 +41,7 @@ export class IsometricSvgRuler {
   }
 
   // создать выноску
-  createElement({ btn = false, x, y, data }) {
+  createElement({ btn = false, x, y, data = null }) {
     let x1 = 600;
     let y1 = 600;
     let x2 = 400;
@@ -110,11 +110,11 @@ export class IsometricSvgRuler {
     return svg;
   }
 
-  createDivText({ p1, p2 }) {
+  createDivText({ p1, p2, txt = 'размер' }) {
     const container = document.createElement('div');
 
     const elem = document.createElement('div');
-    elem.textContent = 'размер';
+    elem.textContent = txt;
     elem.style.fontSize = '20px';
     //elem.style.fontFamily = 'arial,sans-serif';
     elem.style.fontFamily = 'Gostcadkk';
@@ -127,6 +127,8 @@ export class IsometricSvgRuler {
     container.style.left = '-99999px';
     container.style.transform = 'translateX(-50%) translateY(-50%)';
     container.style.zIndex = '4';
+
+    p2['userData'].divText = container;
 
     this.containerSvg.append(container);
     this.initEventLabel(container);
@@ -215,9 +217,7 @@ export class IsometricSvgRuler {
 
   onmousedown = (event) => {
     if (this.newNote.type === 'move' && this.newNote.p2) {
-      const divText = this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
-
-      this.newNote.p2['userData'].divText = divText;
+      this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
 
       this.newNote.type = 'move2';
       //this.newNote.p2 = this.newNote.p2['userData'].line;
@@ -450,6 +450,10 @@ export class IsometricSvgRuler {
 
     const svg = this.selectedObj.el;
 
+    return this.getStructureNote(svg);
+  }
+
+  getStructureNote(svg) {
     return {
       line: svg['userData'].line,
       p1: svg['userData'].p1,

@@ -9,6 +9,8 @@ import {
   isometricCanvasPaint,
   isometricCutBox,
   isometricStampLogo,
+  isometricSvgSave,
+  isometricSvgLoad,
 } from './index';
 
 export class PanelUI {
@@ -33,6 +35,8 @@ export class PanelUI {
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
     this.btns$[11] = this.crBtn({ txt: 'Линия' });
     this.btns$[12] = this.crBtn({ txt: 'Текст' });
+    this.btns$[13] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[14] = this.crBtn({ txt: 'Загрузить' });
 
     this.initEvent();
   }
@@ -60,11 +64,11 @@ export class PanelUI {
     };
 
     this.btns$[4].onmousedown = () => {
-      isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС31.1/1-И-1-012'] } });
+      isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС31.1/1-И-1-012'], passport: { id: 232 } } });
     };
 
     this.btns$[5].onmousedown = () => {
-      isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['2', 'ТК1-СПС31.1/1-И-1-012'] } });
+      isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['2', 'ТК1-СПС31.1/1-И-1-012'], passport: { id: 44 } } });
     };
 
     this.btns$[6].onmousedown = () => {
@@ -100,6 +104,14 @@ export class PanelUI {
 
     this.btns$[12].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'addText' });
+    };
+
+    this.btns$[13].onmousedown = (e) => {
+      isometricSvgSave.save();
+    };
+
+    this.btns$[14].onmousedown = (e) => {
+      isometricSvgLoad.load();
     };
   }
 
