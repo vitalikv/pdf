@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 
+import { isometricMath } from './index';
+
 export class IsometricSelectBox {
   activated = false;
   isDown = false;
@@ -182,10 +184,10 @@ export class IsometricSelectBox {
 
     arrLines.forEach((svg) => {
       const { a, b } = this.getCoordLine(svg);
-      let result = this.checkPointInsideForm(a, form);
+      let result = isometricMath.checkPointInsideForm(a, form);
       if (result) this.selectedArr.objs.push(svg);
       if (!result) {
-        result = this.checkPointInsideForm(b, form);
+        result = isometricMath.checkPointInsideForm(b, form);
         if (result) this.selectedArr.objs.push(svg);
       }
 
@@ -194,7 +196,7 @@ export class IsometricSelectBox {
           const i2 = i + 1 > form.length - 1 ? 0 : i + 1;
           const c = form[i];
           const d = form[i2];
-          result = this.crossLine(a, b, c, d);
+          result = isometricMath.crossLine(a, b, c, d);
 
           if (result) {
             this.selectedArr.objs.push(svg);
@@ -206,72 +208,19 @@ export class IsometricSelectBox {
 
     arrPoints.forEach((svg) => {
       const pos = this.getCoordPoint(svg);
-      const result = this.checkPointInsideForm(pos, form);
+      const result = isometricMath.checkPointInsideForm(pos, form);
       if (result) this.selectedArr.objs.push(svg);
     });
 
     arrDPoints.forEach((svg) => {
       const pos = this.getCoordPoint(svg);
-      const result = this.checkPointInsideForm(pos, form);
+      const result = isometricMath.checkPointInsideForm(pos, form);
       if (result) this.selectedArr.objs.push(svg);
     });
 
     this.selectedArr.objs.forEach((svg) => {
       this.actElem(svg, true);
     });
-  }
-
-  // точка внутри многоугольника
-  checkPointInsideForm(point, p) {
-    let result = false;
-    let j = p.length - 1;
-    for (let i = 0; i < p.length; i++) {
-      if (
-        ((p[i].y < point.y && p[j].y >= point.y) || (p[j].y < point.y && p[i].y >= point.y)) &&
-        p[i].x + ((point.y - p[i].y) / (p[j].y - p[i].y)) * (p[j].x - p[i].x) < point.x
-      )
-        result = !result;
-      j = i;
-    }
-
-    return result;
-  }
-
-  // Проверка двух отрезков на пересечение (ориентированная площадь треугольника)
-  crossLine(a, b, c, d) {
-    return (
-      this.intersect_1(a.x, b.x, c.x, d.x) &&
-      this.intersect_1(a.y, b.y, c.y, d.y) &&
-      this.area_1(a, b, c) * this.area_1(a, b, d) <= 0 &&
-      this.area_1(c, d, a) * this.area_1(c, d, b) <= 0
-    );
-  }
-
-  intersect_1(a, b, c, d) {
-    if (a > b) {
-      const res = this.swap(a, b);
-      a = res[0];
-      b = res[1];
-    }
-    if (c > d) {
-      const res = this.swap(c, d);
-      c = res[0];
-      d = res[1];
-    }
-    return Math.max(a, c) <= Math.min(b, d);
-  }
-
-  area_1(a, b, c) {
-    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-  }
-
-  // меняем местами 2 значения
-  swap(a, b) {
-    let c;
-    c = a;
-    a = b;
-    b = c;
-    return [a, b];
   }
 
   getCoordPoint(svg) {

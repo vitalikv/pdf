@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricNoteSvg, isometricNoteSvg2 } from './index';
+import { isometricNoteSvg, isometricNoteSvg2, isometricSvgElem, isometricMath } from './index';
 
 export class IsometricSvgLine {
   container;
@@ -44,52 +44,33 @@ export class IsometricSvgLine {
 
   // угол между линиями
   getAngleLines({ line1, line2, pCenter }) {
-    const cxC = Number(pCenter.getAttribute('cx'));
-    const cyC = Number(pCenter.getAttribute('cy'));
+    const posC = isometricSvgElem.getPosCircle(pCenter);
 
     let pos1 = new THREE.Vector2();
     let pos2 = new THREE.Vector2();
 
     if (line1) {
-      const p1 = line1['userData'].p1;
-      const p2 = line1['userData'].p2;
-      const cx1 = Number(p1.getAttribute('cx'));
-      const cy1 = Number(p1.getAttribute('cy'));
-      const cx2 = Number(p2.getAttribute('cx'));
-      const cy2 = Number(p2.getAttribute('cy'));
-      const dist1 = new THREE.Vector2(cxC, cyC).distanceTo(new THREE.Vector2(cx1, cy1));
-      const dist2 = new THREE.Vector2(cxC, cyC).distanceTo(new THREE.Vector2(cx2, cy2));
+      const pos = isometricSvgElem.getPosLine1(line1);
+      const dist1 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[0].x, pos[0].y));
+      const dist2 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[1].x, pos[1].y));
 
-      pos1 = dist1 > dist2 ? new THREE.Vector2(cx1, cy1) : new THREE.Vector2(cx2, cy2);
+      pos1 = dist1 > dist2 ? new THREE.Vector2(pos[0].x, pos[0].y) : new THREE.Vector2(pos[1].x, pos[1].y);
     }
 
     if (line2) {
-      const p1 = line2['userData'].p1;
-      const p2 = line2['userData'].p2;
-      const cx1 = Number(p1.getAttribute('cx'));
-      const cy1 = Number(p1.getAttribute('cy'));
-      const cx2 = Number(p2.getAttribute('cx'));
-      const cy2 = Number(p2.getAttribute('cy'));
-      const dist1 = new THREE.Vector2(cxC, cyC).distanceTo(new THREE.Vector2(cx1, cy1));
-      const dist2 = new THREE.Vector2(cxC, cyC).distanceTo(new THREE.Vector2(cx2, cy2));
+      const pos = isometricSvgElem.getPosLine1(line2);
+      const dist1 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[0].x, pos[0].y));
+      const dist2 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[1].x, pos[1].y));
 
-      pos2 = dist1 > dist2 ? new THREE.Vector2(cx1, cy1) : new THREE.Vector2(cx2, cy2);
+      pos2 = dist1 > dist2 ? new THREE.Vector2(pos[0].x, pos[0].y) : new THREE.Vector2(pos[1].x, pos[1].y);
     }
 
-    const dir1 = new THREE.Vector2(cxC, cyC).sub(pos1).normalize();
-    const dir2 = new THREE.Vector2(cxC, cyC).sub(pos2).normalize();
+    const dir1 = new THREE.Vector2(posC.x, posC.y).sub(pos1).normalize();
+    const dir2 = new THREE.Vector2(posC.x, posC.y).sub(pos2).normalize();
 
-    const rad = this.angleTo(dir1, dir2);
-    const deg = THREE.MathUtils.radToDeg(rad);
+    const deg = isometricMath.angleTo({ v1: dir1, v2: dir2, type: 'deg' });
 
     return deg % 180;
-  }
-
-  angleTo(v1, v2) {
-    const denominator = Math.sqrt(v1.lengthSq() * v2.lengthSq());
-    if (denominator === 0) return Math.PI / 2;
-    const theta = v1.dot(v2) / denominator;
-    return Math.acos(THREE.MathUtils.clamp(theta, -1, 1));
   }
 
   // координаты линии
@@ -107,29 +88,28 @@ export class IsometricSvgLine {
 
   // координаты создаваемой точки/стыка на линии (перед углом)
   getCoordPointOnLine({ line, ind = 0, pCenter = null }) {
-    const pos = this.getCoordLine(line);
+    const pos = isometricSvgElem.getPosLine1(line);
 
-    let pos1 = pos.a;
-    let pos2 = pos.b;
+    let pos1 = pos[0];
+    let pos2 = pos[1];
 
     if (pCenter) {
-      const cx = Number(pCenter.getAttribute('cx'));
-      const cy = Number(pCenter.getAttribute('cy'));
-      const dist1 = new THREE.Vector2(cx, cy).distanceTo(pos1);
-      const dist2 = new THREE.Vector2(cx, cy).distanceTo(pos2);
+      const posC = isometricSvgElem.getPosCircle(pCenter);
+      const dist1 = new THREE.Vector2(posC.x, posC.y).distanceTo(pos1);
+      const dist2 = new THREE.Vector2(posC.x, posC.y).distanceTo(pos2);
 
       if (dist1 < dist2) {
-        pos1 = pos.a;
-        pos2 = pos.b;
+        pos1 = pos[0];
+        pos2 = pos[1];
         ind = 1;
       } else {
-        pos1 = pos.b;
-        pos2 = pos.a;
+        pos1 = pos[1];
+        pos2 = pos[0];
         ind = 2;
       }
     } else if (ind === 1) {
-      pos1 = pos.b;
-      pos2 = pos.a;
+      pos1 = pos[1];
+      pos2 = pos[0];
     }
 
     const dir = pos2.clone().sub(pos1).normalize();
@@ -137,9 +117,7 @@ export class IsometricSvgLine {
     const offset = new THREE.Vector2().addScaledVector(dir, 20);
     const posPoint = pos1.clone().add(offset);
 
-    //const pos2 = new THREE.Vector3().subVectors(pos2, pos1).divideScalar(2).add(pos1);
-
-    return { ind, pos: posPoint, dist, pos1: pos.a, pos2: pos.b };
+    return { ind, pos: posPoint, dist, pos1: pos[0], pos2: pos[1] };
   }
 
   addNextLine(event) {
@@ -455,21 +433,14 @@ export class IsometricSvgLine {
     const offsetX = offset.x;
     const offsetY = offset.y;
 
-    const cx = svgCircle.getAttribute('cx');
-    const cy = svgCircle.getAttribute('cy');
-
-    svgCircle.setAttribute('cx', Number(cx) + offsetX);
-    svgCircle.setAttribute('cy', Number(cy) + offsetY);
+    const posC = isometricSvgElem.getPosCircle(svgCircle);
+    isometricSvgElem.setPosCircle(svgCircle, posC.x + offsetX, posC.y + offsetY);
 
     const arrPds = [];
 
     svg['userData'].lines.forEach((svgLine) => {
       if (stopLine !== svgLine) {
-        const coord = this.getCoordLine(svgLine);
-        svgLine.setAttribute('x1', coord.a.x);
-        svgLine.setAttribute('y1', coord.a.y);
-        svgLine.setAttribute('x2', coord.b.x);
-        svgLine.setAttribute('y2', coord.b.y);
+        isometricSvgElem.upPosLine1(svgLine);
       }
 
       if (svgLine['userData'].pd1) {
@@ -477,14 +448,10 @@ export class IsometricSvgLine {
         const svgLd = svgLine['userData'].ld1;
         const pos = this.getCoordPointOnLine({ line: svgLine, ind: 2 });
 
-        svgCircle.setAttribute('cx', pos.pos.x);
-        svgCircle.setAttribute('cy', pos.pos.y);
+        isometricSvgElem.setPosCircle(svgCircle, pos.pos.x, pos.pos.y);
 
         if (svgLd) {
-          svgLd.setAttribute('x1', pos.pos.x);
-          svgLd.setAttribute('y1', pos.pos.y);
-          svgLd.setAttribute('x2', pos.pos1.x);
-          svgLd.setAttribute('y2', pos.pos1.y);
+          isometricSvgElem.setPosLine1(svgLd, pos.pos.x, pos.pos.y, pos.pos1.x, pos.pos1.y);
         }
 
         svgLine.setAttribute('x1', pos.pos.x);
@@ -498,14 +465,10 @@ export class IsometricSvgLine {
         const svgLd = svgLine['userData'].ld2;
         const pos = this.getCoordPointOnLine({ line: svgLine, ind: 1 });
 
-        svgCircle.setAttribute('cx', pos.pos.x);
-        svgCircle.setAttribute('cy', pos.pos.y);
+        isometricSvgElem.setPosCircle(svgCircle, pos.pos.x, pos.pos.y);
 
         if (svgLd) {
-          svgLd.setAttribute('x1', pos.pos.x);
-          svgLd.setAttribute('y1', pos.pos.y);
-          svgLd.setAttribute('x2', pos.pos2.x);
-          svgLd.setAttribute('y2', pos.pos2.y);
+          isometricSvgElem.setPosLine1(svgLd, pos.pos.x, pos.pos.y, pos.pos2.x, pos.pos2.y);
         }
 
         svgLine.setAttribute('x2', pos.pos.x);
@@ -522,20 +485,11 @@ export class IsometricSvgLine {
         const svgCircle = pd;
         const svgLd = pd['userData'].ld;
 
-        const cx = svgCircle.getAttribute('cx');
-        const cy = svgCircle.getAttribute('cy');
-        svgCircle.setAttribute('cx', Number(cx) + offsetX);
-        svgCircle.setAttribute('cy', Number(cy) + offsetY);
+        const posC = isometricSvgElem.getPosCircle(svgCircle);
+        isometricSvgElem.setPosCircle(svgCircle, posC.x + offsetX, posC.y + offsetY);
 
-        const x1 = svgLd.getAttribute('x1');
-        const y1 = svgLd.getAttribute('y1');
-        const x2 = svgLd.getAttribute('x2');
-        const y2 = svgLd.getAttribute('y2');
-
-        svgLd.setAttribute('x1', Number(x1) + offsetX);
-        svgLd.setAttribute('y1', Number(y1) + offsetY);
-        svgLd.setAttribute('x2', Number(x2) + offsetX);
-        svgLd.setAttribute('y2', Number(y2) + offsetY);
+        const pos = isometricSvgElem.getPosLine2(svgLd);
+        isometricSvgElem.setPosLine1(svgLd, pos[0].x + offsetX, pos[0].y + offsetY, pos[1].x + offsetX, pos[1].y + offsetY);
       }
     });
 

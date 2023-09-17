@@ -22,6 +22,7 @@ import { IsometricCutBox } from './cutBox';
 import { IsometricMovePdf } from './movePdf';
 import { IsometricSvgSave } from './svgSave';
 import { IsometricSvgLoad } from './svgLoad';
+import { IsometricMath } from './math';
 
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
@@ -41,7 +42,8 @@ export let isometricModeService,
   isometricCutBox,
   isometricMovePdf,
   isometricSvgSave,
-  isometricSvgLoad;
+  isometricSvgLoad,
+  isometricMath;
 
 init();
 initServ();
@@ -149,6 +151,7 @@ function initServ() {
   isometricMovePdf = new IsometricMovePdf();
   isometricSvgSave = new IsometricSvgSave();
   isometricSvgLoad = new IsometricSvgLoad();
+  isometricMath = new IsometricMath();
 
   isometricSvgManager.init();
 }

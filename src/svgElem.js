@@ -32,7 +32,7 @@ export class IsometricSvgElem {
     return svg;
   }
 
-  // координаты линии
+  // координаты линии через 2 точки привязанные к линии
   getPosLine1(svg) {
     const p1 = this.getPosCircle(svg['userData'].p1);
     const p2 = this.getPosCircle(svg['userData'].p2);
@@ -78,5 +78,12 @@ export class IsometricSvgElem {
   setPosText1(svg, x, y) {
     svg.setAttribute('x', Number(x));
     svg.setAttribute('y', Number(y));
+  }
+
+  // обновляем положения линии через 2 точки привязанные к линии
+  upPosLine1(svg) {
+    const pos = this.getPosLine1(svg);
+
+    this.setPosLine1(svg, pos[0].x, pos[0].y, pos[1].x, pos[1].y);
   }
 }
