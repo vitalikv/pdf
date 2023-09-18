@@ -2,6 +2,7 @@ import {
   isometricPdfToSvg,
   isometricExportPdf,
   isometricSvgManager,
+  isometricSheets,
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
@@ -37,6 +38,7 @@ export class PanelUI {
     this.btns$[12] = this.crBtn({ txt: 'Текст' });
     this.btns$[13] = this.crBtn({ txt: 'Сохранить' });
     this.btns$[14] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[15] = this.crListSheets();
 
     this.initEvent();
   }
@@ -113,6 +115,10 @@ export class PanelUI {
     this.btns$[14].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
+
+    this.btns$[15].onchange = (e) => {
+      isometricSheets.showHideSheet(e.target.value);
+    };
   }
 
   crPanel() {
@@ -154,6 +160,24 @@ export class PanelUI {
       <option value="100" selected="">100</option>
       <option value="150">150</option>
       <option value="200">200</option>
+    </select>`;
+
+    let div = document.createElement('div');
+    div.innerHTML = html;
+    div = div.children[0];
+
+    this.container$.querySelector('[nameId="btns"]').append(div);
+
+    return div;
+  }
+
+  crListSheets() {
+    const html = `
+    <select style="box-sizing: border-box; width: 100%; height: 30px; margin-top: 15px; font-size: 16px; text-align: center; color: #666; border-radius: 4px; border: 1px solid #ccc; background: #fff;">											
+      <option value="a1">A1</option>
+      <option value="a2" selected="">A2</option>
+      <option value="a3">A3</option>
+      <option value="a4">A4</option>
     </select>`;
 
     let div = document.createElement('div');
