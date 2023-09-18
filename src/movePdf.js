@@ -12,9 +12,8 @@ export class IsometricMovePdf {
   }
 
   onmousedown = (event) => {
-    if (!isometricPdfToSvg.canvasPdf) return;
     if (event.button !== 1) return;
-    console.log(isometricPdfToSvg.canvasPdf);
+
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
 
     this.isDown = true;
@@ -26,11 +25,13 @@ export class IsometricMovePdf {
   onmousemove = (event) => {
     if (!this.isDown) return;
 
-    const pdf = isometricPdfToSvg.canvasPdf;
     const offset = new THREE.Vector2(event.clientX - this.offset.x, event.clientY - this.offset.y);
 
-    pdf.style.top = pdf.offsetTop + (event.clientY - this.offset.y) + 'px';
-    pdf.style.left = pdf.offsetLeft + (event.clientX - this.offset.x) + 'px';
+    const pdf = isometricPdfToSvg.canvasPdf;
+    if (pdf) {
+      pdf.style.top = pdf.offsetTop + (event.clientY - this.offset.y) + 'px';
+      pdf.style.left = pdf.offsetLeft + (event.clientX - this.offset.x) + 'px';
+    }
 
     this.moveSvg(offset);
 

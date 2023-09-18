@@ -14,6 +14,7 @@ import { isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRule
 // конвертация pdf в svg и добавление на страницу
 export class IsometricPdfToSvg {
   container;
+  containerSvg;
   inputFile;
   containerPdf;
   canvasPdf;
@@ -25,8 +26,33 @@ export class IsometricPdfToSvg {
     this.inputFile = this.createInputFile();
   }
 
-  getContainer() {
-    this.container = document.querySelector('#labels-container-div');
+  init({ container, containerSvg }) {
+    this.container = container;
+    this.containerSvg = containerSvg;
+    this.addDefCanvas();
+  }
+
+  addDefCanvas() {
+    const div = document.createElement('div');
+    div.style.cssText =
+      'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
+
+    this.containerPdf = div;
+    this.container.prepend(div);
+
+    const canvas = document.createElement('canvas');
+    div.appendChild(canvas);
+
+    canvas.width = 5357;
+    canvas.height = 3788;
+
+    canvas.style.cssText =
+      'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%); border: 1px solid #515151; z-index: 222;';
+
+    this.scalePdf = 1;
+    this.canvasPdf = canvas;
+
+    this.updateCanvasPdf();
   }
 
   createInputFile() {
@@ -61,8 +87,6 @@ export class IsometricPdfToSvg {
   }
 
   parsePdf({ file }) {
-    if (!this.container) this.getContainer();
-
     this.deletePdf();
     //const pdf = new pdfjsLib.getDocument('./img/1.pdf');
     const pdf = new pdfjsLib.getDocument(file);
@@ -248,7 +272,7 @@ export class IsometricPdfToSvg {
 
     this.updateCanvasPdf();
 
-    this.testScale(this.canvasPdf, ratio, bound);
+    //this.testScale(this.canvasPdf, ratio, bound);
     isometricSvgLine.scale(this.canvasPdf, ratio, bound);
     isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
     isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);

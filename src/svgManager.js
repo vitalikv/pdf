@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import {
   mapControlInit,
   isometricSelectBox,
+  isometricPdfToSvg,
   isometricSvgLine,
   isometricNoteSvg,
   isometricNoteSvg2,
@@ -40,6 +41,7 @@ export class IsometricSvgManager {
     const container = this.getContainer();
     const containerSvg = this.getContainerSvg();
     isometricSelectBox.init({ container, containerSvg });
+    isometricPdfToSvg.init({ container, containerSvg });
     isometricSvgLine.init({ container, containerSvg });
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
