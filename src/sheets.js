@@ -59,7 +59,7 @@ export class IsometricSheets {
     //div.style.cssText = 'position: absolute; width: 100%; height: 100%; z-index: 2;';
     div.style.cssText = isometricPdfToSvg.canvasPdf.style.cssText;
     div.style.fontFamily = 'Gostcadkk';
-    div.style.zIndex = '2';
+    div.style.zIndex = '4';
     //this.container.append(div);
     isometricPdfToSvg.containerPdf.append(div);
 

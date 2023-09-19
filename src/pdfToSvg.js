@@ -19,6 +19,7 @@ export class IsometricPdfToSvg {
   containerPdf;
   canvasPdf;
   scalePdf = 1;
+  cssText = 'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%;';
   format = { size: 'a3', orientation: 'landscape' };
   svgTest;
 
@@ -46,8 +47,7 @@ export class IsometricPdfToSvg {
     canvas.width = 5357;
     canvas.height = 3788;
 
-    canvas.style.cssText =
-      'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%); border: 1px solid #515151; z-index: 222;';
+    canvas.style.cssText = this.cssText;
 
     this.scalePdf = 1;
     this.canvasPdf = canvas;
@@ -87,7 +87,12 @@ export class IsometricPdfToSvg {
   }
 
   parsePdf({ file }) {
-    this.deletePdf();
+    if (this.canvasPdf) {
+      this.cssText = this.canvasPdf.style.cssText;
+      this.canvasPdf.remove();
+    }
+
+    //this.deletePdf();
     //const pdf = new pdfjsLib.getDocument('./img/1.pdf');
     const pdf = new pdfjsLib.getDocument(file);
 
@@ -110,14 +115,16 @@ export class IsometricPdfToSvg {
   addSvgPage(page) {
     const viewport = page.getViewport({ scale: 4.5, rotation: -90 });
 
-    const div = document.createElement('div');
-    div.style.cssText =
-      'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
+    if (!this.containerPdf) {
+      const div = document.createElement('div');
+      div.style.cssText =
+        'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
 
-    this.containerPdf = div;
-    this.container.prepend(div);
+      this.containerPdf = div;
+      this.container.prepend(div);
+    }
 
-    this.scalePdf = 1;
+    //this.scalePdf = 1;
     this.canvasPdf = this.pdfToCanvas({ div: this.containerPdf, page, viewport });
     this.updateCanvasPdf();
     //this.pdfToSvg({ div, page, viewport });
@@ -156,8 +163,7 @@ export class IsometricPdfToSvg {
 
     page.render({ canvasContext: context, viewport });
 
-    canvas.style.cssText =
-      'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%; transform: translateX(-50%) translateY(-50%); border: 1px solid #515151; z-index: 222;';
+    canvas.style.cssText = this.cssText;
 
     canvas.onmousedown = (e) => {
       console.log(e);
@@ -240,7 +246,8 @@ export class IsometricPdfToSvg {
     canvas.style.width = (canvas.width / aspect) * this.scalePdf + 'px';
     canvas.style.height = (canvas.height / aspect) * this.scalePdf + 'px';
     canvas.style.transform = 'translateX(-50%) translateY(-50%)';
-    canvas.style.border = '1px solid #515151';
+    canvas.style.border = '4px solid #515151';
+    canvas.style.zIndex = '3';
   }
 
   setScale({ value }) {
