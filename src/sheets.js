@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { mapControlInit, modelsContainerInit, gisdPage } from './index';
+import { isometricPdfToSvg } from './index';
 
 export class IsometricSheets {
   container;
@@ -12,8 +12,9 @@ export class IsometricSheets {
   isDown = false;
   offset = new THREE.Vector2();
 
-  getContainer() {
-    this.container = document.querySelector('#labels-container-div');
+  init({ container, containerSvg }) {
+    this.container = container;
+    this.containerSvg = containerSvg;
   }
 
   showHideSheet(formatSheet) {
@@ -26,8 +27,6 @@ export class IsometricSheets {
   }
 
   async createSvgSheet(formatSheet, boxsInput = []) {
-    if (!this.container) this.getContainer();
-
     let url = '';
     if (formatSheet === 'a4') {
       //url = 'assets/gis/isometry/A4_2_1.svg';
@@ -47,23 +46,27 @@ export class IsometricSheets {
     this.formatSheet = formatSheet;
 
     const div = document.createElement('div');
-    div.innerHTML = `<div style="position: absolute; width: 420px; left: 0; top: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // left
-    div.innerHTML += `<div style="position: absolute; height: 90px; left: 0; right: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // bottom
-    div.innerHTML += `<div style="position: absolute; width: 365px; right: 0; top: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // right
-    div.innerHTML += `<div style="position: absolute; height: 90px; left: 0; right: 0; top: 0; background: #ccc; z-index: 2;"></div>`; // top
+    // div.innerHTML = `<div style="position: absolute; width: 420px; left: 0; top: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // left
+    // div.innerHTML += `<div style="position: absolute; height: 90px; left: 0; right: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // bottom
+    // div.innerHTML += `<div style="position: absolute; width: 365px; right: 0; top: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // right
+    // div.innerHTML += `<div style="position: absolute; height: 90px; left: 0; right: 0; top: 0; background: #ccc; z-index: 2;"></div>`; // top
     div.style.userSelect = 'none';
 
     const data = await this.xhrImg_1(url);
 
-    div.innerHTML += `<div style="position: absolute; width: 100%; height: 100%; z-index: 2;">${data}</div>`;
+    div.innerHTML = data;
+
+    //div.style.cssText = 'position: absolute; width: 100%; height: 100%; z-index: 2;';
+    div.style.cssText = isometricPdfToSvg.canvasPdf.style.cssText;
     div.style.fontFamily = 'Gostcadkk';
-    //translateX(50%);
-    this.container.append(div);
+    div.style.zIndex = '2';
+    //this.container.append(div);
+    isometricPdfToSvg.containerPdf.append(div);
 
     console.log(formatSheet, div);
 
     this.elemWrap = div;
-    this.elemSheet = this.elemWrap.children[4].children[0];
+    this.elemSheet = this.elemWrap.children[0];
 
     this.elemSheet.style.width = '100%';
     this.elemSheet.style.height = '100%';
@@ -76,23 +79,23 @@ export class IsometricSheets {
     this.elemSheet.prepend(g);
     this.elemSheet.setAttribute('fill', '');
 
-    const svgTxt1 = this.elemSheet.children[2];
-    const svgTxt2 = this.elemSheet.children[3];
-    const svgTxt3 = this.elemSheet.children[5];
+    // const svgTxt1 = this.elemSheet.children[2];
+    // const svgTxt2 = this.elemSheet.children[3];
+    // const svgTxt3 = this.elemSheet.children[5];
 
-    this.createLabel({ txt: '', fontSize: '10', delElem: svgTxt1 });
-    this.createLabel({ txt: '', fontSize: '8', delElem: svgTxt2, rotate: 0 });
-    this.createLabel({ txt: '', fontSize: '6', delElem: svgTxt3 });
+    // this.createLabel({ txt: '', fontSize: '10', delElem: svgTxt1 });
+    // this.createLabel({ txt: '', fontSize: '8', delElem: svgTxt2, rotate: 0 });
+    // this.createLabel({ txt: '', fontSize: '6', delElem: svgTxt3 });
 
-    this.sheetSetup({
-      format: this.formatSheet,
-      containerWr: this.container,
-      container: this.elemSheet,
-      path: svgLine.attributes.d.value,
-      boxsInput,
-    });
+    // this.sheetSetup({
+    //   format: this.formatSheet,
+    //   containerWr: this.container,
+    //   container: this.elemSheet,
+    //   path: svgLine.attributes.d.value,
+    //   boxsInput,
+    // });
 
-    this.setPosSheet();
+    // this.setPosSheet();
   }
 
   setPosSheet() {

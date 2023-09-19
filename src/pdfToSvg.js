@@ -9,7 +9,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 // npm install pdfjs-dist @types/pdfjs-dist  установка @types
 // https://github.com/mozilla/pdf.js/tree/master/examples/webpack  установка pdf.js для webpack (import * as pdfjsLib from 'pdfjs-dist/webpack';)
 
-import { isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSheets, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
 
 // конвертация pdf в svg и добавление на страницу
 export class IsometricPdfToSvg {
@@ -206,25 +206,11 @@ export class IsometricPdfToSvg {
     canvas.style.top = this.canvasPdf.style.top;
     canvas.style.left = this.canvasPdf.style.left;
 
-    const bound1 = this.canvasPdf.getBoundingClientRect();
-
+    this.canvasPdf.remove();
     this.canvasPdf = canvas;
-    canvas.onmousedown = (e) => {
-      console.log(e);
-    };
+    this.containerPdf.append(this.canvasPdf);
+
     this.updateCanvasPdf();
-
-    const bound2 = this.canvasPdf.getBoundingClientRect();
-    const rw = bound2.width / bound1.width;
-    const rh = bound2.width / bound2.height;
-
-    const x = 850;
-    const y = 340;
-    const x2 = y * rw;
-    const y2 = x * rw;
-
-    this.testRot(bound1, bound2);
-    console.log(x2, y2, bound2.height, bound1.width);
   };
 
   rotate(x, y, a) {
@@ -239,10 +225,6 @@ export class IsometricPdfToSvg {
   }
 
   updateCanvasPdf() {
-    if (this.containerPdf.children[0]) this.containerPdf.children[0].remove();
-
-    this.containerPdf.append(this.canvasPdf);
-
     const div = this.containerPdf;
 
     const canvas = this.canvasPdf;
@@ -277,6 +259,11 @@ export class IsometricPdfToSvg {
     isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
     isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
     isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
+
+    const sheet = isometricSheets.elemWrap;
+    if (sheet) {
+      sheet.style.cssText = this.canvasPdf.style.cssText;
+    }
   }
 
   deletePdf() {

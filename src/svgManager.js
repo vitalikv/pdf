@@ -4,6 +4,7 @@ import {
   mapControlInit,
   isometricSelectBox,
   isometricPdfToSvg,
+  isometricSheets,
   isometricSvgLine,
   isometricNoteSvg,
   isometricNoteSvg2,
@@ -42,6 +43,7 @@ export class IsometricSvgManager {
     const containerSvg = this.getContainerSvg();
     isometricSelectBox.init({ container, containerSvg });
     isometricPdfToSvg.init({ container, containerSvg });
+    isometricSheets.init({ container, containerSvg });
     isometricSvgLine.init({ container, containerSvg });
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
