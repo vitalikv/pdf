@@ -587,4 +587,12 @@ export class IsometricSheets {
 
     return boxs;
   }
+
+  setStyle(cssText) {
+    const sheet = this.elemWrap;
+    if (sheet) {
+      sheet.style.cssText = cssText;
+      sheet.style.zIndex = '4';
+    }
+  }
 }

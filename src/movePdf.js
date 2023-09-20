@@ -32,10 +32,7 @@ export class IsometricMovePdf {
       pdf.style.top = pdf.offsetTop + (event.clientY - this.offset.y) + 'px';
       pdf.style.left = pdf.offsetLeft + (event.clientX - this.offset.x) + 'px';
 
-      const sheet = isometricSheets.elemWrap;
-      if (sheet) {
-        sheet.style.cssText = pdf.style.cssText;
-      }
+      isometricSheets.setStyle(pdf.style.cssText);
     }
 
     this.moveSvg(offset);

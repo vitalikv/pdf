@@ -212,9 +212,7 @@ export class IsometricPdfToSvg {
     canvas.style.top = this.canvasPdf.style.top;
     canvas.style.left = this.canvasPdf.style.left;
 
-    this.canvasPdf.remove();
-    this.canvasPdf = canvas;
-    this.containerPdf.append(this.canvasPdf);
+    this.replaceCanvas(canvas);
 
     this.updateCanvasPdf();
   };
@@ -228,6 +226,12 @@ export class IsometricPdfToSvg {
     let yr = x * sin(a) + y * cos(a);
 
     return [xr, yr];
+  }
+
+  replaceCanvas(canvas) {
+    this.canvasPdf.remove();
+    this.canvasPdf = canvas;
+    this.containerPdf.append(this.canvasPdf);
   }
 
   updateCanvasPdf() {
@@ -267,10 +271,7 @@ export class IsometricPdfToSvg {
     isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
     isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
 
-    const sheet = isometricSheets.elemWrap;
-    if (sheet) {
-      sheet.style.cssText = this.canvasPdf.style.cssText;
-    }
+    isometricSheets.setStyle(this.canvasPdf.style.cssText);
   }
 
   deletePdf() {

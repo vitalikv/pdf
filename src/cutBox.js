@@ -155,7 +155,8 @@ export class IsometricCutBox {
 
     context.drawImage(canvas, offsetX, offsetY, width * ratio, height * ratio, offsetX, offsetY, width * ratio, height * ratio);
 
-    isometricPdfToSvg.canvasPdf = canvas2;
+    isometricPdfToSvg.replaceCanvas(canvas2);
+
     isometricPdfToSvg.updateCanvasPdf();
   }
 
