@@ -633,4 +633,33 @@ export class IsometricNoteSvg {
 
     return cross;
   }
+
+  moveOffset({ svg, offset }) {
+    const offsetX = offset.x;
+    const offsetY = offset.y;
+
+    const x1 = svg.getAttribute('x1');
+    const y1 = svg.getAttribute('y1');
+    const x2 = svg.getAttribute('x2');
+    const y2 = svg.getAttribute('y2');
+
+    const link = svg['userData'].point['userData'].link;
+    if (!link) {
+      svg.setAttribute('x1', Number(x1) + offsetX);
+      svg.setAttribute('y1', Number(y1) + offsetY);
+    }
+
+    svg.setAttribute('x2', Number(x2) + offsetX);
+    svg.setAttribute('y2', Number(y2) + offsetY);
+
+    if (!link && svg['userData'].point) {
+      const svgPoint = svg['userData'].point;
+      this.moveSvgPoint({ svg: svgPoint, offset, moveLine: false });
+    }
+
+    if (svg['userData'].label) {
+      const svgLabel = svg['userData'].label;
+      this.moveSvgLabel({ svg: svgLabel, offset, moveLine: false });
+    }
+  }
 }

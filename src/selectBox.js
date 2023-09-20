@@ -1,15 +1,17 @@
 import * as THREE from 'three';
 
-import { isometricMath } from './index';
+import { isometricMath, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2 } from './index';
 
 export class IsometricSelectBox {
   activated = false;
   isDown = false;
   isMove = false;
+  mode = '';
   container;
   containerSvg;
   selectedArr = { objs: [] };
   elemSelBox = null;
+  cursorOffset = new THREE.Vector2();
   startOffset = new THREE.Vector2();
   startPos = new THREE.Vector2();
   endPos = new THREE.Vector2();
@@ -69,6 +71,23 @@ export class IsometricSelectBox {
   }
 
   onmousedown = (event) => {
+    if (this.elemSelBox.style.visibility === 'visible') {
+      const clickPos = this.coords(event);
+      const form = this.getFormBox();
+
+      const result = isometricMath.checkPointInsideForm(clickPos, form);
+
+      if (result) {
+        this.isDown = true;
+        this.isMove = false;
+        this.mode = 'moveBox';
+
+        this.cursorOffset = this.coords(event);
+
+        return this.isDown;
+      }
+    }
+
     this.clearSelected();
 
     if (!this.activated) return;
@@ -78,16 +97,74 @@ export class IsometricSelectBox {
 
     this.isDown = true;
     this.isMove = false;
+    this.mode = 'createBox';
 
     return this.isDown;
   };
 
   onmousemove = (event) => {
-    if (!this.activated) return;
     if (!this.isDown) return;
+
+    if (this.mode === 'moveBox') {
+      this.moveBox(event);
+    }
+
+    if (!this.activated) return;
 
     this.isMove = true;
 
+    if (this.mode === 'createBox') {
+      this.createBox(event);
+    }
+  };
+
+  onmouseup = (event) => {
+    const next = this.isDown && this.isMove ? true : false;
+    this.isDown = false;
+    this.isMove = false;
+
+    if (!next) return;
+
+    if (this.mode === 'createBox') {
+      if (this.startPos.x > this.endPos.x) {
+        let sx = this.startPos.x;
+        let ex = this.endPos.x;
+        this.startPos.x = ex;
+        this.endPos.x = sx;
+      }
+
+      if (this.startPos.y > this.endPos.y) {
+        let sy = this.startPos.y;
+        let ey = this.endPos.y;
+        this.startPos.y = ey;
+        this.endPos.y = sy;
+      }
+
+      //this.helperBox();
+
+      this.getObjsFromBox();
+    }
+
+    this.mode = '';
+  };
+
+  // перемещение Box
+  moveBox(event) {
+    const cursorPos = this.coords(event);
+
+    const offsetX = cursorPos.x - this.cursorOffset.x;
+    const offsetY = cursorPos.y - this.cursorOffset.y;
+
+    this.elemSelBox.style.top = this.elemSelBox.offsetTop + offsetY + 'px';
+    this.elemSelBox.style.left = this.elemSelBox.offsetLeft + offsetX + 'px';
+
+    this.moveOffset(new THREE.Vector2(offsetX, offsetY));
+
+    this.cursorOffset = cursorPos;
+  }
+
+  // создание Box
+  createBox(event) {
     this.endPos = this.coords(event);
 
     let x1 = this.startPos.x;
@@ -119,33 +196,7 @@ export class IsometricSelectBox {
     box.style.height = y2 - y1 + 'px';
 
     this.setBoxVisibility('visible');
-  };
-
-  onmouseup = (event) => {
-    const next = this.isDown && this.isMove ? true : false;
-    this.isDown = false;
-    this.isMove = false;
-
-    if (!next) return;
-
-    if (this.startPos.x > this.endPos.x) {
-      let sx = this.startPos.x;
-      let ex = this.endPos.x;
-      this.startPos.x = ex;
-      this.endPos.x = sx;
-    }
-
-    if (this.startPos.y > this.endPos.y) {
-      let sy = this.startPos.y;
-      let ey = this.endPos.y;
-      this.startPos.y = ey;
-      this.endPos.y = sy;
-    }
-
-    //this.helperBox();
-
-    this.getObjsFromBox();
-  };
+  }
 
   // находим объекты, которые попали в область выделения
   getObjsFromBox() {
@@ -171,16 +222,7 @@ export class IsometricSelectBox {
       }
     });
 
-    const x1 = this.startPos.x;
-    const y1 = this.startPos.y;
-    const x2 = this.endPos.x;
-    const y2 = this.endPos.y;
-
-    const form = [];
-    form.push(new THREE.Vector2(x1, y1));
-    form.push(new THREE.Vector2(x1, y2));
-    form.push(new THREE.Vector2(x2, y2));
-    form.push(new THREE.Vector2(x2, y1));
+    const form = this.getFormBox();
 
     arrLines.forEach((svg) => {
       const { a, b } = this.getCoordLine(svg);
@@ -221,6 +263,22 @@ export class IsometricSelectBox {
     this.selectedArr.objs.forEach((svg) => {
       this.actElem(svg, true);
     });
+  }
+
+  // получаем выделеную область (box)
+  getFormBox() {
+    const x1 = this.startPos.x;
+    const y1 = this.startPos.y;
+    const x2 = this.endPos.x;
+    const y2 = this.endPos.y;
+
+    const form = [];
+    form.push(new THREE.Vector2(x1, y1));
+    form.push(new THREE.Vector2(x1, y2));
+    form.push(new THREE.Vector2(x2, y2));
+    form.push(new THREE.Vector2(x2, y1));
+
+    return form;
   }
 
   getCoordPoint(svg) {
@@ -268,6 +326,56 @@ export class IsometricSelectBox {
 
     this.startPos = new THREE.Vector2();
     this.endPos = new THREE.Vector2();
+    this.mode = '';
+  }
+
+  moveOffset(offset) {
+    const arrLines = [];
+    const arrPoints = [];
+    const arrNodes = [];
+
+    this.selectedArr.objs.forEach((svg, ind) => {
+      if (svg['userData']) {
+        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+          const p1 = svg['userData'].p1;
+          const p2 = svg['userData'].p2;
+          arrPoints.push(p1, p2);
+
+          svg['userData'].links.forEach((svgPoint) => {
+            arrNodes.push(svgPoint['userData'].line);
+          });
+        }
+
+        if (svg['userData'].lineI && svg['userData'].tag === 'point') {
+          arrPoints.push(svg);
+        }
+      }
+    });
+
+    arrPoints.forEach((p) => {
+      p['userData'].move = false;
+    });
+
+    arrPoints.forEach((p) => {
+      if (!p['userData'].move) {
+        isometricSvgLine.moveSvgPoint({ svg: p, offset });
+        p['userData'].move = true;
+      }
+    });
+
+    arrNodes.forEach((svg) => {
+      if (svg['userData'].note1 && svg['userData'].tag === 'line') {
+        isometricNoteSvg.moveOffset({ svg, offset });
+      }
+
+      if (svg['userData'].note2 && svg['userData'].tag === 'line') {
+        isometricNoteSvg2.moveOffset({ svg, offset });
+      }
+    });
+
+    arrPoints.forEach((p) => {
+      p['userData'].move = false;
+    });
   }
 
   // помошник для отображения Selectedbox, показывает построение линий разных цветов, чтобы видеть как строится box
