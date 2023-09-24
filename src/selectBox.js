@@ -35,6 +35,10 @@ export class IsometricSelectBox {
     if (event.code === 'ControlLeft' && !event.repeat) {
       this.activateCutBox();
     }
+
+    if (event.code === 'Delete') {
+      this.deleteSelected();
+    }
   };
 
   onKeyUp = (event) => {
@@ -376,6 +380,21 @@ export class IsometricSelectBox {
     arrPoints.forEach((p) => {
       p['userData'].move = false;
     });
+  }
+
+  deleteSelected() {
+    this.selectedArr.objs.forEach((svg, ind) => {
+      if (svg['userData']) {
+        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+          isometricSvgLine.deleteObj(svg);
+        }
+        if (svg['userData'].lineI && svg['userData'].tag === 'dline') {
+          isometricSvgLine.deleteObj(svg);
+        }
+      }
+    });
+
+    this.clearSelected();
   }
 
   // помошник для отображения Selectedbox, показывает построение линий разных цветов, чтобы видеть как строится box

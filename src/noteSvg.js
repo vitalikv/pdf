@@ -199,7 +199,7 @@ export class IsometricNoteSvg {
 
     const svg = this.selectedObj.el;
     if (svg && svg['userData'].tag === 'point') {
-      this.addLink({ svgPoint: svg, event, mouseup: true });
+      this.addLink({ svgPoint: svg, event });
     }
   };
 
@@ -425,7 +425,7 @@ export class IsometricNoteSvg {
     this.clearSelectedObj();
   }
 
-  addLink({ svgPoint, event, mouseup = false, pos = null }) {
+  addLink({ svgPoint, event, pos = null }) {
     const arrLines = [];
     const arrPoints = [];
 
@@ -498,10 +498,8 @@ export class IsometricNoteSvg {
         this.moveSvgPoint({ svg: svgPoint, offset });
       }
 
-      if (mouseup) {
-        if (result.type === 'line') {
-          this.addLinkUp({ svgPoint, result });
-        }
+      if (result.type === 'line') {
+        this.addLinkUp({ svgPoint, result });
       }
 
       svgPoint['userData'].crossOffset = true;
@@ -518,9 +516,7 @@ export class IsometricNoteSvg {
         this.moveSvgPoint({ svg: svgPoint, offset });
       }
 
-      if (mouseup) {
-        this.unLink(svgPoint);
-      }
+      this.unLink(svgPoint);
     }
 
     return resultCross;
@@ -530,8 +526,6 @@ export class IsometricNoteSvg {
   unLink(svgPoint) {
     const link = svgPoint['userData'].link;
     if (!link) return;
-
-    //console.log(svgPoint['userData'].link, link.obj['userData'].links);
 
     const links = link.obj['userData'].links;
 
@@ -544,6 +538,10 @@ export class IsometricNoteSvg {
   // добавляем привязку выноски к линии
   addLinkUp({ svgPoint, result }) {
     const line = result.obj;
+
+    const index = line['userData'].links.indexOf(svgPoint);
+    if (index > -1) return;
+
     svgPoint['userData'].link = { obj: line, dist: 0 };
 
     const pos = this.getCoordLine(line);
@@ -554,8 +552,6 @@ export class IsometricNoteSvg {
     svgPoint['userData'].link.dist = dist;
 
     line['userData'].links.push(svgPoint);
-
-    //console.log(svgPoint['userData'].link, line['userData'].links);
   }
 
   // двигаем выноску вслед за привязанным объектом

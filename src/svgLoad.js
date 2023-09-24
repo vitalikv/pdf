@@ -147,7 +147,7 @@ export class IsometricSvgLoad {
           isometricSvgElem.setPosText1(obj.labelEls.svgText2, txt2.pos.x, txt2.pos.y);
         }
 
-        isometricNoteSvg.addLink({ svgPoint: obj.point, event: null, mouseup: true, pos: new THREE.Vector2(note.point.pos.x, note.point.pos.y) });
+        isometricNoteSvg.addLink({ svgPoint: obj.point, event: null, pos: new THREE.Vector2(note.point.pos.x, note.point.pos.y) });
 
         if (note.lock) {
           isometricNoteSvg.setLockOnSvg(obj.point, true);
@@ -175,7 +175,7 @@ export class IsometricSvgLoad {
           isometricSvgElem.setPosText1(obj.labelEls.svgText2, txt2.pos.x, txt2.pos.y);
         }
 
-        isometricNoteSvg2.addLink({ svgPoint: obj.point, event: null, mouseup: true, pos: new THREE.Vector2(note.point.pos.x, note.point.pos.y) });
+        isometricNoteSvg2.addLink({ svgPoint: obj.point, event: null, pos: new THREE.Vector2(note.point.pos.x, note.point.pos.y) });
 
         if (note.lock) {
           isometricNoteSvg2.setLockOnSvg(obj.point, true);

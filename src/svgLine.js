@@ -1052,11 +1052,13 @@ export class IsometricSvgLine {
   }
 
   // удаляем активную выноску
-  deleteObj() {
-    if (!this.containerSvg) return;
-    if (!this.selectedObj.el) return;
+  deleteObj(svg = null) {
+    if (!svg) {
+      if (!this.containerSvg) return;
+      if (!this.selectedObj.el) return;
 
-    const svg = this.selectedObj.el;
+      svg = this.selectedObj.el;
+    }
 
     if (svg['userData'].tag === 'line') {
       this.deleteLine(svg);
