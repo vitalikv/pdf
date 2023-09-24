@@ -96,6 +96,15 @@ export class IsometricSheets {
     // });
 
     // this.setPosSheet();
+
+    const svgL = this.containerSvg.children[0];
+    const w = Number(this.elemSheet.getAttribute('width'));
+    const h = Number(this.elemSheet.getAttribute('height'));
+
+    const viewBox = '0 0 ' + w + ' ' + h;
+    svgL.setAttribute('viewBox', viewBox);
+
+    console.log(svgL, viewBox);
   }
 
   setPosSheet() {

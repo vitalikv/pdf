@@ -175,8 +175,8 @@ export class PanelUI {
     const html = `
     <select style="box-sizing: border-box; width: 100%; height: 30px; margin-top: 15px; font-size: 16px; text-align: center; color: #666; border-radius: 4px; border: 1px solid #ccc; background: #fff;">											
       <option value="a1">A1</option>
-      <option value="a2" selected="">A2</option>
-      <option value="a3">A3</option>
+      <option value="a2">A2</option>
+      <option value="a3" selected="">A3</option>
       <option value="a4">A4</option>
     </select>`;
 

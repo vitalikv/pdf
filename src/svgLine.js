@@ -39,7 +39,7 @@ export class IsometricSvgLine {
       this.addCorner({ line1, line2, pCenter, type: 'newline' });
     }
 
-    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = this.getCoordOffset(event);
   }
 
   // угол между линиями
@@ -284,8 +284,35 @@ export class IsometricSvgLine {
 
   getCoord(event) {
     const bound = this.container.getBoundingClientRect();
-    const x = -bound.x + event.clientX;
-    const y = -bound.y + event.clientY;
+    let x = -bound.x + event.clientX;
+    let y = -bound.y + event.clientY;
+
+    const svgL = this.containerSvg.children[0];
+    const w = Number(svgL.getAttribute('width'));
+    const h = Number(svgL.getAttribute('height'));
+
+    const w2 = svgL.viewBox.baseVal.width;
+    const h2 = svgL.viewBox.baseVal.height;
+
+    x /= w / w2;
+    y /= h / h2;
+
+    return new THREE.Vector2(x, y);
+  }
+
+  getCoordOffset(event) {
+    let x = event.clientX;
+    let y = event.clientY;
+
+    const svgL = this.containerSvg.children[0];
+    const w = Number(svgL.getAttribute('width'));
+    const h = Number(svgL.getAttribute('height'));
+
+    const w2 = svgL.viewBox.baseVal.width;
+    const h2 = svgL.viewBox.baseVal.height;
+
+    x /= w / w2;
+    y /= h / h2;
 
     return new THREE.Vector2(x, y);
   }
@@ -304,7 +331,7 @@ export class IsometricSvgLine {
       }
     });
 
-    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = this.getCoordOffset(event);
 
     return this.isDown;
   };
@@ -315,8 +342,9 @@ export class IsometricSvgLine {
       const svgCircle = this.newNote.p2;
       const svgLine = this.newNote.line;
 
-      const offsetX = event.clientX - this.offset.x;
-      const offsetY = event.clientY - this.offset.y;
+      const pos = this.getCoordOffset(event);
+      const offsetX = pos.x - this.offset.x;
+      const offsetY = pos.y - this.offset.y;
 
       const cx = svgCircle.getAttribute('cx');
       const cy = svgCircle.getAttribute('cy');
@@ -330,7 +358,7 @@ export class IsometricSvgLine {
 
       this.svgPointCross({ p2: svgCircle, event });
 
-      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+      this.offset = this.getCoordOffset(event);
     }
 
     if (!this.isDown) return;
@@ -338,8 +366,9 @@ export class IsometricSvgLine {
     const svg = this.selectedObj.el;
     if (!svg) return;
 
-    const offsetX = event.clientX - this.offset.x;
-    const offsetY = event.clientY - this.offset.y;
+    const pos = this.getCoordOffset(event);
+    const offsetX = pos.x - this.offset.x;
+    const offsetY = pos.y - this.offset.y;
     const offset = new THREE.Vector2(offsetX, offsetY);
 
     if (svg['userData'].tag === 'line') {
@@ -351,7 +380,7 @@ export class IsometricSvgLine {
       this.svgPointCross({ p2: svg, event });
     }
 
-    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = this.getCoordOffset(event);
   };
 
   onmouseup = (event) => {
@@ -1180,36 +1209,42 @@ export class IsometricSvgLine {
       line2 = ld2['userData'].line;
     }
 
-    const ind1 = line1['userData'].pd1 === pd1 ? 1 : 2;
-    const ind2 = line2['userData'].pd1 === pd2 ? 1 : 2;
+    if (line1) {
+      const ind1 = line1['userData'].pd1 === pd1 ? 1 : 2;
 
-    line1['userData']['ld' + ind1] = null;
-    line1['userData']['pd' + ind1] = null;
-    line2['userData']['ld' + ind2] = null;
-    line2['userData']['pd' + ind2] = null;
+      line1['userData']['ld' + ind1] = null;
+      line1['userData']['pd' + ind1] = null;
 
-    const cx1 = Number(pd1.getAttribute('cx'));
-    const cy1 = Number(pd1.getAttribute('cy'));
-    const newP1 = this.createSvgCircle({ ind: 0, x: cx1, y: cy1 });
-    this.containerSvg.children[0].append(newP1);
-    newP1['userData'].lines.push(line1);
+      const cx1 = Number(pd1.getAttribute('cx'));
+      const cy1 = Number(pd1.getAttribute('cy'));
+      const newP1 = this.createSvgCircle({ ind: 0, x: cx1, y: cy1 });
+      this.containerSvg.children[0].append(newP1);
+      newP1['userData'].lines.push(line1);
 
-    if (ind1 === 1) {
-      line1['userData'].p1 = newP1;
-    } else {
-      line1['userData'].p2 = newP1;
+      if (ind1 === 1) {
+        line1['userData'].p1 = newP1;
+      } else {
+        line1['userData'].p2 = newP1;
+      }
     }
 
-    const cx2 = Number(pd2.getAttribute('cx'));
-    const cy2 = Number(pd2.getAttribute('cy'));
-    const newP2 = this.createSvgCircle({ ind: 0, x: cx2, y: cy2 });
-    this.containerSvg.children[0].append(newP2);
-    newP2['userData'].lines.push(line2);
+    if (line2) {
+      const ind2 = line2['userData'].pd1 === pd2 ? 1 : 2;
 
-    if (ind2 === 1) {
-      line2['userData'].p1 = newP2;
-    } else {
-      line2['userData'].p2 = newP2;
+      line2['userData']['ld' + ind2] = null;
+      line2['userData']['pd' + ind2] = null;
+
+      const cx2 = Number(pd2.getAttribute('cx'));
+      const cy2 = Number(pd2.getAttribute('cy'));
+      const newP2 = this.createSvgCircle({ ind: 0, x: cx2, y: cy2 });
+      this.containerSvg.children[0].append(newP2);
+      newP2['userData'].lines.push(line2);
+
+      if (ind2 === 1) {
+        line2['userData'].p1 = newP2;
+      } else {
+        line2['userData'].p2 = newP2;
+      }
     }
 
     pCenter.remove();
