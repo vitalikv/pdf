@@ -20,8 +20,14 @@ export class IsometricSvgRuler {
     this.containerSvg = containerSvg;
   }
 
-  addRuler(event, data) {
+  addRuler(event, data, lastPoint = null) {
     this.clearSelectedObj();
+
+    let elPos = null;
+    if (lastPoint) {
+      const elems = this.getStructureNote(lastPoint);
+      elPos = isometricSvgElem.getPosLine2(elems.p2line);
+    }
 
     this.newNote.type = '';
     this.newNote.data = null;
@@ -33,8 +39,22 @@ export class IsometricSvgRuler {
 
       const { svg1, svg2, svg3 } = this.createElement({ btn: true, x, y, data });
 
-      this.newNote.type = 'move';
+      this.newNote.type = 'nextRuler';
       this.newNote.p2 = svg3;
+
+      if (elPos) {
+        const elems = this.getStructureNote(this.newNote.p2);
+
+        isometricSvgElem.setPosCircle(elems.p1, elPos[0].x, elPos[0].y);
+        isometricSvgElem.setPosLine2({ svg: elems.p1line, x1: elPos[0].x, y1: elPos[0].y, x2: elPos[1].x, y2: elPos[1].y });
+        isometricSvgElem.setPosCircle(elems.pd1, elPos[1].x, elPos[1].y);
+
+        isometricSvgElem.setPosCircle(elems.p2, elPos[0].x, elPos[0].y);
+        isometricSvgElem.setPosLine2({ svg: elems.p2line, x1: elPos[0].x, y1: elPos[0].y, x2: elPos[1].x, y2: elPos[1].y });
+        isometricSvgElem.setPosCircle(elems.pd2, elPos[1].x, elPos[1].y);
+
+        this.newNote.type = 'move3';
+      }
 
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
     }
@@ -77,6 +97,9 @@ export class IsometricSvgRuler {
     svg5['userData'] = { p: svg7 };
     svg6['userData'] = { ruler: true, tag: 'dpoint', line: svg1, dline: svg4, crossOffset: false, link: null };
     svg7['userData'] = { ruler: true, tag: 'dpoint', line: svg1, dline: svg5, crossOffset: false, link: null };
+
+    svg6.setAttribute('display', 'none');
+    svg7.setAttribute('display', 'none');
 
     return { svg1, svg2, svg3 };
   }
@@ -224,7 +247,7 @@ export class IsometricSvgRuler {
   }
 
   onmousedown = (event) => {
-    if (this.newNote.type === 'move' && this.newNote.p2) {
+    if (this.newNote.type === 'nextRuler' && this.newNote.p2) {
       this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
 
       const elems = this.getStructureNote(this.newNote.p2);
@@ -239,15 +262,25 @@ export class IsometricSvgRuler {
       this.addLink({ svgPoint: elems.pd1, event: null, pos: posd1 });
       this.addLink({ svgPoint: elems.pd2, event: null, pos: posd2 });
 
-      this.newNote.type = 'move2';
+      this.newNote.type = 'moveRuler';
 
       return;
     }
 
-    if (this.newNote.type === 'move2' && this.newNote.p2) {
+    if (this.newNote.type === 'moveRuler' && this.newNote.p2) {
+      const p2 = this.newNote.p2;
       this.newNote.type = '';
       this.newNote.p2 = null;
-      return;
+      return p2;
+    }
+
+    if (this.newNote.type === 'move3' && this.newNote.p2) {
+      this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
+
+      const p2 = this.newNote.p2;
+      this.newNote.type = '';
+      this.newNote.p2 = null;
+      return p2;
     }
 
     if (!this.containerSvg) return;
@@ -269,7 +302,7 @@ export class IsometricSvgRuler {
 
   // перемещение svg
   onmousemove = (event) => {
-    if (this.newNote.type === 'move' && this.newNote.p2) {
+    if (this.newNote.type === 'nextRuler' && this.newNote.p2) {
       const svgCircle = this.newNote.p2;
       const svgLine = this.newNote.p2['userData'].line2;
 
@@ -288,7 +321,7 @@ export class IsometricSvgRuler {
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
     }
 
-    if (this.newNote.type === 'move2' && this.newNote.p2) {
+    if (this.newNote.type === 'moveRuler' && this.newNote.p2) {
       const svg = this.newNote.p2['userData'].line;
 
       const offsetX = event.clientX - this.offset.x;
@@ -297,6 +330,29 @@ export class IsometricSvgRuler {
 
       this.moveSvgLine({ svg, offset });
       this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
+
+      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    }
+
+    if (this.newNote.type === 'move3' && this.newNote.p2) {
+      const svgCircle = this.newNote.p2;
+      const svgLine = this.newNote.p2['userData'].line2;
+
+      const x = svgCircle.getAttribute('cx');
+      const y = svgCircle.getAttribute('cy');
+
+      svgLine.setAttribute('x2', Number(x));
+      svgLine.setAttribute('y2', Number(y));
+
+      const offsetX = event.clientX - this.offset.x;
+      const offsetY = event.clientY - this.offset.y;
+      const offset = new THREE.Vector2(offsetX, offsetY);
+
+      this.moveSvgPoint({ svg: this.newNote.p2, offset, type: 'p2' });
+
+      const elems = this.getStructureNote(this.newNote.p2);
+
+      this.moveSvgPoint2({ svg: elems.pd2, offset });
 
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
     }
@@ -625,16 +681,22 @@ export class IsometricSvgRuler {
     const elems = this.getStructureNote(svg);
 
     const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    const display = act ? '' : 'none';
 
     elems.line.setAttribute('stroke', stroke);
     elems.p1.setAttribute('stroke', stroke);
+    elems.p1.setAttribute('fill', stroke);
     elems.p2.setAttribute('stroke', stroke);
+    elems.p2.setAttribute('fill', stroke);
     elems.p1line.setAttribute('stroke', stroke);
     elems.p2line.setAttribute('stroke', stroke);
     elems.pd1.setAttribute('stroke', stroke);
     elems.pd1.setAttribute('fill', stroke);
     elems.pd2.setAttribute('stroke', stroke);
     elems.pd2.setAttribute('fill', stroke);
+
+    elems.pd1.setAttribute('display', display);
+    elems.pd2.setAttribute('display', display);
 
     if (act) {
       this.selectedObj.el = svg;
@@ -767,9 +829,20 @@ export class IsometricSvgRuler {
   }
 
   // удаляем активную выноску
-  deleteNote() {
-    const elems = this.getSelectedNote();
+  deleteNote(type = '') {
+    let elems = null;
+    if (type === 'stopAddRuler') {
+      elems = this.getStructureNote(this.newNote.p2);
+      this.newNote.type = '';
+      this.newNote.p2 = null;
+    } else {
+      elems = this.getSelectedNote();
+    }
+
     if (!elems) return;
+
+    this.unLink(elems.pd1);
+    this.unLink(elems.pd2);
 
     elems.line.remove();
     elems.p1.remove();
@@ -778,7 +851,7 @@ export class IsometricSvgRuler {
     elems.p2line.remove();
     elems.pd1.remove();
     elems.pd2.remove();
-    elems.divText.remove();
+    if (elems.divText) elems.divText.remove();
 
     this.clearSelectedObj();
   }

@@ -203,19 +203,32 @@ export class IsometricSvgManager {
       this.cleareMode();
     }
 
-    if (this.mode.type === 'moveRuler') {
-      isometricSvgRuler.onmousedown(event);
-      this.cleareMode();
-    }
-
-    if (this.mode.type === 'nextRuler') {
-      isometricSvgRuler.onmousedown(event);
-      this.setMode({ type: 'moveRuler', data: null });
-    }
-
     if (this.mode.type === 'addRuler') {
       isometricSvgRuler.addRuler(event, this.mode.data);
-      this.setMode({ type: 'nextRuler', data: null });
+      this.setMode({ type: 'nextRuler' });
+    } else if (this.mode.type === 'nextRuler') {
+      if (event.button === 2) {
+        isometricSvgRuler.deleteNote('stopAddRuler');
+        this.setMode({ type: 'addRuler' });
+      } else {
+        const lastPoint = isometricSvgRuler.onmousedown(event);
+        if (lastPoint) {
+          isometricSvgRuler.addRuler(event, this.mode.data, lastPoint);
+          this.setMode({ type: 'nextRuler' });
+        } else {
+          this.setMode({ type: 'moveRuler' });
+        }
+      }
+    } else if (this.mode.type === 'moveRuler') {
+      if (event.button === 2) {
+        isometricSvgRuler.deleteNote('stopAddRuler');
+        this.setMode({ type: 'addRuler' });
+      } else {
+        const lastPoint = isometricSvgRuler.onmousedown(event);
+        //this.cleareMode();
+        isometricSvgRuler.addRuler(event, this.mode.data, lastPoint);
+        this.setMode({ type: 'nextRuler' });
+      }
     }
 
     if (this.mode.type === 'addText') {

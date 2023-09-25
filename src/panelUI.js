@@ -74,8 +74,12 @@ export class PanelUI {
     };
 
     this.btns$[6].onmousedown = () => {
-      isometricSvgManager.setMode({ type: 'addRuler' });
-      //isometricSvgRuler.addRuler({});
+      console.log(isometricSvgManager.mode.type);
+      if (isometricSvgManager.mode.type === 'addRuler') {
+        isometricSvgManager.cleareMode();
+      } else {
+        isometricSvgManager.setMode({ type: 'addRuler' });
+      }
     };
 
     this.btns$[7].onmousedown = () => {
