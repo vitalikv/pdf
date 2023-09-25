@@ -541,6 +541,63 @@ export class IsometricSvgRuler {
     line['userData'].links.push(svgPoint);
   }
 
+  // двигаем выноску вслед за привязанным объектом
+  updataPos(line) {
+    const arrObj = [];
+
+    line['userData'].links.forEach((svg) => {
+      if (svg['userData'].ruler && svg['userData'].tag === 'dpoint') {
+        const elems = this.getStructureNote(svg);
+
+        let repeat = false;
+        arrObj.forEach((item) => {
+          if (item.elems.line === elems.line) {
+            repeat = true;
+            item.count += 1;
+          }
+        });
+
+        if (!repeat) arrObj.push({ svg, line, elems, count: 0 });
+      }
+    });
+
+    if (arrObj.length > 0) {
+      arrObj.forEach((item) => {
+        const svg = item.svg;
+        const line = item.line;
+        const elems = item.elems;
+        const count = item.count;
+
+        const { dist } = svg['userData'].link;
+
+        const coord = isometricSvgElem.getPosLine2(line);
+        let pos = new THREE.Vector2().subVectors(coord[1], coord[0]);
+        pos = new THREE.Vector2().addScaledVector(pos, dist);
+        pos.add(coord[0]);
+
+        const posP = isometricSvgElem.getPosCircle(svg);
+        const offset = new THREE.Vector2(pos.x - posP.x, pos.y - posP.y);
+
+        if (count === 0) {
+          isometricSvgElem.setOffsetCircle(svg, offset.x, offset.y);
+          const pos = isometricSvgElem.getPosCircle(svg);
+          const dline = svg === elems.pd1 ? elems.p1line : elems.p2line;
+          isometricSvgElem.setPosLine2({ svg: dline, x2: pos.x, y2: pos.y });
+        } else {
+          isometricSvgElem.setOffsetLine2(elems.line, offset.x, offset.y);
+          isometricSvgElem.setOffsetCircle(elems.p1, offset.x, offset.y);
+          isometricSvgElem.setOffsetCircle(elems.p2, offset.x, offset.y);
+          isometricSvgElem.setOffsetLine2(elems.p1line, offset.x, offset.y);
+          isometricSvgElem.setOffsetLine2(elems.p2line, offset.x, offset.y);
+          isometricSvgElem.setOffsetCircle(elems.pd1, offset.x, offset.y);
+          isometricSvgElem.setOffsetCircle(elems.pd2, offset.x, offset.y);
+
+          this.setPosRotDivText({ container: elems.p2['userData'].divText, p1: elems.p1, p2: elems.p2 });
+        }
+      });
+    }
+  }
+
   actElem(svg, act = false) {
     const elems = this.getStructureNote(svg);
 

@@ -199,6 +199,9 @@ export class IsometricSvgLoad {
       isometricSvgElem.setPosCircle(pd2, ruler.p2line[1].x, ruler.p2line[1].y);
 
       isometricSvgRuler.createDivText({ p1, p2, txt: ruler.divText.txt });
+
+      isometricSvgRuler.addLink({ svgPoint: pd1, event: null, pos: new THREE.Vector2(ruler.p1line[1].x, ruler.p1line[1].y) });
+      isometricSvgRuler.addLink({ svgPoint: pd2, event: null, pos: new THREE.Vector2(ruler.p2line[1].x, ruler.p2line[1].y) });
     });
   }
 }

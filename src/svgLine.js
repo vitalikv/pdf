@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricNoteSvg, isometricNoteSvg2, isometricSvgElem, isometricMath } from './index';
+import { isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath } from './index';
 
 export class IsometricSvgLine {
   container;
@@ -526,6 +526,8 @@ export class IsometricSvgLine {
 
     svg['userData'].lines.forEach((svgLine) => {
       isometricNoteSvg.updataPos(svgLine);
+      isometricNoteSvg2.updataPos(svgLine);
+      isometricSvgRuler.updataPos(svgLine);
     });
   }
 

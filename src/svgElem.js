@@ -105,6 +105,18 @@ export class IsometricSvgElem {
     svg.setAttribute('cy', pos.y + offsetY);
   }
 
+  // смещение линии
+  setOffsetLine2(svg, offsetX, offsetY) {
+    const pos = this.getPosLine2(svg);
+
+    const x1 = pos[0].x + offsetX;
+    const y1 = pos[0].y + offsetY;
+    const x2 = pos[1].x + offsetX;
+    const y2 = pos[1].y + offsetY;
+
+    this.setPosLine2({ svg, x1, y1, x2, y2 });
+  }
+
   // обновляем положения линии через 2 точки привязанные к линии
   upPosLine1(svg) {
     const pos = this.getPosLine1(svg);

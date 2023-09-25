@@ -557,7 +557,7 @@ export class IsometricNoteSvg {
   // двигаем выноску вслед за привязанным объектом
   updataPos(line) {
     line['userData'].links.forEach((svg) => {
-      if (svg['userData'].tag === 'point') {
+      if (svg['userData'].note1 && svg['userData'].tag === 'point') {
         const { dist } = svg['userData'].link;
 
         const coord = this.getCoordLine(line);
