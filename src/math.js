@@ -69,4 +69,39 @@ export class IsometricMath {
     b = c;
     return [a, b];
   }
+
+  // проекция точки(С) на прямую (A,B)
+  spPoint(A, B, C) {
+    let x1 = A.x,
+      y1 = A.y,
+      x2 = B.x,
+      y2 = B.y,
+      x3 = C.x,
+      y3 = C.y;
+
+    let px = x2 - x1;
+    let py = y2 - y1;
+    let dAB = px * px + py * py;
+
+    let u = ((x3 - x1) * px + (y3 - y1) * py) / dAB;
+    let x = x1 + u * px;
+    let y = y1 + u * py;
+
+    return new THREE.Vector2(x, y);
+  }
+
+  // опредяляем, надодится точка D за пределами прямой или нет (точка D пересекает прямую АВ, идущая перпендикулярна от точки С)
+  calScal(A, B, C) {
+    let AB = { x: B.x - A.x, y: B.y - A.y };
+    let CD = { x: C.x - A.x, y: C.y - A.y };
+    const r1 = AB.x * CD.x + AB.y * CD.y; // скалярное произведение векторов
+
+    AB = { x: A.x - B.x, y: A.y - B.y };
+    CD = { x: C.x - B.x, y: C.y - B.y };
+    const r2 = AB.x * CD.x + AB.y * CD.y;
+
+    const cross = r1 < 0 || r2 < 0 ? false : true; // если true , то точка D находится на отрезке AB
+
+    return cross;
+  }
 }

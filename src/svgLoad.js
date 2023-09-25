@@ -188,13 +188,16 @@ export class IsometricSvgLoad {
     rulers.forEach((ruler) => {
       const { svg1, svg2, svg3 } = isometricSvgRuler.createElement({ btn: true, x: 0, y: 0 });
 
-      const { line, p1, p2, p1line, p2line } = isometricSvgRuler.getStructureNote(svg1);
+      const { line, p1, p2, p1line, p2line, pd1, pd2 } = isometricSvgRuler.getStructureNote(svg1);
 
       isometricSvgElem.setPosLine1(line, ruler.line[0].x, ruler.line[0].y, ruler.line[1].x, ruler.line[1].y);
       isometricSvgElem.setPosCircle(p1, ruler.p1.x, ruler.p1.y);
       isometricSvgElem.setPosCircle(p2, ruler.p2.x, ruler.p2.y);
       isometricSvgElem.setPosLine1(p1line, ruler.p1line[0].x, ruler.p1line[0].y, ruler.p1line[1].x, ruler.p1line[1].y);
       isometricSvgElem.setPosLine1(p2line, ruler.p2line[0].x, ruler.p2line[0].y, ruler.p2line[1].x, ruler.p2line[1].y);
+      isometricSvgElem.setPosCircle(pd1, ruler.p1line[1].x, ruler.p1line[1].y);
+      isometricSvgElem.setPosCircle(pd2, ruler.p2line[1].x, ruler.p2line[1].y);
+
       isometricSvgRuler.createDivText({ p1, p2, txt: ruler.divText.txt });
     });
   }

@@ -1,6 +1,15 @@
 import * as THREE from 'three';
 
 export class IsometricSvgElem {
+  // получаем координаты курсора
+  getCoordMouse({ event, container }) {
+    const bound = container.getBoundingClientRect();
+    const x = -bound.x + event.clientX;
+    const y = -bound.y + event.clientY;
+
+    return new THREE.Vector2(x, y);
+  }
+
   // создаем svg line елемент
   createSvgLine({ x1, y1, x2, y2, stroke = '#000000' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -70,6 +79,14 @@ export class IsometricSvgElem {
     svg.setAttribute('y2', Number(y2));
   }
 
+  // меняем положение линии, более продвинутая версия (где можно обновлять любую позицию)
+  setPosLine2({ svg, x1 = null, y1 = null, x2 = null, y2 = null }) {
+    if (x1) svg.setAttribute('x1', Number(x1));
+    if (y1) svg.setAttribute('y1', Number(y1));
+    if (x2) svg.setAttribute('x2', Number(x2));
+    if (y2) svg.setAttribute('y2', Number(y2));
+  }
+
   setPosCircle(svg, cx, cy) {
     svg.setAttribute('cx', Number(cx));
     svg.setAttribute('cy', Number(cy));
@@ -78,6 +95,14 @@ export class IsometricSvgElem {
   setPosText1(svg, x, y) {
     svg.setAttribute('x', Number(x));
     svg.setAttribute('y', Number(y));
+  }
+
+  // смещение точки
+  setOffsetCircle(svg, offsetX, offsetY) {
+    const pos = this.getPosCircle(svg);
+
+    svg.setAttribute('cx', pos.x + offsetX);
+    svg.setAttribute('cy', pos.y + offsetY);
   }
 
   // обновляем положения линии через 2 точки привязанные к линии

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { mapControlInit } from './index';
+import { isometricSvgElem, isometricMath } from './index';
 
 export class IsometricSvgRuler {
   container;
@@ -59,16 +59,24 @@ export class IsometricSvgRuler {
     const svg3 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
     const svg4 = this.createSvgLine({ x1, y1, x2, y2 });
     const svg5 = this.createSvgLine({ x1, y1, x2, y2 });
+    const svg6 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
+    const svg7 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
 
     this.containerSvg.children[0].append(svg1);
     this.containerSvg.children[0].append(svg2);
     this.containerSvg.children[0].append(svg3);
     this.containerSvg.children[0].append(svg4);
     this.containerSvg.children[0].append(svg5);
+    this.containerSvg.children[0].append(svg6);
+    this.containerSvg.children[0].append(svg7);
 
     svg1['userData'] = { ruler: true, tag: 'line', line: svg1, p1: svg2, p2: svg3 };
     svg2['userData'] = { ruler: true, tag: 'p1', line: svg1, p1: svg2, p2: svg3, line2: svg4 };
     svg3['userData'] = { ruler: true, tag: 'p2', line: svg1, p1: svg2, p2: svg3, line2: svg5 };
+    svg4['userData'] = { p: svg6 };
+    svg5['userData'] = { p: svg7 };
+    svg6['userData'] = { ruler: true, tag: 'dpoint', line: svg1, dline: svg4, crossOffset: false, link: null };
+    svg7['userData'] = { ruler: true, tag: 'dpoint', line: svg1, dline: svg5, crossOffset: false, link: null };
 
     return { svg1, svg2, svg3 };
   }
@@ -219,8 +227,14 @@ export class IsometricSvgRuler {
     if (this.newNote.type === 'move' && this.newNote.p2) {
       this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
 
+      const elems = this.getStructureNote(this.newNote.p2);
+      const pos1 = isometricSvgElem.getPosLine2(elems.p1line);
+      const pos2 = isometricSvgElem.getPosLine2(elems.p2line);
+
+      isometricSvgElem.setPosCircle(elems.pd1, pos1[1].x, pos1[1].y);
+      isometricSvgElem.setPosCircle(elems.pd2, pos2[1].x, pos2[1].y);
+
       this.newNote.type = 'move2';
-      //this.newNote.p2 = this.newNote.p2['userData'].line;
 
       return;
     }
@@ -304,6 +318,11 @@ export class IsometricSvgRuler {
       change = true;
     }
 
+    if (svg['userData'].tag === 'dpoint') {
+      this.moveSvgPoint2({ svg, offset });
+      this.addLink({ svgPoint: svg, event });
+    }
+
     if (change) {
       this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
     }
@@ -353,6 +372,9 @@ export class IsometricSvgRuler {
 
         svgLine.setAttribute('x2', Number(x2) + offsetX);
         svgLine.setAttribute('y2', Number(y2) + offsetY);
+
+        const pd = svgLine['userData'].p;
+        isometricSvgElem.setPosCircle(pd, Number(x2) + offsetX, Number(y2) + offsetY);
       }
 
       if (svgP2) {
@@ -363,6 +385,9 @@ export class IsometricSvgRuler {
 
         svgLine.setAttribute('x2', Number(x2) + offsetX);
         svgLine.setAttribute('y2', Number(y2) + offsetY);
+
+        const pd = svgLine['userData'].p;
+        isometricSvgElem.setPosCircle(pd, Number(x2) + offsetX, Number(y2) + offsetY);
       }
     }
   }
@@ -415,14 +440,109 @@ export class IsometricSvgRuler {
     }
   }
 
+  moveSvgPoint2({ svg, offset }) {
+    isometricSvgElem.setOffsetCircle(svg, offset.x, offset.y);
+
+    const pos = isometricSvgElem.getPosCircle(svg);
+    isometricSvgElem.setPosLine2({ svg: svg['userData'].dline, x2: pos.x, y2: pos.y });
+  }
+
+  addLink({ svgPoint, event, pos = null }) {
+    const arrLines = [];
+
+    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+      if (svg['userData']) {
+        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+          arrLines.push(svg);
+        }
+      }
+    });
+
+    if (!pos) pos = isometricSvgElem.getCoordMouse({ event, container: this.container });
+    let minDist = Infinity;
+    const result = { obj: null, type: '', pos: new THREE.Vector2() };
+
+    arrLines.forEach((line) => {
+      const posL = isometricSvgElem.getPosLine2(line);
+      const posPr = isometricMath.spPoint(posL[0], posL[1], pos);
+      const onLine = isometricMath.calScal(posL[0], posL[1], pos);
+
+      if (onLine) {
+        const dist = pos.distanceTo(posPr);
+        if (dist < minDist) {
+          minDist = dist;
+          result.obj = line;
+          result.pos = posPr;
+          result.type = 'line';
+        }
+      }
+    });
+
+    let resultCross = null;
+
+    // нашли ближайшую точку с которой есть пересечение
+    if (result.type === 'line') {
+      if (minDist < 10) {
+        const posC = isometricSvgElem.getPosCircle(svgPoint);
+        const offset = new THREE.Vector2(result.pos.x - posC.x, result.pos.y - posC.y);
+
+        this.moveSvgPoint2({ svg: svgPoint, offset });
+
+        this.addLinkUp({ svgPoint, result });
+
+        svgPoint['userData'].crossOffset = true;
+
+        resultCross = true;
+      } else {
+        if (svgPoint['userData'].crossOffset) {
+          svgPoint['userData'].crossOffset = false;
+          const posC = isometricSvgElem.getPosCircle(svgPoint);
+          const offset = new THREE.Vector2(pos.x - posC.x, pos.y - posC.y);
+
+          this.moveSvgPoint2({ svg: svgPoint, offset });
+        }
+
+        this.unLink(svgPoint);
+      }
+    }
+
+    return resultCross;
+  }
+
+  // убираем привязку выноски к линии
+  unLink(svgPoint) {
+    const link = svgPoint['userData'].link;
+    if (!link) return;
+
+    const links = link.obj['userData'].links;
+
+    let index = links.indexOf(svgPoint);
+    if (index > -1) links.splice(index, 1);
+
+    svgPoint['userData'].link = null;
+  }
+
+  // добавляем привязку выноски к линии
+  addLinkUp({ svgPoint, result }) {
+    const line = result.obj;
+
+    const index = line['userData'].links.indexOf(svgPoint);
+    if (index > -1) return;
+
+    svgPoint['userData'].link = { obj: line, dist: 0 };
+
+    const pos = isometricSvgElem.getPosLine2(line);
+    const fullDist = pos[0].distanceTo(pos[1]);
+    const distFirst = pos[0].distanceTo(result.pos);
+    const dist = Math.round((distFirst / fullDist) * 100) / 100;
+
+    svgPoint['userData'].link.dist = dist;
+
+    line['userData'].links.push(svgPoint);
+  }
+
   actElem(svg, act = false) {
-    const elems = {
-      line: svg['userData'].line,
-      p1: svg['userData'].p1,
-      p2: svg['userData'].p2,
-      p1line: svg['userData'].p1['userData'].line2,
-      p2line: svg['userData'].p2['userData'].line2,
-    };
+    const elems = this.getStructureNote(svg);
 
     const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
 
@@ -431,6 +551,10 @@ export class IsometricSvgRuler {
     elems.p2.setAttribute('stroke', stroke);
     elems.p1line.setAttribute('stroke', stroke);
     elems.p2line.setAttribute('stroke', stroke);
+    elems.pd1.setAttribute('stroke', stroke);
+    elems.pd1.setAttribute('fill', stroke);
+    elems.pd2.setAttribute('stroke', stroke);
+    elems.pd2.setAttribute('fill', stroke);
 
     if (act) {
       this.selectedObj.el = svg;
@@ -454,12 +578,28 @@ export class IsometricSvgRuler {
   }
 
   getStructureNote(svg) {
+    if (svg['userData'].tag === 'line') {
+    }
+    if (svg['userData'].tag === 'dpoint') {
+      svg = svg['userData'].line;
+    }
+
+    const line = svg['userData'].line;
+    const p1 = svg['userData'].p1;
+    const p2 = svg['userData'].p2;
+    const p1line = p1['userData'].line2;
+    const p2line = p2['userData'].line2;
+    const pd1 = p1line['userData'].p;
+    const pd2 = p2line['userData'].p;
+
     return {
-      line: svg['userData'].line,
-      p1: svg['userData'].p1,
-      p2: svg['userData'].p2,
-      p1line: svg['userData'].p1['userData'].line2,
-      p2line: svg['userData'].p2['userData'].line2,
+      line,
+      p1,
+      p2,
+      p1line,
+      p2line,
+      pd1,
+      pd2,
       divText: svg['userData'].p2['userData'].divText,
     };
   }
@@ -523,6 +663,9 @@ export class IsometricSvgRuler {
 
         svgLine.setAttribute('x2', Number(nx2));
         svgLine.setAttribute('y2', Number(ny2));
+
+        const pd = svgLine['userData'].p;
+        isometricSvgElem.setPosCircle(pd, Number(nx2), Number(ny2));
       }
 
       if (svgP2) {
@@ -536,6 +679,9 @@ export class IsometricSvgRuler {
 
         svgLine.setAttribute('x2', Number(nx2));
         svgLine.setAttribute('y2', Number(ny2));
+
+        const pd = svgLine['userData'].p;
+        isometricSvgElem.setPosCircle(pd, Number(nx2), Number(ny2));
       }
     });
   }
@@ -550,6 +696,8 @@ export class IsometricSvgRuler {
     elems.p2.remove();
     elems.p1line.remove();
     elems.p2line.remove();
+    elems.pd1.remove();
+    elems.pd2.remove();
     elems.divText.remove();
 
     this.clearSelectedObj();

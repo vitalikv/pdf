@@ -556,18 +556,20 @@ export class IsometricNoteSvg {
 
   // двигаем выноску вслед за привязанным объектом
   updataPos(line) {
-    line['userData'].links.forEach((svgPoint) => {
-      const { dist } = svgPoint['userData'].link;
+    line['userData'].links.forEach((svg) => {
+      if (svg['userData'].tag === 'point') {
+        const { dist } = svg['userData'].link;
 
-      const coord = this.getCoordLine(line);
-      let pos = new THREE.Vector2().subVectors(coord.b, coord.a);
-      pos = new THREE.Vector2().addScaledVector(pos, dist);
-      pos.add(coord.a);
+        const coord = this.getCoordLine(line);
+        let pos = new THREE.Vector2().subVectors(coord.b, coord.a);
+        pos = new THREE.Vector2().addScaledVector(pos, dist);
+        pos.add(coord.a);
 
-      svgPoint.setAttribute('cx', pos.x);
-      svgPoint.setAttribute('cy', pos.y);
-      svgPoint['userData'].line.setAttribute('x1', pos.x);
-      svgPoint['userData'].line.setAttribute('y1', pos.y);
+        svg.setAttribute('cx', pos.x);
+        svg.setAttribute('cy', pos.y);
+        svg['userData'].line.setAttribute('x1', pos.x);
+        svg['userData'].line.setAttribute('y1', pos.y);
+      }
     });
   }
 

@@ -240,23 +240,19 @@ export class IsometricSvgManager {
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg.contains(event.target)) {
         if (svg['userData'].lineI) {
-          isometricSvgLine.onmousedown(event);
-          result = true;
+          result = isometricSvgLine.onmousedown(event);
         }
 
         if (svg['userData'].note1) {
-          isometricNoteSvg.onmousedown(event);
-          result = true;
+          result = isometricNoteSvg.onmousedown(event);
         }
 
         if (svg['userData'].note2) {
-          isometricNoteSvg2.onmousedown(event);
-          result = true;
+          result = isometricNoteSvg2.onmousedown(event);
         }
 
         if (svg['userData'].ruler) {
-          isometricSvgRuler.onmousedown(event);
-          result = true;
+          result = isometricSvgRuler.onmousedown(event);
         }
       }
     });
@@ -281,8 +277,10 @@ export class IsometricSvgManager {
         if (svg['userData'].note2) {
           isometricNoteSvg2.actElem(svg, false);
         }
-        if (svg['userData'].ruler) {
-          isometricSvgRuler.actElem(svg, false);
+        if (isometricSvgRuler.selectedObj.el && svg['userData'].ruler) {
+          if (isometricSvgRuler.selectedObj.el === svg) {
+            isometricSvgRuler.actElem(svg, false);
+          }
         }
       }
     });
