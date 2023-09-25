@@ -234,6 +234,11 @@ export class IsometricSvgRuler {
       isometricSvgElem.setPosCircle(elems.pd1, pos1[1].x, pos1[1].y);
       isometricSvgElem.setPosCircle(elems.pd2, pos2[1].x, pos2[1].y);
 
+      const posd1 = isometricSvgElem.getPosCircle(elems.pd1);
+      const posd2 = isometricSvgElem.getPosCircle(elems.pd2);
+      this.addLink({ svgPoint: elems.pd1, event: null, pos: posd1 });
+      this.addLink({ svgPoint: elems.pd2, event: null, pos: posd2 });
+
       this.newNote.type = 'move2';
 
       return;
@@ -279,6 +284,7 @@ export class IsometricSvgRuler {
       const offset = new THREE.Vector2(offsetX, offsetY);
 
       this.moveSvgPoint({ svg: this.newNote.p2, offset, type: 'p2' });
+
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
     }
 
@@ -449,11 +455,15 @@ export class IsometricSvgRuler {
 
   addLink({ svgPoint, event, pos = null }) {
     const arrLines = [];
+    const arrDPoints = [];
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'line') {
           arrLines.push(svg);
+        }
+        if (svg['userData'].ruler && svg['userData'].tag === 'dpoint') {
+          if (svg !== svgPoint) arrDPoints.push(svg);
         }
       }
     });
@@ -477,6 +487,19 @@ export class IsometricSvgRuler {
         }
       }
     });
+
+    // ищем ближайший размер на линии
+    if (result.type === 'line') {
+      arrDPoints.forEach((point) => {
+        const pos2 = isometricSvgElem.getPosCircle(point);
+
+        const dist = pos.distanceTo(pos2);
+        if (dist < minDist + 10) {
+          minDist = dist;
+          result.pos = pos2;
+        }
+      });
+    }
 
     let resultCross = null;
 
