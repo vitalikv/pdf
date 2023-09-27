@@ -277,6 +277,18 @@ export class IsometricSvgRuler {
     if (this.newNote.type === 'move3' && this.newNote.p2) {
       this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
 
+      const elems = this.getStructureNote(this.newNote.p2);
+      const pos1 = isometricSvgElem.getPosLine2(elems.p1line);
+      const pos2 = isometricSvgElem.getPosLine2(elems.p2line);
+
+      isometricSvgElem.setPosCircle(elems.pd1, pos1[1].x, pos1[1].y);
+      isometricSvgElem.setPosCircle(elems.pd2, pos2[1].x, pos2[1].y);
+
+      const posd1 = isometricSvgElem.getPosCircle(elems.pd1);
+      const posd2 = isometricSvgElem.getPosCircle(elems.pd2);
+      this.addLink({ svgPoint: elems.pd1, event: null, pos: posd1 });
+      this.addLink({ svgPoint: elems.pd2, event: null, pos: posd2 });
+
       const p2 = this.newNote.p2;
       this.newNote.type = '';
       this.newNote.p2 = null;
@@ -678,6 +690,16 @@ export class IsometricSvgRuler {
   }
 
   actElem(svg, act = false) {
+    this.setColorElem(svg, act);
+
+    if (act) {
+      this.selectedObj.el = svg;
+    } else {
+      this.clearSelectedObj();
+    }
+  }
+
+  setColorElem(svg, act = false) {
     const elems = this.getStructureNote(svg);
 
     const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
@@ -697,12 +719,6 @@ export class IsometricSvgRuler {
 
     elems.pd1.setAttribute('display', display);
     elems.pd2.setAttribute('display', display);
-
-    if (act) {
-      this.selectedObj.el = svg;
-    } else {
-      this.clearSelectedObj();
-    }
   }
 
   clearSelectedObj() {
@@ -829,12 +845,14 @@ export class IsometricSvgRuler {
   }
 
   // удаляем активную выноску
-  deleteNote(type = '') {
+  deleteNote({ type = '', svg = null }) {
     let elems = null;
     if (type === 'stopAddRuler') {
       elems = this.getStructureNote(this.newNote.p2);
       this.newNote.type = '';
       this.newNote.p2 = null;
+    } else if (svg) {
+      elems = this.getStructureNote(svg);
     } else {
       elems = this.getSelectedNote();
     }

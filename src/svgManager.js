@@ -208,7 +208,7 @@ export class IsometricSvgManager {
       this.setMode({ type: 'nextRuler' });
     } else if (this.mode.type === 'nextRuler') {
       if (event.button === 2) {
-        isometricSvgRuler.deleteNote('stopAddRuler');
+        isometricSvgRuler.deleteNote({ type: 'stopAddRuler' });
         this.setMode({ type: 'addRuler' });
       } else {
         const lastPoint = isometricSvgRuler.onmousedown(event);
@@ -221,7 +221,7 @@ export class IsometricSvgManager {
       }
     } else if (this.mode.type === 'moveRuler') {
       if (event.button === 2) {
-        isometricSvgRuler.deleteNote('stopAddRuler');
+        isometricSvgRuler.deleteNote({ type: 'stopAddRuler' });
         this.setMode({ type: 'addRuler' });
       } else {
         const lastPoint = isometricSvgRuler.onmousedown(event);
@@ -303,7 +303,7 @@ export class IsometricSvgManager {
     isometricSvgLine.deleteObj();
     isometricNoteSvg.deleteNote();
     isometricNoteSvg2.deleteNote();
-    isometricSvgRuler.deleteNote();
+    isometricSvgRuler.deleteNote({});
     isometricNoteText.deleteNote();
   }
 }

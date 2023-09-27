@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricMath, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2 } from './index';
+import { isometricMath, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
 
 export class IsometricSelectBox {
   activated = false;
@@ -208,20 +208,33 @@ export class IsometricSelectBox {
     const arrPoints = [];
     const arrDLines = [];
     const arrDPoints = [];
+    const arrRulerLine = [];
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
-        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
-          arrLines.push(svg);
+        if (svg['userData'].lineI) {
+          if (svg['userData'].tag === 'line') {
+            arrLines.push(svg);
+          }
+          if (svg['userData'].tag === 'point') {
+            arrPoints.push(svg);
+          }
+          if (svg['userData'].tag === 'dline') {
+            arrLines.push(svg);
+          }
+          if (svg['userData'].tag === 'dpoint') {
+            arrPoints.push(svg);
+          }
         }
-        if (svg['userData'].lineI && svg['userData'].tag === 'point') {
-          arrPoints.push(svg);
+        if (svg['userData'].note1 || svg['userData'].note2) {
+          if (svg['userData'].tag === 'line') {
+            arrLines.push(svg);
+          }
         }
-        if (svg['userData'].lineI && svg['userData'].tag === 'dline') {
-          arrLines.push(svg);
-        }
-        if (svg['userData'].lineI && svg['userData'].tag === 'dpoint') {
-          arrPoints.push(svg);
+        if (svg['userData'].ruler) {
+          if (svg['userData'].tag === 'line') {
+            arrLines.push(svg);
+          }
         }
       }
     });
@@ -304,16 +317,30 @@ export class IsometricSelectBox {
   actElem(svg, act = false) {
     const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
 
-    if (svg['userData'].tag === 'line') {
-      svg.setAttribute('stroke', stroke);
-    } else if (svg['userData'].tag === 'point') {
-      svg.setAttribute('stroke', stroke);
-      svg.setAttribute('fill', stroke);
-    } else if (svg['userData'].tag === 'dline') {
-      svg.setAttribute('stroke', stroke);
-    } else if (svg['userData'].tag === 'dpoint') {
-      svg.setAttribute('stroke', stroke);
-      svg.setAttribute('fill', stroke);
+    if (svg['userData'].lineI) {
+      if (svg['userData'].tag === 'line') {
+        svg.setAttribute('stroke', stroke);
+      } else if (svg['userData'].tag === 'point') {
+        svg.setAttribute('stroke', stroke);
+        svg.setAttribute('fill', stroke);
+      } else if (svg['userData'].tag === 'dline') {
+        svg.setAttribute('stroke', stroke);
+      } else if (svg['userData'].tag === 'dpoint') {
+        svg.setAttribute('stroke', stroke);
+        svg.setAttribute('fill', stroke);
+      }
+    } else if (svg['userData'].note1) {
+      if (svg['userData'].tag === 'line') {
+        isometricNoteSvg.setColorElem(svg, act);
+      }
+    } else if (svg['userData'].note2) {
+      if (svg['userData'].tag === 'line') {
+        isometricNoteSvg2.setColorElem(svg, act);
+      }
+    } else if (svg['userData'].ruler) {
+      if (svg['userData'].tag === 'line') {
+        isometricSvgRuler.setColorElem(svg, act);
+      }
     } else {
       return;
     }
@@ -385,11 +412,28 @@ export class IsometricSelectBox {
   deleteSelected() {
     this.selectedArr.objs.forEach((svg, ind) => {
       if (svg['userData']) {
-        if (svg['userData'].lineI && svg['userData'].tag === 'line') {
-          isometricSvgLine.deleteObj(svg);
+        if (svg['userData'].lineI) {
+          if (svg['userData'].tag === 'line') {
+            isometricSvgLine.deleteObj(svg);
+          }
+          if (svg['userData'].tag === 'dline') {
+            isometricSvgLine.deleteObj(svg);
+          }
         }
-        if (svg['userData'].lineI && svg['userData'].tag === 'dline') {
-          isometricSvgLine.deleteObj(svg);
+        if (svg['userData'].note1) {
+          if (svg['userData'].tag === 'line') {
+            isometricNoteSvg.deleteNote(svg);
+          }
+        }
+        if (svg['userData'].note2) {
+          if (svg['userData'].tag === 'line') {
+            isometricNoteSvg2.deleteNote(svg);
+          }
+        }
+        if (svg['userData'].ruler) {
+          if (svg['userData'].tag === 'line') {
+            isometricSvgRuler.deleteNote({ svg, type: '' });
+          }
         }
       }
     });

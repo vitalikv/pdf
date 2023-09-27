@@ -305,6 +305,16 @@ export class IsometricNoteSvg {
   }
 
   actElem(svg, act = false) {
+    this.setColorElem(svg, act);
+
+    if (act) {
+      this.selectedObj.el = svg;
+    } else {
+      this.clearSelectedObj();
+    }
+  }
+
+  setColorElem(svg, act = false) {
     const elems = { line: svg['userData'].line, point: svg['userData'].point, label: svg['userData'].label };
 
     const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
@@ -316,12 +326,6 @@ export class IsometricNoteSvg {
     const svgLine = elems.label.children[1];
     svgCircle.setAttribute('stroke', stroke);
     svgLine.setAttribute('stroke', stroke);
-
-    if (act) {
-      this.selectedObj.el = svg;
-    } else {
-      this.clearSelectedObj();
-    }
   }
 
   setLockOnSvg(svg, lock = null) {
@@ -414,9 +418,18 @@ export class IsometricNoteSvg {
   }
 
   // удаляем активную выноску
-  deleteNote() {
-    const elems = this.getSelectedNote();
+  deleteNote(svg = null) {
+    let elems = null;
+
+    if (svg) {
+      elems = this.getStructureNote(svg);
+    } else {
+      elems = this.getSelectedNote();
+    }
+
     if (!elems) return;
+
+    this.unLink(elems.point);
 
     elems.line.remove();
     elems.point.remove();
