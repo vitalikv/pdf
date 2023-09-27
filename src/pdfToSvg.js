@@ -53,6 +53,11 @@ export class IsometricPdfToSvg {
     this.canvasPdf = canvas;
 
     this.updateCanvasPdf();
+
+    const svgL = this.containerSvg.children[0];
+    const bound = this.containerSvg.children[0].getBoundingClientRect();
+    const viewBox = '0 0 ' + bound.width + ' ' + bound.height;
+    svgL.setAttribute('viewBox', viewBox);
   }
 
   createInputFile() {
@@ -252,6 +257,10 @@ export class IsometricPdfToSvg {
     canvas.style.transform = 'translateX(-50%) translateY(-50%)';
     canvas.style.border = '4px solid #515151';
     canvas.style.zIndex = '3';
+
+    this.containerSvg.style.cssText = canvas.style.cssText;
+    this.containerSvg.style.zIndex = '4';
+    this.containerSvg.style.userSelect = 'none';
   }
 
   setScale({ value }) {
@@ -266,10 +275,10 @@ export class IsometricPdfToSvg {
     this.updateCanvasPdf();
 
     //this.testScale(this.canvasPdf, ratio, bound);
-    isometricSvgLine.scale(this.canvasPdf, ratio, bound);
-    isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
-    isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
-    isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
+    // isometricSvgLine.scale(this.canvasPdf, ratio, bound);
+    // isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
+    // isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
+    // isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
 
     isometricSheets.setStyle(this.canvasPdf.style.cssText);
   }

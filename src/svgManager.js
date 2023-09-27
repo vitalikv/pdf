@@ -74,7 +74,8 @@ export class IsometricSvgManager {
     const div = document.createElement('div');
     div.setAttribute('nameId', 'svgTools');
     div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
-    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="409" height="293" viewBox="0 0 409 293" style="overflow: visible;"></svg>`;
+    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 409 293" style="overflow: visible;"></svg>`;
+    //div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
 
     this.containerSvg = div;
     const container = this.getContainer();

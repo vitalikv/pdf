@@ -33,9 +33,13 @@ export class IsometricMovePdf {
       pdf.style.left = pdf.offsetLeft + (event.clientX - this.offset.x) + 'px';
 
       isometricSheets.setStyle(pdf.style.cssText);
+
+      this.containerSvg.style.cssText = pdf.style.cssText;
+      this.containerSvg.style.zIndex = '4';
+      this.containerSvg.style.userSelect = 'none';
     }
 
-    this.moveSvg(offset);
+    //this.moveSvg(offset);
 
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
   };

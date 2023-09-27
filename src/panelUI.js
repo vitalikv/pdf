@@ -31,7 +31,8 @@ export class PanelUI {
     this.btns$[5] = this.crBtn({ txt: 'Выноска 2' });
     this.btns$[6] = this.crBtn({ txt: 'Размер' });
     this.btns$[7] = this.crBtn({ txt: 'Ластик' });
-    this.btns$[8] = this.crList();
+    //this.btns$[8] = this.crList();
+    this.btns$[8] = this.crInputSlider();
     this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
     this.btns$[11] = this.crBtn({ txt: 'Линия' });
@@ -86,7 +87,7 @@ export class PanelUI {
       isometricSvgManager.setMode({ type: 'brush' });
     };
 
-    this.btns$[8].onchange = (e) => {
+    this.btns$[8].children[0].oninput = (e) => {
       isometricPdfToSvg.setScale({ value: e.target.value });
     };
 
@@ -150,6 +151,18 @@ export class PanelUI {
     let div = document.createElement('div');
     div.innerHTML = html;
     div = div.children[0];
+
+    this.container$.querySelector('[nameId="btns"]').append(div);
+
+    return div;
+  }
+
+  crInputSlider() {
+    const html = `<input type="range" min="20" max="300" value="100"/>`;
+
+    let div = document.createElement('div');
+    div.innerHTML = html;
+    div.style.cssText = 'width: 100%; height: 30px; margin-top: 15px; font-size: 16px; text-align: center;';
 
     this.container$.querySelector('[nameId="btns"]').append(div);
 

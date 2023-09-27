@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricMath, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
 
 export class IsometricSelectBox {
   activated = false;
@@ -162,6 +162,9 @@ export class IsometricSelectBox {
     this.elemSelBox.style.top = this.elemSelBox.offsetTop + offsetY + 'px';
     this.elemSelBox.style.left = this.elemSelBox.offsetLeft + offsetX + 'px';
 
+    this.startPos.add(new THREE.Vector2(offsetX, offsetY));
+    this.endPos.add(new THREE.Vector2(offsetX, offsetY));
+
     this.moveOffset(new THREE.Vector2(offsetX, offsetY));
 
     this.cursorOffset = cursorPos;
@@ -239,7 +242,7 @@ export class IsometricSelectBox {
       }
     });
 
-    const form = this.getFormBox();
+    const form = this.getFormBox(true);
 
     arrLines.forEach((svg) => {
       const { a, b } = this.getCoordLine(svg);
@@ -283,11 +286,26 @@ export class IsometricSelectBox {
   }
 
   // получаем выделеную область (box)
-  getFormBox() {
-    const x1 = this.startPos.x;
-    const y1 = this.startPos.y;
-    const x2 = this.endPos.x;
-    const y2 = this.endPos.y;
+  getFormBox(modif = false) {
+    let x1 = this.startPos.x;
+    let y1 = this.startPos.y;
+    let x2 = this.endPos.x;
+    let y2 = this.endPos.y;
+
+    if (modif) {
+      const bound = this.containerSvg.getBoundingClientRect();
+
+      const svgL = this.containerSvg.children[0];
+      const w2 = svgL.viewBox.baseVal.width;
+      const h2 = svgL.viewBox.baseVal.height;
+
+      const ratio = w2 / bound.width;
+
+      x1 = (-bound.x + this.startOffset.x + x1) * ratio;
+      y1 = (-bound.y + this.startOffset.y + y1) * ratio;
+      x2 = (-bound.x + this.startOffset.x + x2) * ratio;
+      y2 = (-bound.y + this.startOffset.y + y2) * ratio;
+    }
 
     const form = [];
     form.push(new THREE.Vector2(x1, y1));

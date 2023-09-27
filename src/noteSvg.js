@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { mapControlInit, isometricSvgManager } from './index';
+import { isometricSvgElem } from './index';
 
 export class IsometricNoteSvg {
   container;
@@ -23,9 +23,9 @@ export class IsometricNoteSvg {
     this.clearSelectedObj();
 
     if (event.button === 0) {
-      const bound = this.container.getBoundingClientRect();
-      const x = -bound.x + event.clientX;
-      const y = -bound.y + event.clientY;
+      const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+      const x = pos.x;
+      const y = pos.y;
 
       this.createElement({ btn: true, x, y, data });
     }
@@ -460,7 +460,7 @@ export class IsometricNoteSvg {
       }
     });
 
-    if (!pos) pos = this.getCoord(event);
+    if (!pos) pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
     let minDist = Infinity;
     const result = { obj: null, type: '', pos: new THREE.Vector2() };
 
@@ -584,14 +584,6 @@ export class IsometricNoteSvg {
         svg['userData'].line.setAttribute('y1', pos.y);
       }
     });
-  }
-
-  getCoord(event) {
-    const bound = this.container.getBoundingClientRect();
-    const x = -bound.x + event.clientX;
-    const y = -bound.y + event.clientY;
-
-    return new THREE.Vector2(x, y);
   }
 
   getCoordPoint(svg) {

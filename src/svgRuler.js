@@ -39,9 +39,9 @@ export class IsometricSvgRuler {
     this.clearNewNote();
 
     if (event.button === 0) {
-      const bound = this.container.getBoundingClientRect();
-      let x = -bound.x + event.clientX;
-      let y = -bound.y + event.clientY;
+      const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+      let x = pos.x;
+      let y = pos.y;
 
       if (elPos) {
         x = elPos[0].x;
@@ -572,7 +572,7 @@ export class IsometricSvgRuler {
       }
     });
 
-    if (!pos) pos = isometricSvgElem.getCoordMouse({ event, container: this.container });
+    if (!pos) pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
     let minDist = Infinity;
     const result = { obj: null, type: '', pos: new THREE.Vector2() };
 

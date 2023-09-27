@@ -283,19 +283,19 @@ export class IsometricSvgLine {
   }
 
   getCoord(event) {
-    const bound = this.container.getBoundingClientRect();
+    const bound = this.containerSvg.getBoundingClientRect();
     let x = -bound.x + event.clientX;
     let y = -bound.y + event.clientY;
 
-    const svgL = this.containerSvg.children[0];
-    const w = Number(svgL.getAttribute('width'));
-    const h = Number(svgL.getAttribute('height'));
+    // const svgL = this.containerSvg.children[0];
+    // const w = Number(svgL.getAttribute('width'));
+    // const h = Number(svgL.getAttribute('height'));
 
-    const w2 = svgL.viewBox.baseVal.width;
-    const h2 = svgL.viewBox.baseVal.height;
+    // const w2 = svgL.viewBox.baseVal.width;
+    // const h2 = svgL.viewBox.baseVal.height;
 
-    x /= w / w2;
-    y /= h / h2;
+    // x /= w / w2;
+    // y /= h / h2;
 
     return new THREE.Vector2(x, y);
   }
@@ -304,15 +304,15 @@ export class IsometricSvgLine {
     let x = event.clientX;
     let y = event.clientY;
 
-    const svgL = this.containerSvg.children[0];
-    const w = Number(svgL.getAttribute('width'));
-    const h = Number(svgL.getAttribute('height'));
+    // const svgL = this.containerSvg.children[0];
+    // const w = Number(svgL.getAttribute('width'));
+    // const h = Number(svgL.getAttribute('height'));
 
-    const w2 = svgL.viewBox.baseVal.width;
-    const h2 = svgL.viewBox.baseVal.height;
+    // const w2 = svgL.viewBox.baseVal.width;
+    // const h2 = svgL.viewBox.baseVal.height;
 
-    x /= w / w2;
-    y /= h / h2;
+    // x /= w / w2;
+    // y /= h / h2;
 
     return new THREE.Vector2(x, y);
   }
