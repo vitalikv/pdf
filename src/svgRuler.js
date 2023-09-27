@@ -5,7 +5,7 @@ import { isometricSvgElem, isometricMath } from './index';
 export class IsometricSvgRuler {
   container;
   containerSvg;
-  newNote = { type: '', data: null, p2: null };
+  newNote = { type: '', data: null, p2: null, r2: { dir: new THREE.Vector2(), startPos: new THREE.Vector2() } };
   isDown = false;
   offset = new THREE.Vector2();
   actInput = null;
@@ -27,21 +27,33 @@ export class IsometricSvgRuler {
     if (lastPoint) {
       const elems = this.getStructureNote(lastPoint);
       elPos = isometricSvgElem.getPosLine2(elems.p2line);
+
+      const pos1 = isometricSvgElem.getPosCircle(elems.p1);
+      const pos2 = isometricSvgElem.getPosCircle(elems.p2);
+      const dir = new THREE.Vector2().subVectors(pos2, pos1).normalize();
+
+      this.newNote.r2.dir = dir;
+      this.newNote.r2.startPos = pos2.clone();
     }
 
-    this.newNote.type = '';
-    this.newNote.data = null;
+    this.clearNewNote();
 
     if (event.button === 0) {
       const bound = this.container.getBoundingClientRect();
-      const x = -bound.x + event.clientX;
-      const y = -bound.y + event.clientY;
+      let x = -bound.x + event.clientX;
+      let y = -bound.y + event.clientY;
+
+      if (elPos) {
+        x = elPos[0].x;
+        y = elPos[0].y;
+      }
 
       const { svg1, svg2, svg3 } = this.createElement({ btn: true, x, y, data });
 
       this.newNote.type = 'nextRuler';
       this.newNote.p2 = svg3;
 
+      // создаем 2-ой размер
       if (elPos) {
         const elems = this.getStructureNote(this.newNote.p2);
 
@@ -269,11 +281,11 @@ export class IsometricSvgRuler {
 
     if (this.newNote.type === 'moveRuler' && this.newNote.p2) {
       const p2 = this.newNote.p2;
-      this.newNote.type = '';
-      this.newNote.p2 = null;
+      this.clearNewNote();
       return p2;
     }
 
+    // закончили создани 2-ого размеры
     if (this.newNote.type === 'move3' && this.newNote.p2) {
       this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
 
@@ -290,8 +302,7 @@ export class IsometricSvgRuler {
       this.addLink({ svgPoint: elems.pd2, event: null, pos: posd2 });
 
       const p2 = this.newNote.p2;
-      this.newNote.type = '';
-      this.newNote.p2 = null;
+      this.clearNewNote();
       return p2;
     }
 
@@ -346,6 +357,7 @@ export class IsometricSvgRuler {
       this.offset = new THREE.Vector2(event.clientX, event.clientY);
     }
 
+    // полсе создание одного размера , перемещаем 2-ой размер
     if (this.newNote.type === 'move3' && this.newNote.p2) {
       const svgCircle = this.newNote.p2;
       const svgLine = this.newNote.p2['userData'].line2;
@@ -358,7 +370,9 @@ export class IsometricSvgRuler {
 
       const offsetX = event.clientX - this.offset.x;
       const offsetY = event.clientY - this.offset.y;
-      const offset = new THREE.Vector2(offsetX, offsetY);
+      let offset = new THREE.Vector2(offsetX, offsetY);
+
+      offset = this.moveDirRuler({ event });
 
       this.moveSvgPoint({ svg: this.newNote.p2, offset, type: 'p2' });
 
@@ -407,6 +421,26 @@ export class IsometricSvgRuler {
   onmouseup = (event) => {
     this.isDown = false;
   };
+
+  // перетаскивание линейки по заданному направлению
+  moveDirRuler({ event }) {
+    const bound = this.container.getBoundingClientRect();
+    let x = -bound.x + event.clientX;
+    let y = -bound.y + event.clientY;
+
+    const pos = isometricSvgElem.getPosCircle(this.newNote.p2);
+    const pos1 = new THREE.Vector2(x, y);
+
+    const dist = this.newNote.r2.dir.dot(new THREE.Vector2().subVectors(pos1, this.newNote.r2.startPos));
+
+    let posNew = this.newNote.r2.startPos.clone();
+
+    if (dist > 0) {
+      posNew = this.newNote.r2.startPos.clone().add(new THREE.Vector2().addScaledVector(this.newNote.r2.dir, dist));
+    }
+
+    return posNew.sub(pos);
+  }
 
   moveSvgLine({ svg, offset, type = 'def' }) {
     const offsetX = offset.x;
@@ -844,13 +878,19 @@ export class IsometricSvgRuler {
     });
   }
 
+  clearNewNote() {
+    this.newNote.type = '';
+    this.newNote.p2 = null;
+    // this.newNote.r2.dir = new THREE.Vector2();
+    // this.newNote.r2.startPos = new THREE.Vector2();
+  }
+
   // удаляем активную выноску
   deleteNote({ type = '', svg = null }) {
     let elems = null;
     if (type === 'stopAddRuler') {
       elems = this.getStructureNote(this.newNote.p2);
-      this.newNote.type = '';
-      this.newNote.p2 = null;
+      this.clearNewNote();
     } else if (svg) {
       elems = this.getStructureNote(svg);
     } else {
