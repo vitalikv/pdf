@@ -154,41 +154,40 @@ export class IsometricSvgRuler {
   }
 
   createDivText({ p1, p2, txt = 'размер' }) {
-    const container = document.createElement('div');
+    const elem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 
-    const elem = document.createElement('div');
-    elem.textContent = txt;
-    elem.style.fontSize = '20px';
-    //elem.style.fontFamily = 'arial,sans-serif';
-    elem.style.fontFamily = 'Gostcadkk';
+    elem.setAttribute('dominant-baseline', 'middle');
+    elem.setAttribute('text-anchor', 'middle');
+    elem.setAttribute('font-size', '20px');
+    elem.setAttribute('font-family', 'Gostcadkk');
+    elem.setAttribute('color', '#000000');
     elem.style.cursor = 'pointer';
-    elem.style.padding = '10px';
-    container.append(elem);
+    elem.style.zIndex = '4';
 
-    container.style.position = 'absolute';
-    container.style.top = '-99999px';
-    container.style.left = '-99999px';
-    container.style.transform = 'translateX(-50%) translateY(-50%)';
-    container.style.zIndex = '4';
+    elem.textContent = txt;
+    this.containerSvg.children[0].append(elem);
 
-    p2['userData'].divText = container;
+    p2['userData'].divText = elem;
 
-    this.containerSvg.append(container);
-    this.initEventLabel(container);
+    this.initEventLabel({ elem });
 
-    this.setPosRotDivText({ container, p1, p2 });
-
-    return container;
+    this.setPosRotDivText({ p1, p2 });
   }
 
-  initEventLabel(container) {
-    const elem = container.children[0];
-
+  initEventLabel({ elem }) {
     elem.onpointerdown = (e) => {
       e.preventDefault();
       e.stopPropagation();
 
       const elem2 = document.createElement('input');
+      const pos = isometricSvgElem.getPosText1(elem);
+
+      elem2.style.position = 'absolute';
+      elem2.style.top = pos.y + 'px';
+      elem2.style.left = pos.x + 'px';
+      elem2.style.transform = 'translateX(-50%) translateY(-50%)';
+      elem2.style.zIndex = '4';
+
       elem2.textContent = '';
       elem2.style.background = 'rgb(255, 255, 255)';
       elem2.style.border = '1px solid rgb(204, 204, 204)';
@@ -197,7 +196,8 @@ export class IsometricSvgRuler {
       elem2.style.fontFamily = 'Gostcadkk';
       elem2.style.borderRadius = '4px';
       elem2.style.padding = '10px';
-      container.append(elem2);
+
+      this.containerSvg.append(elem2);
 
       elem2.focus();
 
@@ -232,7 +232,7 @@ export class IsometricSvgRuler {
     this.actInput = null;
   }
 
-  setPosRotDivText({ container, p1, p2 }) {
+  setPosRotDivText({ p1, p2 }) {
     const cx1 = Number(p1.getAttribute('cx'));
     const cy1 = Number(p1.getAttribute('cy'));
     const cx2 = Number(p2.getAttribute('cx'));
@@ -242,20 +242,22 @@ export class IsometricSvgRuler {
     const pos = dir.clone().divideScalar(2).add(new THREE.Vector2(cx1, cy1));
 
     const rad = Math.atan2(dir.x, dir.y);
-    const offset = rad < 0 ? -30 : 30;
+    const offset = rad < 0 ? -15 : 15;
     const dir2 = new THREE.Vector2(cy1 - cy2, cx2 - cx1).normalize();
     pos.sub(new THREE.Vector2(dir2.x * offset, dir2.y * offset));
 
-    container.style.top = pos.y + 'px';
-    container.style.left = pos.x + 'px';
+    const elem = p2['userData'].divText;
 
     //----
     let rotY = Math.atan2(dir.x, dir.y);
     rotY += rotY <= 0.001 ? Math.PI / 2 : -Math.PI / 2;
-    rotY = THREE.MathUtils.radToDeg(rotY);
+    rotY = THREE.MathUtils.radToDeg(rotY) * -1;
 
-    const elem = container.children[0];
-    elem.style.transform = 'rotate(' + -rotY + 'deg)';
+    elem.setAttribute('x', pos.x);
+    elem.setAttribute('y', pos.y);
+
+    const bbox = elem.getBBox();
+    elem.setAttribute('transform', 'rotate(' + rotY + ', ' + (bbox.x + bbox.width / 2) + ',' + (bbox.y + bbox.height / 2) + ')');
   }
 
   onmousedown = (event) => {
