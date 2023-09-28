@@ -67,7 +67,7 @@ export class PanelUI {
     };
 
     this.btns$[4].onmousedown = () => {
-      isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС31.1/1-И-1-012'], passport: { id: 232 } } });
+      isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС'], passport: { id: 232 } } });
     };
 
     this.btns$[5].onmousedown = () => {

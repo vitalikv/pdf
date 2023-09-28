@@ -109,7 +109,7 @@ export class IsometricNoteSvg {
 
     elem.setAttribute('x', x);
     elem.setAttribute('y', Number(y) - 10);
-    elem.setAttribute('textLength', '110');
+    //elem.setAttribute('textLength', '110');
     //elem.setAttribute('lengthAdjust', ' spacingAndGlyphs');
     //elem.setAttribute('transform', 'rotate(' + rot + ', ' + (bbox.x + bbox.width / 2) + ',' + (bbox.y + bbox.height / 2) + ')');
 

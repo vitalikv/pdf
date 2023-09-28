@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 import { svg2pdf } from 'svg2pdf.js'; // npm i svg2pdf.js
 import html2canvas from 'html2canvas';
 
-import { isometricPdfToSvg, isometricSvgManager } from './index';
+import { isometricPdfToSvg, isometricSvgManager, isometricSheets } from './index';
 
 export class IsometricExportPdf {
   constructor() {
@@ -28,10 +28,14 @@ export class IsometricExportPdf {
     // this.getScreen({ widthPdf, heightPdf });
     // return;
 
-    const divs = [isometricPdfToSvg.canvasPdf];
-    if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
+    const divs = [isometricSvgManager.containerSvg];
+    console.log(isometricSheets.elemWrap);
+    if (isometricSheets.elemWrap) divs.push(isometricSheets.elemWrap);
 
-    const tasks = divs.map((div) => html2canvas(div, { backgroundColor: null, scale: 2, logging: false }));
+    // const container = document.querySelector('#labels-container-div');
+    // const divs = [container];
+
+    const tasks = divs.map((div) => html2canvas(div, { removeContainer: true, backgroundColor: null, scale: 2, logging: false }));
 
     Promise.all(tasks).then((canvases) => {
       const canvas = document.createElement('canvas');
@@ -58,7 +62,7 @@ export class IsometricExportPdf {
       const strMime = 'image/png';
       const imgData = canvas.toDataURL(strMime);
 
-      pdf.addImage(imgData, 'PNG', 0, 0, w, h);
+      pdf.addImage(imgData, 'PNG', 0, 0, widthPdf, heightPdf);
       pdf.save('isometry.pdf');
     });
 
