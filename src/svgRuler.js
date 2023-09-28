@@ -39,7 +39,7 @@ export class IsometricSvgRuler {
     this.clearNewNote();
 
     if (event.button === 0) {
-      const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+      const pos = this.getCoord(event);
       let x = pos.x;
       let y = pos.y;
 
@@ -68,7 +68,7 @@ export class IsometricSvgRuler {
         this.newNote.type = 'move3';
       }
 
-      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+      this.offset = this.getCoord(event);
     }
   }
 
@@ -260,6 +260,12 @@ export class IsometricSvgRuler {
     elem.setAttribute('transform', 'rotate(' + rotY + ', ' + (bbox.x + bbox.width / 2) + ',' + (bbox.y + bbox.height / 2) + ')');
   }
 
+  getCoord(event) {
+    const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+
+    return pos;
+  }
+
   onmousedown = (event) => {
     if (this.newNote.type === 'nextRuler' && this.newNote.p2) {
       this.createDivText({ p1: this.newNote.p2['userData'].p1, p2: this.newNote.p2 });
@@ -320,7 +326,7 @@ export class IsometricSvgRuler {
       }
     });
 
-    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = this.getCoord(event);
 
     return this.isDown;
   };
@@ -337,26 +343,24 @@ export class IsometricSvgRuler {
       svgLine.setAttribute('x2', Number(x));
       svgLine.setAttribute('y2', Number(y));
 
-      const offsetX = event.clientX - this.offset.x;
-      const offsetY = event.clientY - this.offset.y;
-      const offset = new THREE.Vector2(offsetX, offsetY);
+      let pos = this.getCoord(event);
+      const offset = pos.sub(this.offset);
 
       this.moveSvgPoint({ svg: this.newNote.p2, offset, type: 'p2' });
 
-      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+      this.offset = this.getCoord(event);
     }
 
     if (this.newNote.type === 'moveRuler' && this.newNote.p2) {
       const svg = this.newNote.p2['userData'].line;
 
-      const offsetX = event.clientX - this.offset.x;
-      const offsetY = event.clientY - this.offset.y;
-      const offset = new THREE.Vector2(offsetX, offsetY);
+      let pos = this.getCoord(event);
+      const offset = pos.sub(this.offset);
 
       this.moveSvgLine({ svg, offset });
       this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
 
-      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+      this.offset = this.getCoord(event);
     }
 
     // полсе создание одного размера , перемещаем 2-ой размер
@@ -370,11 +374,7 @@ export class IsometricSvgRuler {
       svgLine.setAttribute('x2', Number(x));
       svgLine.setAttribute('y2', Number(y));
 
-      const offsetX = event.clientX - this.offset.x;
-      const offsetY = event.clientY - this.offset.y;
-      let offset = new THREE.Vector2(offsetX, offsetY);
-
-      offset = this.moveDirRuler({ event });
+      const offset = this.moveDirRuler({ event });
 
       this.moveSvgPoint({ svg: this.newNote.p2, offset, type: 'p2' });
 
@@ -382,15 +382,14 @@ export class IsometricSvgRuler {
 
       this.moveSvgPoint2({ svg: elems.pd2, offset });
 
-      this.offset = new THREE.Vector2(event.clientX, event.clientY);
+      this.offset = this.getCoord(event);
     }
 
     if (!this.isDown) return;
 
     const svg = this.selectedObj.el;
-    const offsetX = event.clientX - this.offset.x;
-    const offsetY = event.clientY - this.offset.y;
-    const offset = new THREE.Vector2(offsetX, offsetY);
+    let pos = this.getCoord(event);
+    const offset = pos.sub(this.offset);
     let change = false;
 
     if (svg['userData'].tag === 'line') {
@@ -417,7 +416,7 @@ export class IsometricSvgRuler {
       this.setPosRotDivText({ container: svg['userData'].p2['userData'].divText, p1: svg['userData'].p1, p2: svg['userData'].p2 });
     }
 
-    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = this.getCoord(event);
   };
 
   onmouseup = (event) => {
@@ -426,9 +425,7 @@ export class IsometricSvgRuler {
 
   // перетаскивание линейки по заданному направлению
   moveDirRuler({ event }) {
-    const bound = this.container.getBoundingClientRect();
-    let x = -bound.x + event.clientX;
-    let y = -bound.y + event.clientY;
+    let { x, y } = this.getCoord(event);
 
     const pos = isometricSvgElem.getPosCircle(this.newNote.p2);
     const pos1 = new THREE.Vector2(x, y);
@@ -572,7 +569,7 @@ export class IsometricSvgRuler {
       }
     });
 
-    if (!pos) pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+    if (!pos) pos = this.getCoord(event);
     let minDist = Infinity;
     const result = { obj: null, type: '', pos: new THREE.Vector2() };
 

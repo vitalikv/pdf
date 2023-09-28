@@ -7,7 +7,12 @@ export class IsometricSvgElem {
     const x = -bound.x + event.clientX;
     const y = -bound.y + event.clientY;
 
-    return new THREE.Vector2(x, y);
+    const svgL = container.children[0];
+    const w2 = svgL.viewBox.baseVal.width;
+    const h2 = svgL.viewBox.baseVal.height;
+    const ratio = w2 / bound.width;
+
+    return new THREE.Vector2(x * ratio, y * ratio);
   }
 
   // создаем svg line елемент

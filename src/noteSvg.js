@@ -23,7 +23,7 @@ export class IsometricNoteSvg {
     this.clearSelectedObj();
 
     if (event.button === 0) {
-      const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+      const pos = this.getCoord(event);
       const x = pos.x;
       const y = pos.y;
 
@@ -146,6 +146,12 @@ export class IsometricNoteSvg {
     return g;
   }
 
+  getCoord(event) {
+    const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+
+    return pos;
+  }
+
   onmousedown = (event) => {
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
 
@@ -164,7 +170,7 @@ export class IsometricNoteSvg {
       }
     });
 
-    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = this.getCoord(event);
 
     return this.isDown;
   };
@@ -174,9 +180,10 @@ export class IsometricNoteSvg {
     if (!this.isDown) return;
 
     let svg = this.selectedObj.el;
-    const offsetX = event.clientX - this.offset.x;
-    const offsetY = event.clientY - this.offset.y;
-    const offset = new THREE.Vector2(offsetX, offsetY);
+    if (svg['userData'].lock) return;
+
+    let pos = this.getCoord(event);
+    const offset = pos.sub(this.offset);
 
     if (svg['userData'].tag === 'line') {
       this.moveSvgLine({ svg, offset });
@@ -191,7 +198,7 @@ export class IsometricNoteSvg {
       this.moveSvgLabel({ svg, offset });
     }
 
-    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = this.getCoord(event);
   };
 
   onmouseup = (event) => {

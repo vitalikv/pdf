@@ -39,7 +39,7 @@ export class IsometricSvgLine {
       this.addCorner({ line1, line2, pCenter, type: 'newline' });
     }
 
-    this.offset = this.getCoordOffset(event);
+    this.offset = this.getCoord(event);
   }
 
   // угол между линиями
@@ -283,38 +283,9 @@ export class IsometricSvgLine {
   }
 
   getCoord(event) {
-    const bound = this.containerSvg.getBoundingClientRect();
-    let x = -bound.x + event.clientX;
-    let y = -bound.y + event.clientY;
+    const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
 
-    // const svgL = this.containerSvg.children[0];
-    // const w = Number(svgL.getAttribute('width'));
-    // const h = Number(svgL.getAttribute('height'));
-
-    // const w2 = svgL.viewBox.baseVal.width;
-    // const h2 = svgL.viewBox.baseVal.height;
-
-    // x /= w / w2;
-    // y /= h / h2;
-
-    return new THREE.Vector2(x, y);
-  }
-
-  getCoordOffset(event) {
-    let x = event.clientX;
-    let y = event.clientY;
-
-    // const svgL = this.containerSvg.children[0];
-    // const w = Number(svgL.getAttribute('width'));
-    // const h = Number(svgL.getAttribute('height'));
-
-    // const w2 = svgL.viewBox.baseVal.width;
-    // const h2 = svgL.viewBox.baseVal.height;
-
-    // x /= w / w2;
-    // y /= h / h2;
-
-    return new THREE.Vector2(x, y);
+    return pos;
   }
 
   onmousedown = (event) => {
@@ -331,7 +302,7 @@ export class IsometricSvgLine {
       }
     });
 
-    this.offset = this.getCoordOffset(event);
+    this.offset = this.getCoord(event);
 
     return this.isDown;
   };
@@ -342,7 +313,7 @@ export class IsometricSvgLine {
       const svgCircle = this.newNote.p2;
       const svgLine = this.newNote.line;
 
-      const pos = this.getCoordOffset(event);
+      const pos = this.getCoord(event);
       const offsetX = pos.x - this.offset.x;
       const offsetY = pos.y - this.offset.y;
 
@@ -358,7 +329,7 @@ export class IsometricSvgLine {
 
       this.svgPointCross({ p2: svgCircle, event });
 
-      this.offset = this.getCoordOffset(event);
+      this.offset = this.getCoord(event);
     }
 
     if (!this.isDown) return;
@@ -366,7 +337,7 @@ export class IsometricSvgLine {
     const svg = this.selectedObj.el;
     if (!svg) return;
 
-    const pos = this.getCoordOffset(event);
+    const pos = this.getCoord(event);
     const offsetX = pos.x - this.offset.x;
     const offsetY = pos.y - this.offset.y;
     const offset = new THREE.Vector2(offsetX, offsetY);
@@ -380,7 +351,7 @@ export class IsometricSvgLine {
       this.svgPointCross({ p2: svg, event });
     }
 
-    this.offset = this.getCoordOffset(event);
+    this.offset = this.getCoord(event);
   };
 
   onmouseup = (event) => {
