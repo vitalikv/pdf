@@ -28,19 +28,19 @@ export class IsometricSheets {
 
   async createSvgSheet(formatSheet, boxsInput = []) {
     let url = '';
-    if (formatSheet === 'a4') {
-      //url = 'assets/gis/isometry/A4_2_1.svg';
-      url = 'img/sheets/A4_2_1.svg';
-    }
     if (formatSheet === 'a3') {
-      //url = 'assets/gis/isometry/A3_4.svg';
-      url = 'img/sheets/A3_4.svg';
+      //url = 'assets/gis/isometry/А3.svg';
+      url = 'img/sheets/A3.svg';
+    }
+    if (formatSheet === 'a2') {
+      //url = 'assets/gis/isometry/А2.svg';
+      url = 'img/sheets/A2.svg';
     }
     if (formatSheet === 'a1') {
-      //url = 'assets/gis/isometry/A1_2.svg';
-      url = 'img/sheets/A1_2.svg';
+      //url = 'assets/gis/isometry/A1.svg';
+      url = 'img/sheets/A1.svg';
     }
-
+    console.log(formatSheet, url);
     if (url === '') return;
 
     this.formatSheet = formatSheet;
@@ -77,7 +77,7 @@ export class IsometricSheets {
     g.append(svgLine);
     g.setAttribute('fill', 'none');
     this.elemSheet.prepend(g);
-    this.elemSheet.setAttribute('fill', '');
+    this.elemSheet.setAttribute('fill', 'none');
 
     // const svgTxt1 = this.elemSheet.children[2];
     // const svgTxt2 = this.elemSheet.children[3];
