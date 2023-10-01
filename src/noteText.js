@@ -6,24 +6,21 @@ export class IsometricNoteText {
   isDown = false;
   container;
   containerSvg;
+  containerPointsSvg;
   arrText = [];
   selectedObj = { el: null, type: '' };
   offset = new THREE.Vector2();
 
   init({ container, containerSvg }) {
     this.container = container;
-  }
-
-  getContainer() {
-    this.containerSvg = this.createContainerSvg({ container: this.container });
+    this.containerSvg = containerSvg;
   }
 
   // создаем текст
   addText(event) {
-    if (!this.containerSvg) this.getContainer();
     if (event.button !== 0) return;
 
-    const bound = this.container.getBoundingClientRect();
+    const bound = this.containerSvg.getBoundingClientRect();
     const x = -bound.x + event.clientX;
     const y = -bound.y + event.clientY;
 
@@ -36,7 +33,13 @@ export class IsometricNoteText {
     </div>`;
 
     const elem = div.children[0];
-    this.container.prepend(elem);
+
+    const containerTexts = this.containerSvg.querySelector('[nameId="notesText"]');
+    containerTexts.append(elem);
+
+    this.arrText.push(elem);
+
+    if (!this.containerPointsSvg) this.containerPointsSvg = this.createContainerPointsSvg({ container: containerTexts });
 
     const bound2 = elem.getBoundingClientRect();
     elem.style.left = x - bound2.width / 2 + 'px';
@@ -51,11 +54,9 @@ export class IsometricNoteText {
       elem.children[0].setAttribute('spellcheck', 'false');
       elem.children[0].setAttribute('contenteditable', 'true');
     };
-
-    this.arrText.push(elem);
   }
 
-  createContainerSvg({ container }) {
+  createContainerPointsSvg({ container }) {
     const div = document.createElement('div');
     div.style.cssText = 'position: absolute; width: 1px; z-index: 6;';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
@@ -92,7 +93,7 @@ export class IsometricNoteText {
   }
 
   getSelectedDiv() {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
     if (!this.selectedObj.el) return;
 
     let elem = null;
@@ -110,20 +111,22 @@ export class IsometricNoteText {
   }
 
   setPosArrSvgCircle() {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
     if (!this.selectedObj.el) return;
     if (this.selectedObj.type !== 'div') return;
 
-    const childNodes = this.containerSvg.children[0].childNodes;
-    const boundMain = this.container.getBoundingClientRect();
+    const childNodes = this.containerPointsSvg.children[0].childNodes;
+    const boundMain = this.containerSvg.getBoundingClientRect();
     const bound = this.selectedObj.el.getBoundingClientRect();
+    const divStamp = this.selectedObj.el;
+    const r = 4.2 / 2;
 
-    this.setPosSvgCircle({ svg: childNodes[0], x: bound.left, y: bound.top - boundMain.top, divStamp: this.selectedObj.el });
-    this.setPosSvgCircle({ svg: childNodes[1], x: bound.left, y: bound.bottom - boundMain.top, divStamp: this.selectedObj.el });
-    this.setPosSvgCircle({ svg: childNodes[2], x: bound.right, y: bound.top - boundMain.top, divStamp: this.selectedObj.el });
-    this.setPosSvgCircle({ svg: childNodes[3], x: bound.right, y: bound.bottom - boundMain.top, divStamp: this.selectedObj.el });
+    this.setPosSvgCircle({ svg: childNodes[0], x: bound.left - boundMain.x - r, y: bound.top - boundMain.top - r, divStamp });
+    this.setPosSvgCircle({ svg: childNodes[1], x: bound.left - boundMain.x - r, y: bound.bottom - boundMain.top - r, divStamp });
+    this.setPosSvgCircle({ svg: childNodes[2], x: bound.right - boundMain.x - r, y: bound.top - boundMain.top - r, divStamp });
+    this.setPosSvgCircle({ svg: childNodes[3], x: bound.right - boundMain.x - r, y: bound.bottom - boundMain.top - r, divStamp });
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.containerPointsSvg.children[0].childNodes.forEach((svg, ind) => {
       svg.setAttribute('display', '');
     });
   }
@@ -135,7 +138,7 @@ export class IsometricNoteText {
   }
 
   onmousedown = (event) => {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
     // event.preventDefault();
     // event.stopPropagation();
 
@@ -155,7 +158,7 @@ export class IsometricNoteText {
 
     this.clearSelectedObj();
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.containerPointsSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg.contains(event.target)) {
         this.isDown = true;
         this.selectedObj.el = svg;
@@ -232,7 +235,7 @@ export class IsometricNoteText {
 
     const ind = elem.getAttribute('ind');
 
-    const elems = this.containerSvg.children[0].childNodes;
+    const elems = this.containerPointsSvg.children[0].childNodes;
 
     if (ind === '0') {
       elems[1].setAttribute('cx', x);
@@ -256,12 +259,13 @@ export class IsometricNoteText {
 
     const divStamp = elem['userData'].divStamp;
 
-    const boundMain = this.container.getBoundingClientRect();
+    const boundMain = this.containerSvg.getBoundingClientRect();
     const bound0 = elems[0].getBoundingClientRect();
     const bound1 = elems[1].getBoundingClientRect();
     const bound2 = elems[2].getBoundingClientRect();
-    divStamp.style.top = bound0.top - boundMain.top + 4.2 + 'px';
-    divStamp.style.left = bound0.left + 4.2 + 'px';
+    const r = 0;
+    divStamp.style.top = bound0.top - boundMain.top + r + 'px';
+    divStamp.style.left = bound0.left - boundMain.left + r + 'px';
 
     divStamp.style.width = bound2.left - bound0.left + 'px';
     divStamp.style.height = bound1.top - bound0.top + 'px';
@@ -316,9 +320,9 @@ export class IsometricNoteText {
   }
 
   hideSvgCircle() {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.containerPointsSvg.children[0].childNodes.forEach((svg, ind) => {
       svg.setAttribute('display', 'none');
     });
   }
@@ -344,8 +348,8 @@ export class IsometricNoteText {
     this.clearSelectedObj();
     this.hideSvgCircle();
 
-    if (this.containerSvg) this.containerSvg.remove();
-    this.containerSvg = null;
-    this.container = null;
+    if (this.containerPointsSvg) this.containerPointsSvg.remove();
+    this.containerPointsSvg = null;
+    //this.container = null;
   }
 }

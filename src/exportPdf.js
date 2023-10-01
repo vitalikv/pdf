@@ -2,7 +2,7 @@ import { jsPDF } from 'jspdf';
 import { svg2pdf } from 'svg2pdf.js'; // npm i svg2pdf.js
 import html2canvas from 'html2canvas';
 
-import { isometricPdfToSvg, isometricSvgManager, isometricSheets } from './index';
+import { isometricPdfToSvg, isometricSvgManager, isometricSheets, isometricStampLogo } from './index';
 
 export class IsometricExportPdf {
   constructor() {
@@ -32,22 +32,27 @@ export class IsometricExportPdf {
     console.log(isometricSheets.elemWrap);
     if (isometricSheets.elemWrap) divs.push(isometricSheets.elemWrap);
 
+    // console.log(isometricStampLogo.arrStamp);
+    // isometricStampLogo.arrStamp.forEach((stamp) => {
+    //   divs.push(stamp);
+    // });
+
     // const container = document.querySelector('#labels-container-div');
     // const divs = [container];
+
+    let canvas = document.createElement('canvas');
+    canvas.width = isometricPdfToSvg.canvasPdf.width;
+    canvas.height = isometricPdfToSvg.canvasPdf.height;
+    const context = canvas.getContext('2d');
 
     const tasks = divs.map((div) => html2canvas(div, { removeContainer: true, backgroundColor: null, scale: 2, logging: false }));
 
     Promise.all(tasks).then((canvases) => {
-      const canvas = document.createElement('canvas');
-      canvas.width = isometricPdfToSvg.canvasPdf.width;
-      canvas.height = isometricPdfToSvg.canvasPdf.height;
-      const context = canvas.getContext('2d');
-
-      const width = parseInt(isometricPdfToSvg.canvasPdf.style.width, 10);
-      const height = parseInt(isometricPdfToSvg.canvasPdf.style.height, 10);
-      const aspect = width / widthPdf > height / heightPdf ? width / widthPdf : height / heightPdf;
-      const w = width / aspect;
-      const h = height / aspect;
+      // const width = parseInt(isometricPdfToSvg.canvasPdf.style.width, 10);
+      // const height = parseInt(isometricPdfToSvg.canvasPdf.style.height, 10);
+      // const aspect = width / widthPdf > height / heightPdf ? width / widthPdf : height / heightPdf;
+      // const w = width / aspect;
+      // const h = height / aspect;
 
       for (const canvas2 of canvases) {
         const hRatio = canvas.width / canvas2.width;

@@ -6,23 +6,17 @@ export class IsometricStampLogo {
   isDown = false;
   container;
   containerSvg;
+  containerPointsSvg;
   arrStamp = [];
   selectedObj = { el: null, type: '' };
   offset = new THREE.Vector2();
 
-  constructor() {
-    //this.addStamp('1');
-  }
-
-  getContainer() {
-    this.container = document.querySelector('#labels-container-div');
-
-    this.containerSvg = this.createContainerSvg({ container: this.container });
+  init({ container, containerSvg }) {
+    this.container = container;
+    this.containerSvg = containerSvg;
   }
 
   async addStamp(type) {
-    if (!this.container) this.getContainer();
-
     let url = '';
     if (type === '1') url = 'img/stamp/logo1.jpg';
     if (type === '2') url = 'img/stamp/logo2.jpg';
@@ -32,17 +26,21 @@ export class IsometricStampLogo {
 
     const div = document.createElement('div');
     div.innerHTML = `
-    <div style="position: absolute; width: 420px; height: 200px; z-index: 5;">
+    <div style="position: absolute; width: 420px; height: 200px; top: 0; left: 0; z-index: 5;">
       <img src="${data}" style="width: 100%; height: 100%; object-fit: contain;">
     </div>`;
     const elem = div.children[0];
     elem['style'].cursor = 'pointer';
-    this.container.prepend(elem);
+
+    const containerStamps = this.containerSvg.querySelector('[nameId="stampsLogo"]');
+    containerStamps.append(elem);
 
     this.arrStamp.push(elem);
+
+    if (!this.containerPointsSvg) this.containerPointsSvg = this.createContainerPointsSvg({ container: containerStamps });
   }
 
-  createContainerSvg({ container }) {
+  createContainerPointsSvg({ container }) {
     const div = document.createElement('div');
     div.style.cssText = 'position: absolute; width: 1px; z-index: 6;';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
@@ -79,7 +77,7 @@ export class IsometricStampLogo {
   }
 
   getSelectedDiv() {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
     if (!this.selectedObj.el) return;
 
     let elem = null;
@@ -97,20 +95,22 @@ export class IsometricStampLogo {
   }
 
   setPosArrSvgCircle() {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
     if (!this.selectedObj.el) return;
     if (this.selectedObj.type !== 'div') return;
 
-    const childNodes = this.containerSvg.children[0].childNodes;
-    const boundMain = this.container.getBoundingClientRect();
+    const childNodes = this.containerPointsSvg.children[0].childNodes;
+    const boundMain = this.containerSvg.getBoundingClientRect();
     const bound = this.selectedObj.el.getBoundingClientRect();
+    const divStamp = this.selectedObj.el;
+    const r = 4.2 / 2;
 
-    this.setPosSvgCircle({ svg: childNodes[0], x: bound.left, y: bound.top - boundMain.top, divStamp: this.selectedObj.el });
-    this.setPosSvgCircle({ svg: childNodes[1], x: bound.left, y: bound.bottom - boundMain.top, divStamp: this.selectedObj.el });
-    this.setPosSvgCircle({ svg: childNodes[2], x: bound.right, y: bound.top - boundMain.top, divStamp: this.selectedObj.el });
-    this.setPosSvgCircle({ svg: childNodes[3], x: bound.right, y: bound.bottom - boundMain.top, divStamp: this.selectedObj.el });
+    this.setPosSvgCircle({ svg: childNodes[0], x: bound.left - boundMain.x - r, y: bound.top - boundMain.top - r, divStamp });
+    this.setPosSvgCircle({ svg: childNodes[1], x: bound.left - boundMain.x - r, y: bound.bottom - boundMain.top - r, divStamp });
+    this.setPosSvgCircle({ svg: childNodes[2], x: bound.right - boundMain.x - r, y: bound.top - boundMain.top - r, divStamp });
+    this.setPosSvgCircle({ svg: childNodes[3], x: bound.right - boundMain.x - r, y: bound.bottom - boundMain.top - r, divStamp });
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.containerPointsSvg.children[0].childNodes.forEach((svg, ind) => {
       svg.setAttribute('display', '');
     });
   }
@@ -138,14 +138,14 @@ export class IsometricStampLogo {
   }
 
   onmousedown = (event) => {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
     event.preventDefault();
     event.stopPropagation();
 
     this.isDown = false;
     this.clearSelectedObj();
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.containerPointsSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg.contains(event.target)) {
         this.isDown = true;
         this.selectedObj.el = svg;
@@ -221,7 +221,7 @@ export class IsometricStampLogo {
 
     const ind = elem.getAttribute('ind');
 
-    const elems = this.containerSvg.children[0].childNodes;
+    const elems = this.containerPointsSvg.children[0].childNodes;
 
     if (ind === '0') {
       elems[1].setAttribute('cx', x);
@@ -245,12 +245,13 @@ export class IsometricStampLogo {
 
     const divStamp = elem['userData'].divStamp;
 
-    const boundMain = this.container.getBoundingClientRect();
+    const boundMain = this.containerSvg.getBoundingClientRect();
     const bound0 = elems[0].getBoundingClientRect();
     const bound1 = elems[1].getBoundingClientRect();
     const bound2 = elems[2].getBoundingClientRect();
-    divStamp.style.top = bound0.top - boundMain.top + 4.2 + 'px';
-    divStamp.style.left = bound0.left + 4.2 + 'px';
+    const r = 4.2 / 2;
+    divStamp.style.top = bound0.top - boundMain.top - r + 'px';
+    divStamp.style.left = bound0.left - boundMain.left - r + 'px';
 
     divStamp.style.width = bound2.left - bound0.left + 'px';
     divStamp.style.height = bound1.top - bound0.top + 'px';
@@ -300,9 +301,9 @@ export class IsometricStampLogo {
   }
 
   hideSvgCircle() {
-    if (!this.containerSvg) return;
+    if (!this.containerPointsSvg) return;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.containerPointsSvg.children[0].childNodes.forEach((svg, ind) => {
       svg.setAttribute('display', 'none');
     });
   }
@@ -327,8 +328,8 @@ export class IsometricStampLogo {
     this.clearSelectedObj();
     this.hideSvgCircle();
 
-    if (this.containerSvg) this.containerSvg.remove();
-    this.containerSvg = null;
-    this.container = null;
+    if (this.containerPointsSvg) this.containerPointsSvg.remove();
+    this.containerPointsSvg = null;
+    //this.container = null;
   }
 }

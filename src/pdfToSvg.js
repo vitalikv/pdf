@@ -256,6 +256,7 @@ export class IsometricPdfToSvg {
     canvas.style.height = (canvas.height / aspect) * this.scalePdf + 'px';
     canvas.style.transform = 'translateX(-50%) translateY(-50%)';
     canvas.style.border = '4px solid #515151';
+    canvas.style.boxSizing = 'border-box';
     canvas.style.zIndex = '3';
 
     this.containerSvg.style.cssText = canvas.style.cssText;

@@ -10,6 +10,7 @@ import {
   isometricNoteSvg2,
   isometricSvgRuler,
   isometricNoteText,
+  isometricStampLogo,
   isometricCanvasPaint,
   isometricCutBox,
   isometricMovePdf,
@@ -48,7 +49,8 @@ export class IsometricSvgManager {
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
     isometricSvgRuler.init({ container, containerSvg });
-    isometricNoteText.init({ container });
+    isometricNoteText.init({ container, containerSvg });
+    isometricStampLogo.init({ container, containerSvg });
     isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
     isometricMovePdf.init({ containerSvg });
@@ -75,7 +77,8 @@ export class IsometricSvgManager {
     div.setAttribute('nameId', 'svgTools');
     div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 409 293" style="overflow: visible;"></svg>`;
-    //div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" style="overflow: visible;"></svg>`;
+    div.innerHTML += `<div nameId="notesText" style="position: absolute; top: 0; left: 0;"></div>`;
+    div.innerHTML += `<div nameId="stampsLogo" style="position: absolute; top: 0; left: 0;"></div>`;
 
     this.containerSvg = div;
     const container = this.getContainer();
