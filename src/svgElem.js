@@ -46,6 +46,17 @@ export class IsometricSvgElem {
     return svg;
   }
 
+  createPolygon({ ind = 0, x, y, points }) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+
+    svg.setAttribute('points', points);
+    svg.setAttribute('stroke-width', '1');
+    svg.setAttribute('stroke', 'rgb(0, 0, 0)');
+    svg.setAttribute('transform', `translate(${x}, ${y}) rotate(0)`);
+
+    return svg;
+  }
+
   // координаты линии через 2 точки привязанные к линии
   getPosLine1(svg) {
     const p1 = this.getPosCircle(svg['userData'].p1);
@@ -77,6 +88,10 @@ export class IsometricSvgElem {
     return new THREE.Vector2(x, y);
   }
 
+  getPosPolygon(svg) {
+    return new THREE.Vector2(svg.transform.baseVal[0].matrix.e, svg.transform.baseVal[0].matrix.f);
+  }
+
   setPosLine1(svg, x1, y1, x2, y2) {
     svg.setAttribute('x1', Number(x1));
     svg.setAttribute('y1', Number(y1));
@@ -102,6 +117,21 @@ export class IsometricSvgElem {
     svg.setAttribute('y', Number(y));
   }
 
+  // смещение полигона
+  setPosPolygon1(svg, x, y) {
+    const rot = svg.transform.baseVal[1].angle;
+
+    svg.setAttribute('transform', `translate(${x}, ${y}) rotate(${rot})`);
+  }
+
+  // поворот полигона
+  setRotPolygon1(svg, rot) {
+    const x = svg.transform.baseVal[0].matrix.e;
+    const y = svg.transform.baseVal[0].matrix.f;
+
+    svg.setAttribute('transform', `translate(${x}, ${y}) rotate(${rot})`);
+  }
+
   // смещение точки
   setOffsetCircle(svg, offsetX, offsetY) {
     const pos = this.getPosCircle(svg);
@@ -120,6 +150,15 @@ export class IsometricSvgElem {
     const y2 = pos[1].y + offsetY;
 
     this.setPosLine2({ svg, x1, y1, x2, y2 });
+  }
+
+  // смещение полигона
+  setOffsetPolygon1(svg, offsetX, offsetY) {
+    const x = svg.transform.baseVal[0].matrix.e + offsetX;
+    const y = svg.transform.baseVal[0].matrix.f + offsetY;
+    const rot = svg.transform.baseVal[1].angle;
+
+    svg.setAttribute('transform', `translate(${x}, ${y}) rotate(${rot})`);
   }
 
   // обновляем положения линии через 2 точки привязанные к линии

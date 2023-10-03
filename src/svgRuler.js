@@ -28,8 +28,8 @@ export class IsometricSvgRuler {
       const elems = this.getStructureNote(lastPoint);
       elPos = isometricSvgElem.getPosLine2(elems.p2line);
 
-      const pos1 = isometricSvgElem.getPosCircle(elems.p1);
-      const pos2 = isometricSvgElem.getPosCircle(elems.p2);
+      const pos1 = isometricSvgElem.getPosPolygon(elems.p1);
+      const pos2 = isometricSvgElem.getPosPolygon(elems.p2);
       const dir = new THREE.Vector2().subVectors(pos2, pos1).normalize();
 
       this.newNote.r2.dir = dir;
@@ -57,11 +57,11 @@ export class IsometricSvgRuler {
       if (elPos) {
         const elems = this.getStructureNote(this.newNote.p2);
 
-        isometricSvgElem.setPosCircle(elems.p1, elPos[0].x, elPos[0].y);
+        isometricSvgElem.setPosPolygon1(elems.p1, elPos[0].x, elPos[0].y);
         isometricSvgElem.setPosLine2({ svg: elems.p1line, x1: elPos[0].x, y1: elPos[0].y, x2: elPos[1].x, y2: elPos[1].y });
         isometricSvgElem.setPosCircle(elems.pd1, elPos[1].x, elPos[1].y);
 
-        isometricSvgElem.setPosCircle(elems.p2, elPos[0].x, elPos[0].y);
+        isometricSvgElem.setPosPolygon1(elems.p2, elPos[0].x, elPos[0].y);
         isometricSvgElem.setPosLine2({ svg: elems.p2line, x1: elPos[0].x, y1: elPos[0].y, x2: elPos[1].x, y2: elPos[1].y });
         isometricSvgElem.setPosCircle(elems.pd2, elPos[1].x, elPos[1].y);
 
@@ -87,8 +87,8 @@ export class IsometricSvgRuler {
     }
 
     const svg1 = this.createSvgLine({ x1, y1, x2, y2 });
-    const svg2 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
-    const svg3 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
+    const svg2 = isometricSvgElem.createPolygon({ x: x1, y: y1, points: '0,0 20,5 20,-5' });
+    const svg3 = isometricSvgElem.createPolygon({ x: x1, y: y1, points: '0,0 20,5 20,-5' });
     const svg4 = this.createSvgLine({ x1, y1, x2, y2 });
     const svg5 = this.createSvgLine({ x1, y1, x2, y2 });
     const svg6 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
@@ -233,17 +233,15 @@ export class IsometricSvgRuler {
   }
 
   setPosRotDivText({ p1, p2 }) {
-    const cx1 = Number(p1.getAttribute('cx'));
-    const cy1 = Number(p1.getAttribute('cy'));
-    const cx2 = Number(p2.getAttribute('cx'));
-    const cy2 = Number(p2.getAttribute('cy'));
+    const pos1 = isometricSvgElem.getPosPolygon(p1);
+    const pos2 = isometricSvgElem.getPosPolygon(p2);
 
-    const dir = new THREE.Vector2(cx2, cy2).sub(new THREE.Vector2(cx1, cy1));
-    const pos = dir.clone().divideScalar(2).add(new THREE.Vector2(cx1, cy1));
+    const dir = pos2.clone().sub(pos1);
+    const pos = dir.clone().divideScalar(2).add(pos1);
 
     const rad = Math.atan2(dir.x, dir.y);
     const offset = rad < 0 ? -15 : 15;
-    const dir2 = new THREE.Vector2(cy1 - cy2, cx2 - cx1).normalize();
+    const dir2 = new THREE.Vector2(pos1.y - pos2.y, pos2.x - pos1.x).normalize();
     pos.sub(new THREE.Vector2(dir2.x * offset, dir2.y * offset));
 
     const elem = p2['userData'].divText;
@@ -258,6 +256,23 @@ export class IsometricSvgRuler {
 
     const bbox = elem.getBBox();
     elem.setAttribute('transform', 'rotate(' + rotY + ', ' + (bbox.x + bbox.width / 2) + ',' + (bbox.y + bbox.height / 2) + ')');
+  }
+
+  // поворот стрелок у линейки
+  setRotArrows({ svg }) {
+    const { p1, p2 } = this.getStructureNote(svg);
+
+    const pos1 = isometricSvgElem.getPosPolygon(p1);
+    const pos2 = isometricSvgElem.getPosPolygon(p2);
+
+    const dir = pos2.sub(pos1);
+
+    const rotY = Math.atan2(dir.x, dir.y);
+    const rotY1 = THREE.MathUtils.radToDeg(rotY - Math.PI / 2) * -1;
+    const rotY2 = THREE.MathUtils.radToDeg(rotY + Math.PI / 2) * -1;
+
+    isometricSvgElem.setRotPolygon1(p1, rotY1);
+    isometricSvgElem.setRotPolygon1(p2, rotY2);
   }
 
   getCoord(event) {
@@ -337,8 +352,7 @@ export class IsometricSvgRuler {
       const svgCircle = this.newNote.p2;
       const svgLine = this.newNote.p2['userData'].line2;
 
-      const x = svgCircle.getAttribute('cx');
-      const y = svgCircle.getAttribute('cy');
+      const { x, y } = isometricSvgElem.getPosPolygon(svgCircle);
 
       svgLine.setAttribute('x2', Number(x));
       svgLine.setAttribute('y2', Number(y));
@@ -368,12 +382,13 @@ export class IsometricSvgRuler {
       const svgCircle = this.newNote.p2;
       const svgLine = this.newNote.p2['userData'].line2;
 
-      const x = svgCircle.getAttribute('cx');
-      const y = svgCircle.getAttribute('cy');
+      const { x, y } = isometricSvgElem.getPosPolygon(svgCircle);
 
       svgLine.setAttribute('x2', Number(x));
       svgLine.setAttribute('y2', Number(y));
 
+      // let pos = this.getCoord(event);
+      // const offset = pos.sub(this.offset);
       const offset = this.moveDirRuler({ event });
 
       this.moveSvgPoint({ svg: this.newNote.p2, offset, type: 'p2' });
@@ -427,7 +442,7 @@ export class IsometricSvgRuler {
   moveDirRuler({ event }) {
     let { x, y } = this.getCoord(event);
 
-    const pos = isometricSvgElem.getPosCircle(this.newNote.p2);
+    const pos = isometricSvgElem.getPosPolygon(this.newNote.p2);
     const pos1 = new THREE.Vector2(x, y);
 
     const dist = this.newNote.r2.dir.dot(new THREE.Vector2().subVectors(pos1, this.newNote.r2.startPos));
@@ -500,21 +515,14 @@ export class IsometricSvgRuler {
   }
 
   moveSvgPoint({ svg, offset, type, moveLine = true }) {
-    const svgCircle = svg;
-    const offsetX = offset.x;
-    const offsetY = offset.y;
+    const svgP = svg;
 
-    const cx = svgCircle.getAttribute('cx');
-    const cy = svgCircle.getAttribute('cy');
+    isometricSvgElem.setOffsetPolygon1(svgP, offset.x, offset.y);
 
-    svgCircle.setAttribute('cx', Number(cx) + offsetX);
-    svgCircle.setAttribute('cy', Number(cy) + offsetY);
+    const { x, y } = isometricSvgElem.getPosPolygon(svgP);
 
     if (moveLine && svg['userData'].line) {
       const svgLine = svg['userData'].line;
-
-      const x = svgCircle.getAttribute('cx');
-      const y = svgCircle.getAttribute('cy');
 
       if (type === 'p1') {
         svgLine.setAttribute('x1', Number(x));
@@ -529,9 +537,6 @@ export class IsometricSvgRuler {
     if (type === 'p1') {
       const svgLine = svg['userData'].line2;
 
-      const x = svgCircle.getAttribute('cx');
-      const y = svgCircle.getAttribute('cy');
-
       svgLine.setAttribute('x1', Number(x));
       svgLine.setAttribute('y1', Number(y));
     }
@@ -539,12 +544,11 @@ export class IsometricSvgRuler {
     if (type === 'p2') {
       const svgLine = svg['userData'].line2;
 
-      const x = svgCircle.getAttribute('cx');
-      const y = svgCircle.getAttribute('cy');
-
       svgLine.setAttribute('x1', Number(x));
       svgLine.setAttribute('y1', Number(y));
     }
+
+    this.setRotArrows({ svg: svgP });
   }
 
   moveSvgPoint2({ svg, offset }) {
@@ -709,8 +713,8 @@ export class IsometricSvgRuler {
           isometricSvgElem.setPosLine2({ svg: dline, x2: pos.x, y2: pos.y });
         } else {
           isometricSvgElem.setOffsetLine2(elems.line, offset.x, offset.y);
-          isometricSvgElem.setOffsetCircle(elems.p1, offset.x, offset.y);
-          isometricSvgElem.setOffsetCircle(elems.p2, offset.x, offset.y);
+          isometricSvgElem.setOffsetPolygon1(elems.p1, offset.x, offset.y);
+          isometricSvgElem.setOffsetPolygon1(elems.p2, offset.x, offset.y);
           isometricSvgElem.setOffsetLine2(elems.p1line, offset.x, offset.y);
           isometricSvgElem.setOffsetLine2(elems.p2line, offset.x, offset.y);
           isometricSvgElem.setOffsetCircle(elems.pd1, offset.x, offset.y);
