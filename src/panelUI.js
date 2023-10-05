@@ -36,10 +36,11 @@ export class PanelUI {
     this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
     this.btns$[11] = this.crBtn({ txt: 'Линия' });
-    this.btns$[12] = this.crBtn({ txt: 'Текст' });
-    this.btns$[13] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[14] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[15] = this.crListSheets();
+    this.btns$[12] = this.crBtn({ txt: 'Опора' });
+    this.btns$[13] = this.crBtn({ txt: 'Текст' });
+    this.btns$[14] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[15] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[16] = this.crListSheets();
 
     this.initEvent();
   }
@@ -50,31 +51,39 @@ export class PanelUI {
       e.stopPropagation();
     };
 
-    this.btns$[0].onmousedown = () => {
+    let ind = 0;
+
+    this.btns$[ind].onmousedown = () => {
       isometricPdfToSvg.inputFile.click();
     };
+    ind++;
 
-    this.btns$[1].onmousedown = () => {
+    this.btns$[ind].onmousedown = () => {
       isometricPdfToSvg.rotateSvg({ degree: -90 });
     };
+    ind++;
 
-    this.btns$[2].onmousedown = () => {
+    this.btns$[ind].onmousedown = () => {
       isometricPdfToSvg.rotateSvg({ degree: 90 });
     };
+    ind++;
 
-    this.btns$[3].onmousedown = () => {
+    this.btns$[ind].onmousedown = () => {
       isometricExportPdf.export();
     };
+    ind++;
 
-    this.btns$[4].onmousedown = () => {
+    this.btns$[ind].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС'], passport: { id: 232 } } });
     };
+    ind++;
 
-    this.btns$[5].onmousedown = () => {
+    this.btns$[ind].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['2', 'ТК1-СПС31.1/1-И-1-012'], passport: { id: 44 } } });
     };
+    ind++;
 
-    this.btns$[6].onmousedown = () => {
+    this.btns$[ind].onmousedown = () => {
       console.log(isometricSvgManager.mode.type);
       if (isometricSvgManager.mode.type === 'addRuler') {
         isometricSvgManager.cleareMode();
@@ -82,48 +91,57 @@ export class PanelUI {
         isometricSvgManager.setMode({ type: 'addRuler' });
       }
     };
+    ind++;
 
-    this.btns$[7].onmousedown = () => {
+    this.btns$[ind].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'brush' });
     };
+    ind++;
 
-    this.btns$[8].children[0].oninput = (e) => {
+    this.btns$[ind].children[0].oninput = (e) => {
       isometricPdfToSvg.setScale({ value: e.target.value });
     };
+    ind++;
 
-    this.btns$[9].onmousedown = (e) => {
+    this.btns$[ind].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'cutBox' });
-
-      // if (!isometricCutBox.activated) {
-      //   isometricCutBox.activateCutBox();
-      // } else {
-      //   isometricCutBox.deActivateCutBox();
-      // }
     };
+    ind++;
 
-    this.btns$[10].onmousedown = (e) => {
+    this.btns$[ind].onmousedown = (e) => {
       isometricStampLogo.addStamp('3');
     };
+    ind++;
 
-    this.btns$[11].onmousedown = (e) => {
+    this.btns$[ind].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'line' });
     };
+    ind++;
 
-    this.btns$[12].onmousedown = (e) => {
+    this.btns$[ind].onmousedown = (e) => {
+      isometricSvgManager.setMode({ type: 'objBracket' });
+    };
+    ind++;
+
+    this.btns$[ind].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'addText' });
     };
+    ind++;
 
-    this.btns$[13].onmousedown = (e) => {
+    this.btns$[ind].onmousedown = (e) => {
       isometricSvgSave.save();
     };
+    ind++;
 
-    this.btns$[14].onmousedown = (e) => {
+    this.btns$[ind].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
+    ind++;
 
-    this.btns$[15].onchange = (e) => {
+    this.btns$[ind].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value);
     };
+    ind++;
   }
 
   crPanel() {

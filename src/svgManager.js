@@ -6,6 +6,7 @@ import {
   isometricPdfToSvg,
   isometricSheets,
   isometricSvgLine,
+  isometricSvgObjs,
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
@@ -46,6 +47,7 @@ export class IsometricSvgManager {
     isometricPdfToSvg.init({ container, containerSvg });
     isometricSheets.init({ container, containerSvg });
     isometricSvgLine.init({ container, containerSvg });
+    isometricSvgObjs.init({ container, containerSvg });
     isometricNoteSvg.init({ container, containerSvg });
     isometricNoteSvg2.init({ container, containerSvg });
     isometricSvgRuler.init({ container, containerSvg });
@@ -157,6 +159,7 @@ export class IsometricSvgManager {
     isometricSelectBox.onmousemove(event);
     isometricCutBox.onmousemove(event);
     isometricSvgLine.onmousemove(event);
+    isometricSvgObjs.onmousemove(event);
     isometricNoteSvg.onmousemove(event);
     isometricNoteSvg2.onmousemove(event);
     isometricSvgRuler.onmousemove(event);
@@ -168,6 +171,7 @@ export class IsometricSvgManager {
     isometricSelectBox.onmouseup(event);
     isometricCutBox.onmouseup(event);
     isometricSvgLine.onmouseup(event);
+    isometricSvgObjs.onmouseup(event);
     isometricNoteSvg.onmouseup(event);
     isometricNoteSvg2.onmouseup(event);
     isometricSvgRuler.onmouseup(event);
@@ -195,6 +199,11 @@ export class IsometricSvgManager {
     if (this.mode.type === 'line') {
       isometricSvgLine.addLine(event);
       this.setMode({ type: 'nextLine', data: null });
+    }
+
+    if (this.mode.type === 'objBracket') {
+      isometricSvgObjs.addObj({ event, type: this.mode.type });
+      this.cleareMode();
     }
 
     if (this.mode.type === 'addNote1') {
@@ -260,6 +269,10 @@ export class IsometricSvgManager {
           result = isometricSvgLine.onmousedown(event);
         }
 
+        if (svg['userData'].objBracket) {
+          result = isometricSvgObjs.onmousedown(event);
+        }
+
         if (svg['userData'].note1) {
           result = isometricNoteSvg.onmousedown(event);
         }
@@ -288,6 +301,12 @@ export class IsometricSvgManager {
           }
         }
 
+        if (isometricSvgObjs.selectedObj.el && svg['userData'].objBracket) {
+          if (isometricSvgObjs.selectedObj.el === svg) {
+            isometricSvgObjs.actElem(svg, false);
+          }
+        }
+
         if (svg['userData'].note1) {
           isometricNoteSvg.actElem(svg, false);
         }
@@ -305,6 +324,7 @@ export class IsometricSvgManager {
 
   deleteElem() {
     isometricSvgLine.deleteObj();
+    isometricSvgObjs.deleteObj();
     isometricNoteSvg.deleteNote();
     isometricNoteSvg2.deleteNote();
     isometricSvgRuler.deleteNote({});
