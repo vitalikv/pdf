@@ -45,10 +45,18 @@ export class IsometricSvgLoad {
   }
 
   setIsometry(data) {
+    const bound = data.bound;
     const lines = data.lines;
     const points = data.points;
     const notes = data.notes;
     const rulers = data.rulers;
+
+    if (bound) {
+      const svgL = this.containerSvg.children[0];
+      const viewBox = '0 0 ' + bound.w + ' ' + bound.h;
+      svgL.setAttribute('viewBox', viewBox);
+      console.log(viewBox);
+    }
 
     const arrSvgLines = [];
     const arrSvgPoints = [];

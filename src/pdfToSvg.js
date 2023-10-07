@@ -58,6 +58,7 @@ export class IsometricPdfToSvg {
     const bound = this.containerSvg.children[0].getBoundingClientRect();
     const viewBox = '0 0 ' + bound.width + ' ' + bound.height;
     svgL.setAttribute('viewBox', viewBox);
+    console.log(viewBox);
   }
 
   createInputFile() {

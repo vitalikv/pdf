@@ -12,7 +12,11 @@ export class IsometricSvgSave {
   }
 
   save() {
-    const isometry = { lines: [], points: [], rulers: [], notes: [], camera: null, sheet: null };
+    const isometry = { bound: { w: 0, h: 0 }, lines: [], points: [], rulers: [], notes: [], camera: null, sheet: null };
+
+    const svgL = this.containerSvg.children[0];
+    isometry.bound.w = svgL.viewBox.baseVal.width;
+    isometry.bound.h = svgL.viewBox.baseVal.height;
 
     this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
