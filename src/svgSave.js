@@ -99,8 +99,8 @@ export class IsometricSvgSave {
         if (svg['userData'].ruler && svg['userData'].tag === 'line') {
           const obj = isometricSvgRuler.getStructureNote(svg);
           const pos1 = isometricSvgElem.getPosLine2(obj.line);
-          const pos2 = isometricSvgElem.getPosCircle(obj.p1);
-          const pos3 = isometricSvgElem.getPosCircle(obj.p2);
+          const pos2 = isometricSvgElem.getPosPolygon(obj.p1);
+          const pos3 = isometricSvgElem.getPosPolygon(obj.p2);
           const pos4 = isometricSvgElem.getPosLine2(obj.p1line);
           const pos5 = isometricSvgElem.getPosLine2(obj.p2line);
           const txt = obj.divText.textContent;

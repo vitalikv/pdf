@@ -677,15 +677,7 @@ export class IsometricSvgRuler {
       if (svg['userData'].ruler && svg['userData'].tag === 'dpoint') {
         const elems = this.getStructureNote(svg);
 
-        let repeat = false;
-        arrObj.forEach((item) => {
-          if (item.elems.line === elems.line) {
-            repeat = true;
-            item.count += 1;
-          }
-        });
-
-        if (!repeat) arrObj.push({ svg, line, elems, count: 0 });
+        arrObj.push({ svg, line, elems });
       }
     });
 
@@ -694,7 +686,6 @@ export class IsometricSvgRuler {
         const svg = item.svg;
         const line = item.line;
         const elems = item.elems;
-        const count = item.count;
 
         const { dist } = svg['userData'].link;
 
@@ -706,22 +697,23 @@ export class IsometricSvgRuler {
         const posP = isometricSvgElem.getPosCircle(svg);
         const offset = new THREE.Vector2(pos.x - posP.x, pos.y - posP.y);
 
-        if (count === 0) {
-          isometricSvgElem.setOffsetCircle(svg, offset.x, offset.y);
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const dline = svg === elems.pd1 ? elems.p1line : elems.p2line;
-          isometricSvgElem.setPosLine2({ svg: dline, x2: pos.x, y2: pos.y });
-        } else {
-          isometricSvgElem.setOffsetLine2(elems.line, offset.x, offset.y);
+        if (elems.pd1 === svg) {
           isometricSvgElem.setOffsetPolygon1(elems.p1, offset.x, offset.y);
-          isometricSvgElem.setOffsetPolygon1(elems.p2, offset.x, offset.y);
           isometricSvgElem.setOffsetLine2(elems.p1line, offset.x, offset.y);
-          isometricSvgElem.setOffsetLine2(elems.p2line, offset.x, offset.y);
           isometricSvgElem.setOffsetCircle(elems.pd1, offset.x, offset.y);
+        } else {
+          isometricSvgElem.setOffsetPolygon1(elems.p2, offset.x, offset.y);
+          isometricSvgElem.setOffsetLine2(elems.p2line, offset.x, offset.y);
           isometricSvgElem.setOffsetCircle(elems.pd2, offset.x, offset.y);
-
-          this.setPosRotDivText({ container: elems.p2['userData'].divText, p1: elems.p1, p2: elems.p2 });
         }
+
+        const pos1 = isometricSvgElem.getPosPolygon(elems.p1);
+        const pos2 = isometricSvgElem.getPosPolygon(elems.p2);
+
+        isometricSvgElem.setPosLine1(elems.line, pos1.x, pos1.y, pos2.x, pos2.y);
+
+        this.setRotArrows({ svg: elems.p2 });
+        this.setPosRotDivText({ p1: elems.p1, p2: elems.p2 });
       });
     }
   }
