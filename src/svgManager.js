@@ -185,20 +185,25 @@ export class IsometricSvgManager {
   checkMode(event) {
     if (this.mode.type === '') return false;
 
-    if (this.mode.type === 'nextLine') {
+    if (this.mode.type === 'line') {
+      if (event.button !== 2) {
+        isometricSvgLine.addLine(event);
+        this.setMode({ type: 'nextLine' });
+      }
+    } else if (this.mode.type === 'nextLine') {
       if (event.button === 2) {
         isometricSvgLine.stopLine();
-        this.cleareMode();
+        //this.cleareMode();
+        this.setMode({ type: 'line' });
       } else {
         const result = isometricSvgLine.addNextLine(event);
-        if (result) this.cleareMode();
-        else this.setMode({ type: 'nextLine', data: null });
+        if (result) {
+          //this.cleareMode();
+          this.setMode({ type: 'line' });
+        } else {
+          this.setMode({ type: 'nextLine' });
+        }
       }
-    }
-
-    if (this.mode.type === 'line') {
-      isometricSvgLine.addLine(event);
-      this.setMode({ type: 'nextLine', data: null });
     }
 
     if (this.mode.type === 'objBracket') {
