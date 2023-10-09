@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets } from './index';
 
 export class IsometricSvgSave {
   container;
@@ -113,6 +113,9 @@ export class IsometricSvgSave {
         }
       }
     });
+
+    isometry.sheet = { format: '' };
+    isometry.sheet.format = isometricSheets.formatSheet;
 
     console.log('isometry2', isometry);
     //return;

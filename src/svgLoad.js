@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSvgElem, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets } from './index';
 
 export class IsometricSvgLoad {
   container;
@@ -50,6 +50,7 @@ export class IsometricSvgLoad {
     const points = data.points;
     const notes = data.notes;
     const rulers = data.rulers;
+    const sheet = data.sheet;
 
     if (bound) {
       const svgL = this.containerSvg.children[0];
@@ -128,6 +129,8 @@ export class IsometricSvgLoad {
 
     if (rulers) this.setRulers(rulers);
     if (notes) this.setNotes(notes);
+
+    if (sheet) this.setSheet(sheet);
   }
 
   setNotes(notes) {
@@ -212,5 +215,11 @@ export class IsometricSvgLoad {
       isometricSvgRuler.addLink({ svgPoint: pd1, event: null, pos: new THREE.Vector2(ruler.p1line[1].x, ruler.p1line[1].y) });
       isometricSvgRuler.addLink({ svgPoint: pd2, event: null, pos: new THREE.Vector2(ruler.p2line[1].x, ruler.p2line[1].y) });
     });
+  }
+
+  setSheet(sheet) {
+    if (sheet.format) {
+      isometricSheets.showHideSheet(sheet.format);
+    }
   }
 }
