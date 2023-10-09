@@ -127,6 +127,13 @@ export class PanelUI {
 
     this.btns$[ind].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'objBracket' });
+
+      const btn = e.target;
+      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
+      btn.style.background = color;
+      if (color === '#fff') {
+        isometricSvgManager.cleareMode();
+      }
     };
     ind++;
 

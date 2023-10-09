@@ -208,7 +208,7 @@ export class IsometricSvgManager {
 
     if (this.mode.type === 'objBracket') {
       isometricSvgObjs.addObj({ event, type: this.mode.type });
-      this.cleareMode();
+      //this.cleareMode();
     }
 
     if (this.mode.type === 'addNote1') {
