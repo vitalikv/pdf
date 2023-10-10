@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets } from './index';
+import { isometricSvgElem, isometricSvgLine, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets } from './index';
 
 export class IsometricSvgLoad {
   container;
@@ -48,6 +48,7 @@ export class IsometricSvgLoad {
     const bound = data.bound;
     const lines = data.lines;
     const points = data.points;
+    const objs = data.objs;
     const notes = data.notes;
     const rulers = data.rulers;
     const sheet = data.sheet;
@@ -128,10 +129,23 @@ export class IsometricSvgLoad {
       }
     }
 
+    if (objs && objs.length > 0) this.setObjs(objs);
+
     if (rulers) this.setRulers(rulers);
     if (notes) this.setNotes(notes);
 
     if (sheet) this.setSheet(sheet);
+  }
+
+  setObjs(objs) {
+    objs.forEach((obj) => {
+      if (obj.tag === 'objBracket') {
+        const pos = obj.pos;
+        const { svg3 } = isometricSvgObjs.createObjBracket({ x: pos.x, y: pos.y });
+        isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
+        isometricSvgObjs.setRotObj({ svg: svg3 });
+      }
+    });
   }
 
   setNotes(notes) {

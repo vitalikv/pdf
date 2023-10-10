@@ -12,7 +12,7 @@ export class IsometricSvgSave {
   }
 
   save() {
-    const isometry = { bound: { w: 0, h: 0 }, lines: [], points: [], rulers: [], notes: [], camera: null, sheet: null };
+    const isometry = { bound: { w: 0, h: 0 }, lines: [], points: [], objs: [], rulers: [], notes: [], camera: null, sheet: null };
 
     const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
     isometry.bound.w = size.x;
@@ -31,6 +31,11 @@ export class IsometricSvgSave {
             const pos = isometricSvgElem.getPosCircle(svg);
             isometry.points.push({ pos });
           }
+        }
+
+        if (svg['userData'].objBracket && svg['userData'].tag === 'point') {
+          const pos = isometricSvgElem.getPosCircle(svg);
+          isometry.objs.push({ tag: 'objBracket', pos });
         }
 
         if (svg['userData'].note1 && svg['userData'].tag === 'line') {

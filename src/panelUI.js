@@ -83,12 +83,21 @@ export class PanelUI {
     };
     ind++;
 
-    this.btns$[ind].onmousedown = () => {
-      console.log(isometricSvgManager.mode.type);
-      if (isometricSvgManager.mode.type === 'addRuler') {
+    this.btns$[ind].onmousedown = (e) => {
+      // console.log(isometricSvgManager.mode.type);
+      // if (isometricSvgManager.mode.type === 'addRuler') {
+      //   isometricSvgManager.cleareMode();
+      // } else {
+      //   isometricSvgManager.setMode({ type: 'addRuler' });
+      // }
+
+      isometricSvgManager.setMode({ type: 'addRuler' });
+
+      const btn = e.target;
+      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
+      btn.style.background = color;
+      if (color === '#fff') {
         isometricSvgManager.cleareMode();
-      } else {
-        isometricSvgManager.setMode({ type: 'addRuler' });
       }
     };
     ind++;
