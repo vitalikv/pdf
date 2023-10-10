@@ -5,6 +5,7 @@ import { isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRule
 export class IsometricSvgLine {
   container;
   containerSvg;
+  groupLines;
   arrLine = [];
   isDown = false;
   newNote = { type: '', line: null, p2: null, arr: { l: [], p: [] } };
@@ -14,6 +15,7 @@ export class IsometricSvgLine {
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
+    this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
   }
 
   addLine(event, ps1 = null) {
@@ -155,16 +157,16 @@ export class IsometricSvgLine {
       // создаем 2 точки перед углом
       const pd2 = this.createSvgCircle({ ind: 0, x: res1.pos.x, y: res1.pos.y, stroke });
       const pd1 = this.createSvgCircle({ ind: 0, x: res2.pos.x, y: res2.pos.y, stroke });
-      this.containerSvg.children[0].append(pd1);
-      this.containerSvg.children[0].append(pd2);
+      this.groupLines.append(pd1);
+      this.groupLines.append(pd2);
 
       // создаем 2 линии для угла
       const x = Number(pCenter.getAttribute('cx'));
       const y = Number(pCenter.getAttribute('cy'));
       const ld2 = this.createSvgLine({ x1: res1.pos.x, y1: res1.pos.y, x2: x, y2: y, stroke });
       const ld1 = this.createSvgLine({ x1: res2.pos.x, y1: res2.pos.y, x2: x, y2: y, stroke });
-      this.containerSvg.children[0].append(ld1);
-      this.containerSvg.children[0].append(ld2);
+      this.groupLines.append(ld1);
+      this.groupLines.append(ld2);
 
       if (res1.ind === 2) {
         line1['userData'].pd2 = pd2;
@@ -221,9 +223,9 @@ export class IsometricSvgLine {
     const p1 = ps1 ? ps1 : this.createSvgCircle({ ind: 0, x: x1, y: y1, stroke: '#ff0000' });
     const p2 = this.createSvgCircle({ ind: 0, x: x1, y: y1, stroke: '#ff0000' });
 
-    this.containerSvg.children[0].append(line);
-    if (!ps1) this.containerSvg.children[0].append(p1);
-    this.containerSvg.children[0].append(p2);
+    this.groupLines.append(line);
+    if (!ps1) this.groupLines.append(p1);
+    this.groupLines.append(p2);
 
     line['userData'].p1 = p1;
     line['userData'].p2 = p2;
@@ -295,7 +297,7 @@ export class IsometricSvgLine {
 
     this.isDown = false;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].lineI && svg.contains(event.target)) {
         this.isDown = true;
         this.actElem(svg, true);
@@ -510,7 +512,7 @@ export class IsometricSvgLine {
 
     // находим все точки на листе
     const arrPoints = [];
-    this.containerSvg.children[0].childNodes.forEach((svg) => {
+    this.groupLines.childNodes.forEach((svg) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'point') {
           const display = svg.getAttribute('display');
@@ -828,7 +830,7 @@ export class IsometricSvgLine {
     const arrLines = [];
     const arrPoints = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'line') {
           arrLines.push(svg);
@@ -872,7 +874,7 @@ export class IsometricSvgLine {
     const arrPoints = [];
     const arrDPoints = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'point') {
           arrPoints.push(svg);
@@ -957,7 +959,7 @@ export class IsometricSvgLine {
     const arrLines = [];
     const arrPoints = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'line') {
           arrLines.push(svg);
@@ -1121,7 +1123,7 @@ export class IsometricSvgLine {
       const y2 = p2.getAttribute('cy');
 
       const line = this.createSvgLine({ x1, y1, x2, y2 });
-      this.containerSvg.children[0].append(line);
+      this.groupLines.append(line);
 
       line['userData'].p1 = p1;
       line['userData'].p2 = p2;
@@ -1194,7 +1196,7 @@ export class IsometricSvgLine {
       const cx1 = Number(pd1.getAttribute('cx'));
       const cy1 = Number(pd1.getAttribute('cy'));
       const newP1 = this.createSvgCircle({ ind: 0, x: cx1, y: cy1 });
-      this.containerSvg.children[0].append(newP1);
+      this.groupLines.append(newP1);
       newP1['userData'].lines.push(line1);
 
       if (ind1 === 1) {
@@ -1213,7 +1215,7 @@ export class IsometricSvgLine {
       const cx2 = Number(pd2.getAttribute('cx'));
       const cy2 = Number(pd2.getAttribute('cy'));
       const newP2 = this.createSvgCircle({ ind: 0, x: cx2, y: cy2 });
-      this.containerSvg.children[0].append(newP2);
+      this.groupLines.append(newP2);
       newP2['userData'].lines.push(line2);
 
       if (ind2 === 1) {

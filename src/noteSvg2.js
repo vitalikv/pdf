@@ -5,7 +5,8 @@ import { isometricSvgElem } from './index';
 export class IsometricNoteSvg2 {
   container;
   containerSvg;
-  newNote = { add: false, data: null };
+  groupLines;
+  groupNotes;
   isDown = false;
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '' };
@@ -17,6 +18,8 @@ export class IsometricNoteSvg2 {
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
+    this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
+    this.groupNotes = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'notes' });
   }
 
   addNote(event, data) {
@@ -55,9 +58,9 @@ export class IsometricNoteSvg2 {
     svg2.setAttribute('id', id);
     svg3.setAttribute('id', id);
 
-    this.containerSvg.children[0].append(svg1);
-    this.containerSvg.children[0].append(svg2);
-    this.containerSvg.children[0].append(svg3);
+    this.groupNotes.append(svg1);
+    this.groupNotes.append(svg2);
+    this.groupNotes.append(svg3);
 
     svg1['userData'] = { note2: true, tag: 'line', lock: false, line: svg1, point: svg2, label: svg3 };
     svg2['userData'] = { note2: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3, crossOffset: false, link: null };
@@ -138,7 +141,7 @@ export class IsometricNoteSvg2 {
 
     g['userData'] = { svgLine, svgText1, svgText2 };
 
-    this.containerSvg.children[0].append(g);
+    this.groupNotes.append(g);
 
     return g;
   }
@@ -154,15 +157,13 @@ export class IsometricNoteSvg2 {
 
     this.isDown = false;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupNotes.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].note2 && svg.contains(event.target)) {
-        if (!svg['userData'].lock) {
-          this.isDown = true;
-          this.actElem(svg, true);
-        }
-
         if (svg['userData'].tag === 'point' && event.button !== 0) {
           this.setLockOnSvg(svg);
+        } else {
+          this.isDown = true;
+          this.actElem(svg, true);
         }
       }
     });
@@ -202,7 +203,7 @@ export class IsometricNoteSvg2 {
     this.isDown = false;
 
     const svg = this.selectedObj.el;
-    if (svg && svg['userData'].tag === 'point') {
+    if (svg && svg['userData'].tag === 'point' && !svg['userData'].lock) {
       this.addLink({ svgPoint: svg, event });
     }
   };
@@ -408,7 +409,7 @@ export class IsometricNoteSvg2 {
   scale(canvas, ratio, bound2) {
     const svgArr = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupNotes.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].note2 && svg['userData'].tag === 'line') {
           svgArr.push(svg);
@@ -475,7 +476,7 @@ export class IsometricNoteSvg2 {
     const arrLines = [];
     const arrPoints = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'line') {
           arrLines.push(svg);

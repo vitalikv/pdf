@@ -52,11 +52,12 @@ export class IsometricSvgLoad {
     const rulers = data.rulers;
     const sheet = data.sheet;
 
+    const svgXmlns = this.containerSvg.children[0];
+    const groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
+
     if (bound) {
-      const svgL = this.containerSvg.children[0];
       const viewBox = '0 0 ' + bound.w + ' ' + bound.h;
-      svgL.setAttribute('viewBox', viewBox);
-      console.log(viewBox);
+      svgXmlns.setAttribute('viewBox', viewBox);
     }
 
     const arrSvgLines = [];
@@ -75,7 +76,7 @@ export class IsometricSvgLoad {
       svg['userData'].ld2 = null;
       svg['userData'].links = [];
 
-      this.containerSvg.children[0].append(svg);
+      groupLines.append(svg);
 
       arrSvgLines.push(svg);
     });
@@ -90,7 +91,7 @@ export class IsometricSvgLoad {
       svg['userData'].move = false;
       svg['userData'].pds = [];
 
-      this.containerSvg.children[0].append(svg);
+      groupLines.append(svg);
 
       arrSvgPoints.push(svg);
     });

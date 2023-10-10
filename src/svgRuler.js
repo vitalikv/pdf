@@ -5,19 +5,19 @@ import { isometricSvgElem, isometricMath } from './index';
 export class IsometricSvgRuler {
   container;
   containerSvg;
+  groupLines;
+  groupRulers;
   newNote = { type: '', data: null, p2: null, r2: { dir: new THREE.Vector2(), startPos: new THREE.Vector2() } };
   isDown = false;
   offset = new THREE.Vector2();
   actInput = null;
   selectedObj = { el: null, type: '' };
 
-  constructor() {
-    //this.addNote();
-  }
-
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
+    this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
+    this.groupRulers = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'rulers' });
   }
 
   addRuler(event, data, lastPoint = null) {
@@ -94,13 +94,13 @@ export class IsometricSvgRuler {
     const svg6 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
     const svg7 = this.createSvgCircle({ ind: 0, x: x1, y: y1 });
 
-    this.containerSvg.children[0].append(svg1);
-    this.containerSvg.children[0].append(svg2);
-    this.containerSvg.children[0].append(svg3);
-    this.containerSvg.children[0].append(svg4);
-    this.containerSvg.children[0].append(svg5);
-    this.containerSvg.children[0].append(svg6);
-    this.containerSvg.children[0].append(svg7);
+    this.groupRulers.append(svg1);
+    this.groupRulers.append(svg2);
+    this.groupRulers.append(svg3);
+    this.groupRulers.append(svg4);
+    this.groupRulers.append(svg5);
+    this.groupRulers.append(svg6);
+    this.groupRulers.append(svg7);
 
     svg1['userData'] = { ruler: true, tag: 'line', line: svg1, p1: svg2, p2: svg3 };
     svg2['userData'] = { ruler: true, tag: 'p1', line: svg1, p1: svg2, p2: svg3, line2: svg4 };
@@ -165,7 +165,7 @@ export class IsometricSvgRuler {
     elem.style.zIndex = '4';
 
     elem.textContent = txt;
-    this.containerSvg.children[0].append(elem);
+    this.groupRulers.append(elem);
 
     p2['userData'].divText = elem;
 
@@ -334,7 +334,7 @@ export class IsometricSvgRuler {
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
     this.isDown = false;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupRulers.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].ruler && svg.contains(event.target)) {
         this.isDown = true;
         this.actElem(svg, true);
@@ -562,7 +562,7 @@ export class IsometricSvgRuler {
     const arrLines = [];
     const arrDPoints = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'line') {
           arrLines.push(svg);
@@ -794,7 +794,7 @@ export class IsometricSvgRuler {
   scale(canvas, ratio, bound2) {
     const svgArr = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].ruler && svg['userData'].tag === 'line') {
           svgArr.push(svg);

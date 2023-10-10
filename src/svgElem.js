@@ -1,6 +1,36 @@
 import * as THREE from 'three';
 
 export class IsometricSvgElem {
+  // получаем все svg изометрии
+  getSvgElems({ container }) {
+    const elems = [];
+
+    const svgXmlns = container.children[0];
+
+    svgXmlns.childNodes.forEach((svg) => {
+      if (svg.tagName === 'g' && svg.getAttribute('nameid')) elems.push(...svg.childNodes);
+      else elems.push(svg);
+    });
+
+    return elems;
+  }
+
+  // получаем группу
+  getSvgGroup({ container, tag }) {
+    let group = null;
+
+    const svgXmlns = container.children[0];
+
+    svgXmlns.childNodes.forEach((svg) => {
+      if (svg.tagName === 'g') {
+        const result = svg.getAttribute('nameid');
+        if (result && result === tag) group = svg;
+      }
+    });
+
+    return group ? group : svgXmlns;
+  }
+
   // получаем координаты курсора
   getCoordMouse({ event, container }) {
     const bound = container.getBoundingClientRect();

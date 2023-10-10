@@ -2,6 +2,7 @@ import * as THREE from 'three';
 
 import {
   mapControlInit,
+  isometricSvgElem,
   isometricSelectBox,
   isometricPdfToSvg,
   isometricSheets,
@@ -78,7 +79,12 @@ export class IsometricSvgManager {
     const div = document.createElement('div');
     div.setAttribute('nameId', 'svgTools');
     div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
-    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 409 293" style="overflow: visible;"></svg>`;
+    div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 409 293" style="overflow: visible;">
+    <g nameid="lines"></g>
+    <g nameid="objs"></g>
+    <g nameid="rulers"></g>
+    <g nameid="notes"></g>
+    </svg>`;
     div.innerHTML += `<div nameId="notesText" style="position: absolute; top: 0; left: 0;"></div>`;
     div.innerHTML += `<div nameId="stampsLogo" style="position: absolute; top: 0; left: 0;"></div>`;
 
@@ -268,7 +274,9 @@ export class IsometricSvgManager {
   checkClick(event) {
     let result = null;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
+
+    elems.forEach((svg, ind) => {
       if (svg['userData'] && svg.contains(event.target)) {
         if (svg['userData'].lineI) {
           result = isometricSvgLine.onmousedown(event);
@@ -298,7 +306,9 @@ export class IsometricSvgManager {
   unselectAllNotes(event) {
     isometricSvgRuler.deleteInput(event.target);
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
+
+    elems.forEach((svg, ind) => {
       if (svg['userData']) {
         if (isometricSvgLine.selectedObj.el && svg['userData'].lineI) {
           if (isometricSvgLine.selectedObj.el === svg) {
