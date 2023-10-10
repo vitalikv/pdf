@@ -5,6 +5,8 @@ import { isometricSvgElem, isometricMath } from './index';
 export class IsometricSvgObjs {
   container;
   containerSvg;
+  groupLines;
+  groupObjs;
   isDown = false;
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '' };
@@ -12,6 +14,8 @@ export class IsometricSvgObjs {
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
+    this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
+    this.groupObjs = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'objs' });
   }
 
   addObj({ event, type }) {
@@ -29,9 +33,9 @@ export class IsometricSvgObjs {
     const svg2 = this.createSvgLine({ x, y: y - 10 });
     const svg3 = this.createSvgCircle({ x, y });
 
-    this.containerSvg.children[0].append(svg1);
-    this.containerSvg.children[0].append(svg2);
-    this.containerSvg.children[0].append(svg3);
+    this.groupObjs.append(svg1);
+    this.groupObjs.append(svg2);
+    this.groupObjs.append(svg3);
 
     svg1['userData'] = { objBracket: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3] };
     svg2['userData'] = { objBracket: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3] };
@@ -88,7 +92,7 @@ export class IsometricSvgObjs {
 
     this.isDown = false;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupObjs.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].objBracket && svg.contains(event.target)) {
         this.actElem(svg, true);
 
@@ -145,7 +149,7 @@ export class IsometricSvgObjs {
   addLink({ svgPoint, event, pos = null }) {
     const arrLines = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI && svg['userData'].tag === 'line') {
           arrLines.push(svg);

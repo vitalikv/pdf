@@ -52,7 +52,7 @@ export class IsometricSvgLoad {
     const rulers = data.rulers;
     const sheet = data.sheet;
 
-    const svgXmlns = this.containerSvg.children[0];
+    const svgXmlns = isometricSvgElem.getSvgXmlns({ container: this.containerSvg });
     const groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
 
     if (bound) {

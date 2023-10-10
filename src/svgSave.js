@@ -14,11 +14,13 @@ export class IsometricSvgSave {
   save() {
     const isometry = { bound: { w: 0, h: 0 }, lines: [], points: [], rulers: [], notes: [], camera: null, sheet: null };
 
-    const svgL = this.containerSvg.children[0];
-    isometry.bound.w = svgL.viewBox.baseVal.width;
-    isometry.bound.h = svgL.viewBox.baseVal.height;
+    const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+    isometry.bound.w = size.x;
+    isometry.bound.h = size.y;
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
+
+    elems.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI) {
           if (svg['userData'].tag === 'line') {

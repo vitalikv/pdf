@@ -1,11 +1,18 @@
 import * as THREE from 'three';
 
 export class IsometricSvgElem {
+  // получаем svg, где находтся все элементы изометрии
+  getSvgXmlns({ container }) {
+    const svgXmlns = container.children[0];
+
+    return svgXmlns;
+  }
+
   // получаем все svg изометрии
   getSvgElems({ container }) {
     const elems = [];
 
-    const svgXmlns = container.children[0];
+    const svgXmlns = this.getSvgXmlns({ container });
 
     svgXmlns.childNodes.forEach((svg) => {
       if (svg.tagName === 'g' && svg.getAttribute('nameid')) elems.push(...svg.childNodes);
@@ -19,7 +26,7 @@ export class IsometricSvgElem {
   getSvgGroup({ container, tag }) {
     let group = null;
 
-    const svgXmlns = container.children[0];
+    const svgXmlns = this.getSvgXmlns({ container });
 
     svgXmlns.childNodes.forEach((svg) => {
       if (svg.tagName === 'g') {
@@ -31,16 +38,23 @@ export class IsometricSvgElem {
     return group ? group : svgXmlns;
   }
 
+  // получаем значения viewBox
+  getSizeViewBox({ container }) {
+    const svgXmlns = this.getSvgXmlns({ container });
+    const w = svgXmlns.viewBox.baseVal.width;
+    const h = svgXmlns.viewBox.baseVal.height;
+
+    return new THREE.Vector2(w, h);
+  }
+
   // получаем координаты курсора
   getCoordMouse({ event, container }) {
     const bound = container.getBoundingClientRect();
     const x = -bound.x + event.clientX;
     const y = -bound.y + event.clientY;
 
-    const svgL = container.children[0];
-    const w2 = svgL.viewBox.baseVal.width;
-    const h2 = svgL.viewBox.baseVal.height;
-    const ratio = w2 / bound.width;
+    const size = this.getSizeViewBox({ container });
+    const ratio = size.x / bound.width;
 
     return new THREE.Vector2(x * ratio, y * ratio);
   }

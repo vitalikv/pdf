@@ -11,10 +11,6 @@ export class IsometricNoteSvg2 {
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '' };
 
-  constructor() {
-    //this.addNote();
-  }
-
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;

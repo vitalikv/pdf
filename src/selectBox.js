@@ -144,8 +144,6 @@ export class IsometricSelectBox {
         this.endPos.y = sy;
       }
 
-      //this.helperBox();
-
       this.getObjsFromBox();
     }
 
@@ -213,7 +211,9 @@ export class IsometricSelectBox {
     const arrDPoints = [];
     const arrRulerLine = [];
 
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
+    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
+
+    elems.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].lineI) {
           if (svg['userData'].tag === 'line') {
@@ -295,11 +295,8 @@ export class IsometricSelectBox {
     if (modif) {
       const bound = this.containerSvg.getBoundingClientRect();
 
-      const svgL = this.containerSvg.children[0];
-      const w2 = svgL.viewBox.baseVal.width;
-      const h2 = svgL.viewBox.baseVal.height;
-
-      const ratio = w2 / bound.width;
+      const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+      const ratio = size.x / bound.width;
 
       x1 = (-bound.x + this.startOffset.x + x1) * ratio;
       y1 = (-bound.y + this.startOffset.y + y1) * ratio;
@@ -457,51 +454,5 @@ export class IsometricSelectBox {
     });
 
     this.clearSelected();
-  }
-
-  // помошник для отображения Selectedbox, показывает построение линий разных цветов, чтобы видеть как строится box
-  helperBox() {
-    let x1 = this.startPos.x;
-    let y1 = this.startPos.y;
-    let x2 = this.endPos.x;
-    let y2 = this.startPos.y;
-    let line = this.createSvgLine({ x1, y1, x2, y2, stroke: '#ff0000' });
-    this.containerSvg.children[0].append(line);
-
-    x1 = this.startPos.x;
-    y1 = this.endPos.y;
-    x2 = this.endPos.x;
-    y2 = this.endPos.y;
-    line = this.createSvgLine({ x1, y1, x2, y2, stroke: '#0000ff' });
-    this.containerSvg.children[0].append(line);
-
-    x1 = this.startPos.x;
-    y1 = this.startPos.y;
-    x2 = this.startPos.x;
-    y2 = this.endPos.y;
-    line = this.createSvgLine({ x1, y1, x2, y2, stroke: '#222222' });
-    this.containerSvg.children[0].append(line);
-
-    x1 = this.endPos.x;
-    y1 = this.startPos.y;
-    x2 = this.endPos.x;
-    y2 = this.endPos.y;
-    line = this.createSvgLine({ x1, y1, x2, y2, stroke: '#00ff00' });
-    this.containerSvg.children[0].append(line);
-  }
-
-  createSvgLine({ x1, y1, x2, y2, stroke = '#000000' }) {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-
-    svg.setAttribute('x1', x1);
-    svg.setAttribute('y1', y1);
-    svg.setAttribute('x2', x2);
-    svg.setAttribute('y2', y2);
-    svg.setAttribute('stroke-width', '2.5px');
-    //svg.setAttribute('stroke', 'rgb(255, 162, 23)');
-    svg.setAttribute('stroke', stroke);
-    //svg.setAttribute('display', 'none');
-
-    return svg;
   }
 }
