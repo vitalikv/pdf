@@ -93,11 +93,19 @@ export class IsometricSvgManager {
     container.prepend(div);
   }
 
-  setMode({ type, data } = { type: '', data: null }) {
-    const disabledType = this.cleareMode();
+  setMode({ type = '', data = null }) {
+    const disabledType = this.cleareMode(type);
 
     this.mode.type = type;
     this.mode.data = data;
+
+    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
+      if (this.mode.type !== disabledType) {
+        isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
+      } else {
+        this.mode.type = '';
+      }
+    }
 
     if (this.mode.type === 'brush') {
       if (this.mode.type !== disabledType) {
@@ -116,17 +124,27 @@ export class IsometricSvgManager {
     }
   }
 
-  cleareMode() {
+  cleareMode(type = null) {
     let disabledType = '';
 
-    if (this.mode.type === 'brush') {
-      isometricCanvasPaint.deActivateBrush();
-      disabledType = 'brush';
+    if (type && this.mode.type === type) {
+      disabledType = this.mode.type;
+    } else if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
+      disabledType = this.mode.type;
+    } else if (this.mode.type === 'brush') {
+      disabledType = this.mode.type;
+    } else if (this.mode.type === 'cutBox') {
+      disabledType = this.mode.type;
     }
 
-    if (this.mode.type === 'cutBox') {
+    if (disabledType === 'objBracket' || disabledType === 'objValve') {
+      isometricSvgObjs.deleteAddObj();
+    }
+    if (disabledType === 'brush') {
+      isometricCanvasPaint.deActivateBrush();
+    }
+    if (disabledType === 'cutBox') {
       isometricCutBox.deActivateCutBox();
-      disabledType = 'cutBox';
     }
 
     this.mode.type = '';
@@ -212,8 +230,9 @@ export class IsometricSvgManager {
       }
     }
 
-    if (this.mode.type === 'objBracket') {
-      isometricSvgObjs.addObj({ event, type: this.mode.type });
+    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
+      //isometricSvgObjs.addObj({ event, type: this.mode.type });
+      if (event.button === 0) isometricSvgObjs.addObj2({ event, type: this.mode.type });
       //this.cleareMode();
     }
 
@@ -282,7 +301,7 @@ export class IsometricSvgManager {
           result = isometricSvgLine.onmousedown(event);
         }
 
-        if (svg['userData'].objBracket) {
+        if (svg['userData'].objBracket || svg['userData'].objValve) {
           result = isometricSvgObjs.onmousedown(event);
         }
 
@@ -316,7 +335,7 @@ export class IsometricSvgManager {
           }
         }
 
-        if (isometricSvgObjs.selectedObj.el && svg['userData'].objBracket) {
+        if (isometricSvgObjs.selectedObj.el && (svg['userData'].objBracket || svg['userData'].objValve)) {
           if (isometricSvgObjs.selectedObj.el === svg) {
             isometricSvgObjs.actElem(svg, false);
           }

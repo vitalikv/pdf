@@ -38,6 +38,11 @@ export class IsometricSvgSave {
           isometry.objs.push({ tag: 'objBracket', pos });
         }
 
+        if (svg['userData'].objValve && svg['userData'].tag === 'point') {
+          const pos = isometricSvgElem.getPosCircle(svg);
+          isometry.objs.push({ tag: 'objValve', pos });
+        }
+
         if (svg['userData'].note1 && svg['userData'].tag === 'line') {
           const obj = isometricNoteSvg.getStructureNote(svg);
 

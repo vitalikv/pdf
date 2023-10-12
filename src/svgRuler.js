@@ -181,10 +181,13 @@ export class IsometricSvgRuler {
 
       const elem2 = document.createElement('input');
       const pos = isometricSvgElem.getPosText1(elem);
+      const bound = this.containerSvg.getBoundingClientRect();
+      const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+      const ratio = size.x / bound.width;
 
       elem2.style.position = 'absolute';
-      elem2.style.top = pos.y + 'px';
-      elem2.style.left = pos.x + 'px';
+      elem2.style.top = pos.y / ratio + 'px';
+      elem2.style.left = pos.x / ratio + 'px';
       elem2.style.transform = 'translateX(-50%) translateY(-50%)';
       elem2.style.zIndex = '4';
 

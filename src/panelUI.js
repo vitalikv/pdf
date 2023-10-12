@@ -3,6 +3,8 @@ import {
   isometricExportPdf,
   isometricSvgManager,
   isometricSheets,
+  isometricSvgLine,
+  isometricSvgObjs,
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
@@ -37,10 +39,11 @@ export class PanelUI {
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
     this.btns$[11] = this.crBtn({ txt: 'Линия' });
     this.btns$[12] = this.crBtn({ txt: 'Опора' });
-    this.btns$[13] = this.crBtn({ txt: 'Текст' });
-    this.btns$[14] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[15] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[16] = this.crListSheets();
+    this.btns$[13] = this.crBtn({ txt: 'Вентиль' });
+    this.btns$[14] = this.crBtn({ txt: 'Текст' });
+    this.btns$[15] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[16] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[17] = this.crListSheets();
 
     this.initEvent();
   }
@@ -123,14 +126,17 @@ export class PanelUI {
     ind++;
 
     this.btns$[ind].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'line' });
+      if (isometricSvgManager.mode.type === 'line') {
+        //isometricSvgObjs.deleteAddObj();
+        isometricSvgManager.cleareMode();
+      } else {
+        isometricSvgManager.setMode({ type: 'line' });
+        //isometricSvgLine.addLine2(e);
+      }
 
       const btn = e.target;
       const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
       btn.style.background = color;
-      if (color === '#fff') {
-        isometricSvgManager.cleareMode();
-      }
     };
     ind++;
 
@@ -140,9 +146,15 @@ export class PanelUI {
       const btn = e.target;
       const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
       btn.style.background = color;
-      if (color === '#fff') {
-        isometricSvgManager.cleareMode();
-      }
+    };
+    ind++;
+
+    this.btns$[ind].onmousedown = (e) => {
+      isometricSvgManager.setMode({ type: 'objValve' });
+
+      const btn = e.target;
+      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
+      btn.style.background = color;
     };
     ind++;
 

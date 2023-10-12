@@ -90,12 +90,13 @@ export class IsometricSvgElem {
     return svg;
   }
 
-  createPolygon({ ind = 0, x, y, points }) {
+  createPolygon({ x, y, points, fill = 'rgb(0, 0, 0)' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
     svg.setAttribute('points', points);
-    svg.setAttribute('stroke-width', '1');
+    svg.setAttribute('stroke-width', '2');
     svg.setAttribute('stroke', 'rgb(0, 0, 0)');
+    svg.setAttribute('fill', fill);
     svg.setAttribute('transform', `translate(${x}, ${y}) rotate(0)`);
 
     return svg;
@@ -161,7 +162,7 @@ export class IsometricSvgElem {
     svg.setAttribute('y', Number(y));
   }
 
-  // смещение полигона
+  // позиция полигона
   setPosPolygon1(svg, x, y) {
     const rot = svg.transform.baseVal[1].angle;
 
