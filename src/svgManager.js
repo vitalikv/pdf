@@ -94,14 +94,38 @@ export class IsometricSvgManager {
   }
 
   setMode({ type = '', data = null }) {
-    const disabledType = this.cleareMode(type);
+    const disabledType = this.cleareMode();
 
     this.mode.type = type;
     this.mode.data = data;
 
+    if (this.mode.type === 'line') {
+      if (this.mode.type !== disabledType) {
+        isometricSvgLine.createToolPoint();
+      } else {
+        this.mode.type = '';
+      }
+    }
+
     if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
       if (this.mode.type !== disabledType) {
         isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
+      } else {
+        this.mode.type = '';
+      }
+    }
+
+    if (this.mode.type === 'addNote1') {
+      if (this.mode.type !== disabledType) {
+        isometricNoteSvg.createToolPoint();
+      } else {
+        this.mode.type = '';
+      }
+    }
+
+    if (this.mode.type === 'addNote2') {
+      if (this.mode.type !== disabledType) {
+        isometricNoteSvg2.createToolPoint();
       } else {
         this.mode.type = '';
       }
@@ -124,26 +148,19 @@ export class IsometricSvgManager {
     }
   }
 
-  cleareMode(type = null) {
-    let disabledType = '';
+  cleareMode() {
+    const disabledType = this.mode.type;
 
-    if (type && this.mode.type === type) {
-      disabledType = this.mode.type;
-    } else if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
-      disabledType = this.mode.type;
-    } else if (this.mode.type === 'brush') {
-      disabledType = this.mode.type;
-    } else if (this.mode.type === 'cutBox') {
-      disabledType = this.mode.type;
+    if (this.mode.type === 'line') {
+      isometricSvgLine.deleteToolPoint();
     }
-
-    if (disabledType === 'objBracket' || disabledType === 'objValve') {
+    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
       isometricSvgObjs.deleteAddObj();
     }
-    if (disabledType === 'brush') {
+    if (this.mode.type === 'brush') {
       isometricCanvasPaint.deActivateBrush();
     }
-    if (disabledType === 'cutBox') {
+    if (this.mode.type === 'cutBox') {
       isometricCutBox.deActivateCutBox();
     }
 
@@ -212,20 +229,21 @@ export class IsometricSvgManager {
     if (this.mode.type === 'line') {
       if (event.button !== 2) {
         isometricSvgLine.addLine(event);
-        this.setMode({ type: 'nextLine' });
+        isometricSvgLine.deleteToolPoint();
+        this.mode.type = 'nextLine';
       }
     } else if (this.mode.type === 'nextLine') {
       if (event.button === 2) {
         isometricSvgLine.stopLine();
-        //this.cleareMode();
-        this.setMode({ type: 'line' });
+        isometricSvgLine.createToolPoint(event);
+        this.mode.type = 'line';
       } else {
         const result = isometricSvgLine.addNextLine(event);
         if (result) {
-          //this.cleareMode();
-          this.setMode({ type: 'line' });
+          this.mode.type = 'line';
+          isometricSvgLine.createToolPoint(event);
         } else {
-          this.setMode({ type: 'nextLine' });
+          this.mode.type = 'nextLine';
         }
       }
     }
@@ -237,12 +255,22 @@ export class IsometricSvgManager {
     }
 
     if (this.mode.type === 'addNote1') {
-      isometricNoteSvg.addNote(event, this.mode.data);
+      if (event.button === 2) {
+        isometricNoteSvg.deleteToolPoint();
+      } else {
+        isometricNoteSvg.addNote(event, this.mode.data);
+        isometricNoteSvg.deleteToolPoint();
+      }
       this.cleareMode();
     }
 
     if (this.mode.type === 'addNote2') {
-      isometricNoteSvg2.addNote(event, this.mode.data);
+      if (event.button === 2) {
+        isometricNoteSvg2.deleteToolPoint();
+      } else {
+        isometricNoteSvg2.addNote(event, this.mode.data);
+        isometricNoteSvg2.deleteToolPoint();
+      }
       this.cleareMode();
     }
 

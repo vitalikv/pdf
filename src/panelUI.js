@@ -126,13 +126,7 @@ export class PanelUI {
     ind++;
 
     this.btns$[ind].onmousedown = (e) => {
-      if (isometricSvgManager.mode.type === 'line') {
-        //isometricSvgObjs.deleteAddObj();
-        isometricSvgManager.cleareMode();
-      } else {
-        isometricSvgManager.setMode({ type: 'line' });
-        //isometricSvgLine.addLine2(e);
-      }
+      isometricSvgManager.setMode({ type: 'line' });
 
       const btn = e.target;
       const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';

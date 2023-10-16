@@ -10,12 +10,26 @@ export class IsometricNoteSvg {
   isDown = false;
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '' };
+  toolPoint;
 
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
     this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
     this.groupNotes = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'notes' });
+  }
+
+  createToolPoint() {
+    this.toolPoint = this.createSvgCircle({ ind: 0, x: -999999, y: -999999, stroke: '#ff0000' });
+    this.groupNotes.append(this.toolPoint);
+
+    this.toolPoint['userData'] = { tag: 'toolsPoint', crossOffset: false };
+  }
+
+  deleteToolPoint() {
+    if (!this.toolPoint) return;
+    this.toolPoint.remove();
+    this.toolPoint = null;
   }
 
   addNote(event, data) {
@@ -26,7 +40,9 @@ export class IsometricNoteSvg {
       const x = pos.x;
       const y = pos.y;
 
-      this.createElement({ btn: true, x, y, data });
+      const { svg2 } = this.createElement({ btn: true, x, y, data });
+
+      this.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(x, y) });
     }
   }
 
@@ -66,7 +82,7 @@ export class IsometricNoteSvg {
   }
 
   // создаем svg точки
-  createSvgCircle({ ind, x, y, r = 4.2 }) {
+  createSvgCircle({ ind, x, y, r = 4.2, stroke = 'rgb(0, 0, 0)' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 
     svg.setAttribute('cx', x);
@@ -74,7 +90,7 @@ export class IsometricNoteSvg {
 
     svg.setAttribute('r', r);
     svg.setAttribute('stroke-width', '2px');
-    svg.setAttribute('stroke', 'rgb(0, 0, 0)');
+    svg.setAttribute('stroke', stroke);
     svg.setAttribute('transform-origin', 'center');
 
     svg.setAttribute('fill', '#fff');
@@ -174,6 +190,13 @@ export class IsometricNoteSvg {
 
   // перемещение svg
   onmousemove = (event) => {
+    if (this.toolPoint) {
+      const pos = this.getCoord(event);
+
+      this.toolPoint.setAttribute('cx', pos.x);
+      this.toolPoint.setAttribute('cy', pos.y);
+    }
+
     if (!this.isDown) return;
 
     let svg = this.selectedObj.el;

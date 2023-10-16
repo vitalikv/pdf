@@ -11,11 +11,33 @@ export class IsometricSvgLine {
   newNote = { type: '', line: null, p2: null, arr: { l: [], p: [] } };
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '' };
+  toolPoint;
 
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
     this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
+  }
+
+  createToolPoint(event = null) {
+    let x = -999999;
+    let y = -999999;
+    if (event) {
+      const pos = this.getCoord(event);
+      x = pos.x;
+      y = pos.y;
+    }
+
+    this.toolPoint = isometricSvgElem.createSvgCircle({ x, y, stroke: '#ff0000' });
+    this.groupLines.append(this.toolPoint);
+
+    this.toolPoint['userData'] = { tag: 'toolsPoint', lines: [], crossOffset: false };
+  }
+
+  deleteToolPoint() {
+    if (!this.toolPoint) return;
+    this.toolPoint.remove();
+    this.toolPoint = null;
   }
 
   addLine(event, ps1 = null) {
@@ -39,6 +61,15 @@ export class IsometricSvgLine {
       const line2 = this.newNote.arr.l[ind + 1];
       const pCenter = line2['userData'].p1;
       this.addCorner({ line1, line2, pCenter, type: 'newline' });
+    } else {
+      if (this.newNote.arr.l.length === 1) {
+        const result = this.svgPointCross({ p2: p1, event, ignoreP: [p2], type: 'mouseup' });
+        if (result) {
+          // const lines = result.point['userData'].lines;
+          // console.log({ line1: lines[0], line2: lines[1], pCenter: result.point, type: 'newline' });
+          // this.addCorner({ line1: lines[0], line2: lines[1], pCenter: result.point, type: 'newline' });
+        }
+      }
     }
 
     this.offset = this.getCoord(event);
@@ -311,6 +342,13 @@ export class IsometricSvgLine {
 
   // перемещение svg
   onmousemove = (event) => {
+    if (this.toolPoint) {
+      const pos = this.getCoord(event);
+
+      isometricSvgElem.setPosCircle(this.toolPoint, pos.x, pos.y);
+      this.svgPointCross({ p2: this.toolPoint, event });
+    }
+
     if (this.newNote.type === 'move') {
       const svgCircle = this.newNote.p2;
       const svgLine = this.newNote.line;
@@ -506,14 +544,15 @@ export class IsometricSvgLine {
   }
 
   // пересечение перетаскиваемой точки с другой точкой
-  svgPointCross({ p2, event, type = '' }) {
+  svgPointCross({ p2, event, type = '', ignoreP = [] }) {
     // у точки должна быть одна линия, то есть это точка начало/конец трубы
-    if (p2['userData'].lines.length !== 1) return;
+    if (p2['userData'].tag === 'toolsPoint') {
+    } else if (p2['userData'].lines.length !== 1) return;
 
     // находим все точки на листе
     const arrPoints = [];
     this.groupLines.childNodes.forEach((svg) => {
-      if (svg['userData']) {
+      if (svg['userData'] && ignoreP.indexOf(svg) === -1) {
         if (svg['userData'].lineI && svg['userData'].tag === 'point') {
           const display = svg.getAttribute('display');
           if (display !== 'none') arrPoints.push(svg);
@@ -552,30 +591,34 @@ export class IsometricSvgLine {
       const cy = svgCircle.getAttribute('cy');
       p2.setAttribute('cx', Number(cx));
       p2.setAttribute('cy', Number(cy));
+
       p2['userData'].crossOffset = true;
 
-      const svgLine = p2['userData'].lines[0];
-      const ind = svgLine['userData'].p1 === p2 ? 1 : 2;
-      svgLine.setAttribute('x' + ind, Number(cx));
-      svgLine.setAttribute('y' + ind, Number(cy));
-
       const tag = svgCross['userData'].tag;
+      let svgLine = null;
 
-      if (type === 'mouseup') {
-        let index = p2['userData'].lines.indexOf(svgLine);
-        if (index > -1) p2['userData'].lines.splice(index, 1);
-        p2.remove();
+      if (p2['userData'].lines.length > 0) {
+        svgLine = p2['userData'].lines[0];
+        const ind = svgLine['userData'].p1 === p2 ? 1 : 2;
+        svgLine.setAttribute('x' + ind, Number(cx));
+        svgLine.setAttribute('y' + ind, Number(cy));
 
-        if (ind === 1) {
-          svgLine['userData'].p1 = svgCircle;
-        } else {
-          svgLine['userData'].p2 = svgCircle;
-        }
+        if (type === 'mouseup') {
+          let index = p2['userData'].lines.indexOf(svgLine);
+          if (index > -1) p2['userData'].lines.splice(index, 1);
+          p2.remove();
 
-        if (tag === 'point') svgCircle['userData'].lines.push(svgLine);
+          if (ind === 1) {
+            svgLine['userData'].p1 = svgCircle;
+          } else {
+            svgLine['userData'].p2 = svgCircle;
+          }
 
-        if (svgLine['userData'].p1 === svgLine['userData'].p2) {
-          this.deleteLine(svgLine);
+          if (tag === 'point') svgCircle['userData'].lines.push(svgLine);
+
+          if (svgLine['userData'].p1 === svgLine['userData'].p2) {
+            this.deleteLine(svgLine);
+          }
         }
       }
 
