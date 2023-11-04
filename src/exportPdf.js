@@ -68,7 +68,11 @@ export class IsometricExportPdf {
       const imgData = canvas.toDataURL(strMime);
 
       pdf.addImage(imgData, 'PNG', 0, 0, widthPdf, heightPdf);
-      pdf.save('isometry.pdf');
+
+      var base64 = pdf.output('datauristring');
+      console.log(base64);
+      this.openPdf(base64);
+      //pdf.save('isometry.pdf');
     });
 
     // Promise.all(tasks).then((canvases) => {
@@ -123,6 +127,23 @@ export class IsometricExportPdf {
         name: 'isometry.png',
       });
     });
+  }
+
+  openPdf(data) {
+    const link = document.createElement('a');
+    link.target = '_blank';
+    //document.body.appendChild(link);
+
+    link.href = data;
+    link.click();
+  }
+
+  openPdf2(data) {
+    const iframe = "<iframe width='100%' height='100%' src='" + data + "'></iframe>";
+    const x = window.open();
+    x.document.open();
+    x.document.write(iframe);
+    x.document.close();
   }
 
   saveImg({ name, data }) {
