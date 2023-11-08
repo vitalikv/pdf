@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { svg2pdf } from 'svg2pdf.js'; // npm i svg2pdf.js
 import html2canvas from 'html2canvas';
+import { css } from './style/gostcadkk-normal';
 
 import { isometricPdfToSvg, isometricSvgManager, isometricSheets, isometricStampLogo } from './index';
 
@@ -28,9 +29,10 @@ export class IsometricExportPdf {
     // this.getScreen({ widthPdf, heightPdf });
     // return;
 
-    const divs = [isometricSvgManager.containerSvg];
+    const divs = [];
     console.log(isometricSheets.elemWrap);
     if (isometricSheets.elemWrap) divs.push(isometricSheets.elemWrap);
+    if (isometricSvgManager.containerSvg) divs.push(isometricSvgManager.containerSvg);
 
     // console.log(isometricStampLogo.arrStamp);
     // isometricStampLogo.arrStamp.forEach((stamp) => {
@@ -45,9 +47,14 @@ export class IsometricExportPdf {
     canvas.height = isometricPdfToSvg.canvasPdf.height;
     const context = canvas.getContext('2d');
 
+    const style = document.createElement('style');
+    style.innerText = css;
+    isometricSvgManager.svgXmlns.appendChild(style);
+
     const tasks = divs.map((div) => html2canvas(div, { removeContainer: true, backgroundColor: null, scale: 2, logging: false }));
 
     Promise.all(tasks).then((canvases) => {
+      style.remove();
       // const width = parseInt(isometricPdfToSvg.canvasPdf.style.width, 10);
       // const height = parseInt(isometricPdfToSvg.canvasPdf.style.height, 10);
       // const aspect = width / widthPdf > height / heightPdf ? width / widthPdf : height / heightPdf;
@@ -67,11 +74,11 @@ export class IsometricExportPdf {
       const strMime = 'image/png';
       const imgData = canvas.toDataURL(strMime);
 
-      pdf.addImage(imgData, 'PNG', 0, 0, widthPdf, heightPdf);
+      pdf.addImage(imgData, 'PNG', 0, 0, widthPdf, heightPdf, '', 'FAST');
 
       var base64 = pdf.output('datauristring');
       console.log(base64);
-      this.openPdf(base64);
+      this.openPdf2(base64);
       //pdf.save('isometry.pdf');
     });
 

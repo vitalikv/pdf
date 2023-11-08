@@ -23,6 +23,7 @@ import {
 export class IsometricSvgManager {
   container;
   containerSvg;
+  svgXmlns;
   isDown = false;
   isMove = false;
   mode = { type: '', data: null };
@@ -89,8 +90,10 @@ export class IsometricSvgManager {
     div.innerHTML += `<div nameId="stampsLogo" style="position: absolute; top: 0; left: 0;"></div>`;
 
     this.containerSvg = div;
+    this.svgXmlns = div.children[0];
     const container = this.getContainer();
     container.prepend(div);
+    console.log(this.svgXmlns);
   }
 
   setMode({ type = '', data = null }) {
