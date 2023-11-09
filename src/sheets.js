@@ -24,7 +24,7 @@ export class IsometricSheets {
     }
   }
 
-  async createSvgSheet(formatSheet, boxsInput = []) {
+  async createSvgSheet(formatSheet) {
     let url = '';
     if (formatSheet === 'a3') {
       //url = 'assets/gis/isometry/А3.svg';
@@ -132,11 +132,11 @@ export class IsometricSheets {
 
     this.elInputs.push({ svgRect: newRect, svgText: elem });
 
-    this.initEventLabel({ svgRect: newRect, svgText: elem });
+    this.initEventTxtInput({ svgRect: newRect, svgText: elem });
   }
 
   // событие по Rect (input)
-  initEventLabel({ svgRect, svgText }) {
+  initEventTxtInput({ svgRect, svgText }) {
     svgRect.onpointerdown = (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -196,119 +196,6 @@ export class IsometricSheets {
     elem2.onblur = null;
     elem2.remove();
     this.actInput = null;
-  }
-
-  setPosSheet() {
-    const points = this.getArrSvgCircle();
-    const rectC = this.container.getBoundingClientRect();
-    const rect = this.elemSheet.getBoundingClientRect();
-
-    let idPoints = [12, 1];
-
-    if (this.formatSheet === 'A3_4') {
-      idPoints = [0, 42];
-    }
-    if (this.formatSheet === 'A1_2') {
-      idPoints = [0, 42];
-    }
-
-    function getScreenCoords(svg) {
-      const x = svg.getAttribute('cx');
-      const y = svg.getAttribute('cy');
-      const ctm = svg.getCTM();
-
-      const xn = ctm.e + x * ctm.a + y * ctm.c;
-      const yn = ctm.f + x * ctm.b + y * ctm.d;
-
-      return { x: xn, y: yn };
-    }
-
-    const p1 = getScreenCoords(points[idPoints[0]]);
-    const p2 = getScreenCoords(points[idPoints[1]]);
-
-    this.elemWrap.children[0]['style'].width = p1.x + 'px';
-    this.elemWrap.children[1]['style'].height = rectC.bottom - rect.top - p1.y + 'px';
-    this.elemWrap.children[2]['style'].width = rectC.right - p2.x + 'px';
-    this.elemWrap.children[3]['style'].height = rectC.top - rect.top + p2.y + 'px';
-  }
-
-  setPosSheet2() {
-    const rectC = this.container.getBoundingClientRect();
-    const rect = this.elemSheet.children[0].getBoundingClientRect();
-
-    const offset = { el1: 60, el2: 73, el3: 5, el4: 5 };
-
-    if (this.formatSheet === 'A3_4') {
-      offset.el1 = 50;
-      offset.el2 = 3;
-    }
-
-    this.elemWrap.children[0]['style'].width = rect.left + offset.el1 + 'px';
-    this.elemWrap.children[1]['style'].height = rectC.bottom - rect.bottom + offset.el2 + 'px';
-    this.elemWrap.children[2]['style'].width = rectC.width - rect.right + offset.el3 + 'px';
-    this.elemWrap.children[3]['style'].height = -rectC.top + rect.top + offset.el4 + 'px';
-  }
-
-  // удаляем из svg листа текст и заменяем на свой и создаем событие при клике на свой текст
-  createLabel({ txt, fontSize, delElem, rotate = 0 }) {
-    const elem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    this.elemWrap.children[4].children[0].appendChild(elem);
-
-    const bbox = delElem.getBBox();
-    delElem.remove();
-
-    return;
-    elem.setAttribute('x', bbox.x + bbox.width / 2);
-    elem.setAttribute('y', bbox.y + bbox.height / 2);
-    //elem.setAttribute('transform-origin', 'center');
-    //elem.setAttribute('transform-box', ' fill-box');
-    elem.setAttribute('transform', 'rotate(' + rotate + ', ' + (bbox.x + bbox.width / 2) + ',' + (bbox.y + bbox.height / 2) + ')');
-
-    elem.setAttribute('dominant-baseline', 'middle');
-    elem.setAttribute('text-anchor', 'middle');
-    elem.setAttribute('font-size', fontSize);
-    //elem.setAttribute('font-family', 'arial,sans-serif');
-
-    elem.style.cursor = 'pointer';
-
-    elem.textContent = txt;
-
-    elem.onpointerdown = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const rectC = this.container.getBoundingClientRect();
-      const rect = elem.getBoundingClientRect();
-
-      const elem2 = document.createElement('input');
-      elem2.style.position = 'absolute';
-      elem2.style.top = rect.top - rectC.top + 'px';
-      elem2.style.left = rect.left - 50 + rect.width / 2 + 'px';
-      elem2.style.zIndex = '3';
-      elem2.style.background = 'rgb(255, 255, 255)';
-      elem2.style.border = '1px solid rgb(204, 204, 204)';
-      elem2.style.width = '100px';
-      elem2.style.fontSize = '20px';
-      //elem.style.fontFamily = 'arial,sans-serif';
-      elem2.style.borderRadius = '4px';
-      elem2.style.padding = '10px';
-      elem2.textContent = '';
-      this.container.append(elem2);
-
-      elem2.focus();
-
-      elem2.onkeydown = (e2) => {
-        if (e2.code === 'Enter') {
-          const txt = elem2.value;
-          elem2.remove();
-
-          if (txt !== '') elem.textContent = txt;
-          elem.style.display = '';
-        }
-      };
-
-      elem.style.display = 'none';
-    };
   }
 
   xhrImg_1(url) {
