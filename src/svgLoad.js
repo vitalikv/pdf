@@ -1,6 +1,15 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricSvgLine, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets } from './index';
+import {
+  isometricSvgElem,
+  isometricSvgLine,
+  isometricSvgObjs,
+  isometricNoteSvg,
+  isometricNoteSvg2,
+  isometricSvgRuler,
+  isometricNoteText,
+  isometricSheets,
+} from './index';
 
 export class IsometricSvgLoad {
   container;
@@ -51,6 +60,7 @@ export class IsometricSvgLoad {
     const objs = data.objs;
     const notes = data.notes;
     const rulers = data.rulers;
+    const texts = data.texts;
     const sheet = data.sheet;
 
     const svgXmlns = isometricSvgElem.getSvgXmlns({ container: this.containerSvg });
@@ -132,6 +142,7 @@ export class IsometricSvgLoad {
     if (objs && objs.length > 0) this.setObjs(objs);
 
     if (rulers) this.setRulers(rulers);
+    if (texts) this.setText(texts);
     if (notes) this.setNotes(notes);
 
     if (sheet) this.setSheet(sheet);
@@ -239,9 +250,34 @@ export class IsometricSvgLoad {
     });
   }
 
+  setText(texts) {
+    if (!texts) return;
+
+    texts.forEach((txt) => {
+      const { cssText, textContent } = txt;
+      isometricNoteText.addText2({ cssText, textContent });
+    });
+  }
+
   setSheet(sheet) {
     if (sheet.format !== undefined) {
-      isometricSheets.showHideSheet(sheet.format);
+      const table1 = [];
+      const table2 = [];
+
+      if (!sheet.table1) sheet.table1 = [];
+      if (!sheet.table2) sheet.table2 = [];
+
+      for (let i = 0; i < sheet.table1.length; i++) {
+        const { id, txt } = sheet.table1[i];
+        table1.push({ id, txt });
+      }
+
+      for (let i = 0; i < sheet.table2.length; i++) {
+        const { id, txt } = sheet.table2[i];
+        table2.push({ id, txt });
+      }
+
+      isometricSheets.showHideSheet(sheet.format, table1, table2);
     }
   }
 }

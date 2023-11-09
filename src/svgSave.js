@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets } from './index';
+import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets, isometricNoteText } from './index';
 
 export class IsometricSvgSave {
   container;
@@ -12,7 +12,7 @@ export class IsometricSvgSave {
   }
 
   save() {
-    const isometry = { bound: { w: 0, h: 0 }, lines: [], points: [], objs: [], rulers: [], notes: [], camera: null, sheet: null };
+    const isometry = { bound: { w: 0, h: 0 }, lines: [], points: [], objs: [], rulers: [], notes: [], texts: [], camera: null, sheet: null };
 
     const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
     isometry.bound.w = size.x;
@@ -126,11 +126,21 @@ export class IsometricSvgSave {
       }
     });
 
-    isometry.sheet = { format: '' };
+    isometricNoteText.arrText.forEach((div) => {
+      const cssText = div.style.cssText;
+      const textContent = div.children[0].textContent;
+      isometry.texts.push({ cssText, textContent });
+    });
+
+    isometry.sheet = { format: '', table1: [], table2: [] };
     isometry.sheet.format = isometricSheets.formatSheet;
 
+    const txt = isometricSheets.getTxtFromTables();
+    isometry.sheet.table1 = txt.table1;
+    isometry.sheet.table2 = txt.table2;
+
     console.log('isometry2', isometry);
-    //return;
+
     const str = JSON.stringify(isometry);
 
     const data = 'data:application/csv;charset=utf-8,' + encodeURIComponent(str);

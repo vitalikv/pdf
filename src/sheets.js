@@ -17,16 +17,17 @@ export class IsometricSheets {
     this.showHideSheet('a3');
   }
 
-  showHideSheet(formatSheet) {
-    if (formatSheet === this.formatSheet) {
-      this.delete();
-    } else {
-      this.delete();
-      this.createSvgSheet(formatSheet);
+  showHideSheet(formatSheet, table1 = [], table2 = [], btn = false) {
+    if (btn) {
+      let txt = this.getTxtFromTables();
+      table1 = txt.table1;
+      table2 = txt.table2;
     }
+    this.delete();
+    this.createSvgSheet(formatSheet, table1, table2);
   }
 
-  async createSvgSheet(formatSheet) {
+  async createSvgSheet(formatSheet, table1, table2) {
     let url = '';
     if (formatSheet === 'a3') {
       //url = 'assets/gis/isometry/А3.svg';
@@ -40,30 +41,22 @@ export class IsometricSheets {
       //url = 'assets/gis/isometry/A1.svg';
       url = 'img/sheets/A1.svg';
     }
-    console.log(formatSheet, url);
+
     if (url === '') return;
 
     this.formatSheet = formatSheet;
 
-    const div = document.createElement('div');
-    // div.innerHTML = `<div style="position: absolute; width: 420px; left: 0; top: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // left
-    // div.innerHTML += `<div style="position: absolute; height: 90px; left: 0; right: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // bottom
-    // div.innerHTML += `<div style="position: absolute; width: 365px; right: 0; top: 0; bottom: 0; background: #ccc; z-index: 2;"></div>`; // right
-    // div.innerHTML += `<div style="position: absolute; height: 90px; left: 0; right: 0; top: 0; background: #ccc; z-index: 2;"></div>`; // top
-    div.style.userSelect = 'none';
-
     const data = await this.xhrImg_1(url);
+    this.delete();
 
+    const div = document.createElement('div');
+    div.style.userSelect = 'none';
     div.innerHTML = data;
 
-    //div.style.cssText = 'position: absolute; width: 100%; height: 100%; z-index: 2;';
     div.style.cssText = isometricPdfToSvg.canvasPdf.style.cssText;
     div.style.fontFamily = 'Gostcadkk';
     div.style.zIndex = '4';
-    //this.container.append(div);
     isometricPdfToSvg.containerPdf.append(div);
-
-    console.log(formatSheet, div);
 
     this.elemWrap = div;
     this.elemSheet = this.elemWrap.children[0];
@@ -78,61 +71,84 @@ export class IsometricSheets {
     g.setAttribute('fill', 'none');
     this.elemSheet.prepend(g);
 
-    this.addBoxInput();
+    this.addBoxInput({ table1, table2 });
   }
 
-  addBoxInput() {
+  addBoxInput({ table1, table2 }) {
     const svgGRp = this.elemSheet.querySelector('[nameid="svgGRp"]');
     const svgGLp = this.elemSheet.querySelector('[nameid="svgGLp"]');
 
     if (!svgGRp) return;
     if (!svgGLp) return;
 
-    let rects = svgGRp.querySelectorAll('rect');
+    const svgXmlns = isometricSvgElem.getSvgXmlns({ container: this.containerSvg });
+    const rect1 = this.elemSheet.getBoundingClientRect();
+    const rect2 = svgXmlns.getBoundingClientRect();
 
-    let list = [rects[0], rects[1], rects[2], rects[6], rects[7], rects[8], rects[9], rects[10]];
-    for (let i = 0; i < list.length; i++) {
+    const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+    const ratio = size.x / rect2.width;
+
+    let rects = svgGRp.querySelectorAll('rect');
+    if (!table1 || (table1 && table1.length === 0)) {
+      table1.push({ id: 0, txt: '' });
+      table1.push({ id: 1, txt: '' });
+      table1.push({ id: 2, txt: '' });
+      table1.push({ id: 6, txt: '' });
+      table1.push({ id: 7, txt: '' });
+      table1.push({ id: 8, txt: '' });
+      table1.push({ id: 9, txt: '' });
+      table1.push({ id: 10, txt: '' });
+    }
+
+    for (let i = 0; i < table1.length; i++) {
       const fontSize = i > 2 && i < 6 ? '15px' : '20px';
-      this.createTxtInput({ svgRect: list[i], value: i + 1, fontSize });
+      const id = table1[i].id;
+      const txt = table1[i].txt;
+      this.createTxtInput({ svgRect: rects[id], txt, fontSize, rect1, rect2, ratio, tableId: 1, id });
     }
 
     rects = svgGLp.querySelectorAll('rect');
+    if (!table2 || (table2 && table2.length === 0)) {
+      table2.push({ id: 36, txt: '' });
+      table2.push({ id: 40, txt: '' });
+    }
 
-    this.createTxtInput({ svgRect: rects[36], value: 111 });
-    this.createTxtInput({ svgRect: rects[40], value: 222 });
+    for (let i = 0; i < table2.length; i++) {
+      const id = table2[i].id;
+      const txt = table2[i].txt;
+      this.createTxtInput({ svgRect: rects[id], txt, fontSize: '13px', rect1, rect2, ratio, tableId: 2, id });
+    }
   }
 
-  createTxtInput({ svgRect, value, fontSize = '10px' }) {
+  createTxtInput({ svgRect, txt, fontSize = '10px', rect1, rect2, ratio, tableId, id }) {
     if (!svgRect) return;
 
     const rectC = svgRect.getBoundingClientRect();
-    const rect1 = this.elemSheet.getBoundingClientRect();
-    const rect2 = this.containerSvg.getBoundingClientRect();
 
     const divSheet = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'sheetText' });
 
     const elem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    elem.setAttribute('x', '' + (rectC.x + rectC.width / 2 + (rect1.x - rect2.x) - rect2.x));
-    elem.setAttribute('y', '' + (rectC.y + rectC.height / 2 + (rect1.y - rect2.y) - rect2.y));
+    elem.setAttribute('x', '' + (rectC.x + rectC.width / 2 + (rect2.x - rect1.x) - rect2.x) * ratio);
+    elem.setAttribute('y', '' + (rectC.y + rectC.height / 2 + (rect2.y - rect1.y) - rect2.y) * ratio);
     elem.setAttribute('dominant-baseline', 'middle');
     elem.setAttribute('text-anchor', 'middle');
     elem.setAttribute('font-size', fontSize);
     elem.setAttribute('font-family', 'Gostcadkk');
     elem.setAttribute('color', '#000000');
-    elem.textContent = value;
+    elem.textContent = txt;
     divSheet.append(elem);
 
     const newRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    newRect.setAttribute('x', '' + (rectC.x + (rect1.x - rect2.x) - rect2.x));
-    newRect.setAttribute('y', '' + (rectC.y + (rect1.y - rect2.y) - rect2.y));
-    newRect.setAttribute('width', rectC.width);
-    newRect.setAttribute('height', rectC.height);
+    newRect.setAttribute('x', '' + (rectC.x + (rect2.x - rect1.x) - rect2.x) * ratio);
+    newRect.setAttribute('y', '' + (rectC.y + (rect2.y - rect1.y) - rect2.y) * ratio);
+    newRect.setAttribute('width', '' + rectC.width * ratio);
+    newRect.setAttribute('height', '' + rectC.height * ratio);
     newRect.setAttribute('fill', '#5cceee');
     newRect.setAttribute('fill-opacity', '0.5');
     newRect.style.cursor = 'pointer';
     divSheet.append(newRect);
 
-    this.elInputs.push({ svgRect: newRect, svgText: elem });
+    this.elInputs.push({ svgRect: newRect, svgText: elem, tableId, id });
 
     this.initEventTxtInput({ svgRect: newRect, svgText: elem });
   }
@@ -212,6 +228,17 @@ export class IsometricSheets {
       };
       request.send();
     });
+  }
+
+  getTxtFromTables() {
+    const txt = { table1: [], table2: [] };
+
+    for (let i = 0; i < this.elInputs.length; i++) {
+      const { tableId, id, svgText } = this.elInputs[i];
+      txt['table' + tableId].push({ id, txt: svgText.textContent });
+    }
+
+    return txt;
   }
 
   delete() {

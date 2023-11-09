@@ -56,6 +56,35 @@ export class IsometricNoteText {
     };
   }
 
+  addText2({ cssText, textContent }) {
+    const div = document.createElement('div');
+    div.innerHTML = `
+    <div>
+      <div nameId="content" style="position: absolute; top: 10px; left: 10px; right: 10px; bottom: 10px; padding: 3px; overflow: hidden;">555</div>
+    </div>`;
+
+    const elem = div.children[0];
+    elem.style.cssText = cssText;
+    elem.children[0].textContent = textContent;
+
+    const containerTexts = this.containerSvg.querySelector('[nameId="notesText"]');
+    containerTexts.append(elem);
+
+    this.arrText.push(elem);
+
+    if (!this.containerPointsSvg) this.containerPointsSvg = this.createContainerPointsSvg({ container: containerTexts });
+
+    elem.children[0]['oninput'] = () => {
+      this.setPosArrSvgCircle();
+    };
+
+    elem.children[0]['onmousedown'] = (e) => {
+      //e.stopPropagation();
+      elem.children[0].setAttribute('spellcheck', 'false');
+      elem.children[0].setAttribute('contenteditable', 'true');
+    };
+  }
+
   createContainerPointsSvg({ container }) {
     const div = document.createElement('div');
     div.style.cssText = 'position: absolute; width: 1px; z-index: 6;';
@@ -330,6 +359,11 @@ export class IsometricNoteText {
   deleteNote() {
     const div = this.getSelectedDiv();
     if (!div) return;
+
+    const index = this.arrText.indexOf(div);
+    if (index > -1) {
+      this.arrText.splice(index, 1);
+    }
 
     div.remove();
 

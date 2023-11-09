@@ -168,7 +168,7 @@ export class PanelUI {
     ind++;
 
     this.btns$[ind].onchange = (e) => {
-      isometricSheets.showHideSheet(e.target.value);
+      isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
     };
     ind++;
   }
