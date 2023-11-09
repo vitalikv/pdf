@@ -85,6 +85,7 @@ export class IsometricSvgManager {
     <g nameid="objs"></g>
     <g nameid="rulers"></g>
     <g nameid="notes"></g>
+    <g nameid="sheetText"></g>
     </svg>`;
     div.innerHTML += `<div nameId="notesText" style="position: absolute; top: 0; left: 0;"></div>`;
     div.innerHTML += `<div nameId="stampsLogo" style="position: absolute; top: 0; left: 0;"></div>`;

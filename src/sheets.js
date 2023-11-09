@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricPdfToSvg } from './index';
+import { isometricPdfToSvg, isometricSvgElem } from './index';
 
 export class IsometricSheets {
   container;
@@ -8,6 +8,8 @@ export class IsometricSheets {
   elemSheet;
   arrSvgCircle = [];
   boxsInput = [];
+  actInput = null;
+  elInputs = [];
   formatSheet = '';
   isDown = false;
   offset = new THREE.Vector2();
@@ -77,7 +79,7 @@ export class IsometricSheets {
     g.append(svgLine);
     g.setAttribute('fill', 'none');
     this.elemSheet.prepend(g);
-    this.elemSheet.setAttribute('fill', 'none');
+    // this.elemSheet.setAttribute('fill', 'none');
 
     // const svgTxt1 = this.elemSheet.children[2];
     // const svgTxt2 = this.elemSheet.children[3];
@@ -96,6 +98,127 @@ export class IsometricSheets {
     // });
 
     // this.setPosSheet();
+
+    this.addBoxInput();
+  }
+
+  addBoxInput() {
+    const svgGRp = this.elemSheet.querySelector('[nameid="svgGRp"]');
+    const svgGLp = this.elemSheet.querySelector('[nameid="svgGLp"]');
+
+    if (!svgGRp) return;
+    if (!svgGLp) return;
+
+    let rects = svgGRp.querySelectorAll('rect');
+
+    let list = [rects[0], rects[1], rects[2], rects[6], rects[7], rects[8], rects[9], rects[10]];
+    for (let i = 0; i < list.length; i++) {
+      const fontSize = i > 2 && i < 6 ? '15px' : '20px';
+      this.createTxtInput({ svgRect: list[i], value: i + 1, fontSize });
+    }
+
+    rects = svgGLp.querySelectorAll('rect');
+
+    this.createTxtInput({ svgRect: rects[36], value: 111 });
+    this.createTxtInput({ svgRect: rects[40], value: 222 });
+  }
+
+  createTxtInput({ svgRect, value, fontSize = '10px' }) {
+    if (!svgRect) return;
+
+    const rectC = svgRect.getBoundingClientRect();
+    const rect1 = this.elemSheet.getBoundingClientRect();
+    const rect2 = this.containerSvg.getBoundingClientRect();
+
+    const divSheet = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'sheetText' });
+
+    const elem = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    elem.setAttribute('x', '' + (rectC.x + rectC.width / 2 + (rect1.x - rect2.x) - rect2.x));
+    elem.setAttribute('y', '' + (rectC.y + rectC.height / 2 + (rect1.y - rect2.y) - rect2.y));
+    elem.setAttribute('dominant-baseline', 'middle');
+    elem.setAttribute('text-anchor', 'middle');
+    elem.setAttribute('font-size', fontSize);
+    elem.setAttribute('font-family', 'Gostcadkk');
+    elem.setAttribute('color', '#000000');
+    elem.textContent = value;
+    divSheet.append(elem);
+
+    const newRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    newRect.setAttribute('x', '' + (rectC.x + (rect1.x - rect2.x) - rect2.x));
+    newRect.setAttribute('y', '' + (rectC.y + (rect1.y - rect2.y) - rect2.y));
+    newRect.setAttribute('width', rectC.width);
+    newRect.setAttribute('height', rectC.height);
+    newRect.setAttribute('fill', '#5cceee');
+    newRect.setAttribute('fill-opacity', '0.5');
+    newRect.style.cursor = 'pointer';
+    divSheet.append(newRect);
+
+    this.elInputs.push({ svgRect: newRect, svgText: elem });
+
+    this.initEventLabel({ svgRect: newRect, svgText: elem });
+  }
+
+  // событие по Rect (input)
+  initEventLabel({ svgRect, svgText }) {
+    svgRect.onpointerdown = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const elem2 = document.createElement('input');
+      const pos = isometricSvgElem.getPosText1(svgText);
+      const bound = this.containerSvg.getBoundingClientRect();
+      const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+      const ratio = size.x / bound.width;
+
+      elem2.style.position = 'absolute';
+      elem2.style.top = pos.y / ratio + 'px';
+      elem2.style.left = pos.x / ratio + 'px';
+      elem2.style.transform = 'translateX(-50%) translateY(-50%)';
+      elem2.style.zIndex = '4';
+
+      elem2.value = svgText.textContent;
+      elem2.style.background = 'rgb(255, 255, 255)';
+      elem2.style.border = '1px solid rgb(204, 204, 204)';
+      elem2.style.width = '100px';
+      elem2.style.textAlign = 'center';
+      elem2.style.fontSize = '20px';
+      elem2.style.fontFamily = 'Gostcadkk';
+      elem2.style.borderRadius = '4px';
+      elem2.style.padding = '10px';
+
+      this.containerSvg.append(elem2);
+
+      elem2.focus();
+
+      elem2.onkeydown = (e2) => {
+        if (e2.code === 'Enter') {
+          this.deleteInput();
+        }
+      };
+
+      elem2.onblur = (e2) => {
+        this.deleteInput();
+      };
+
+      this.actInput = { svgText, elem2 };
+
+      svgText.style.display = 'none';
+    };
+  }
+
+  deleteInput(target = null) {
+    if (!this.actInput) return;
+    const { svgText, elem2 } = this.actInput;
+
+    if (target === elem2) return;
+
+    const txt = elem2.value;
+    svgText.textContent = txt;
+    svgText.style.display = '';
+
+    elem2.onblur = null;
+    elem2.remove();
+    this.actInput = null;
   }
 
   setPosSheet() {
@@ -263,6 +386,13 @@ export class IsometricSheets {
     this.boxsInput = [];
     this.elemWrap.remove();
     this.elemWrap = null;
+
+    for (let i = 0; i < this.elInputs.length; i++) {
+      this.elInputs[i].svgRect.remove();
+      this.elInputs[i].svgText.remove();
+    }
+
+    this.elInputs = [];
   }
 
   // настройка листа(создание точек, боксов и с текстами)
