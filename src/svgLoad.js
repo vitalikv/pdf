@@ -240,7 +240,7 @@ export class IsometricSvgLoad {
   }
 
   setSheet(sheet) {
-    if (sheet.format) {
+    if (sheet.format !== undefined) {
       isometricSheets.showHideSheet(sheet.format);
     }
   }

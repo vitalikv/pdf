@@ -13,6 +13,8 @@ export class IsometricSheets {
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
+
+    this.showHideSheet('a3');
   }
 
   showHideSheet(formatSheet) {
