@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { mapControlInit } from './index';
+import { mapControlInit, isometricPdfToSvg } from './index';
 
 export class IsometricStampLogo {
   isDown = false;
@@ -31,9 +31,35 @@ export class IsometricStampLogo {
     </div>`;
     const elem = div.children[0];
     elem['style'].cursor = 'pointer';
+    elem['userData'] = { url, cssTop: 0, cssLeft: 0, cssWidth: 0, cssHeight: 0 };
 
     const containerStamps = this.containerSvg.querySelector('[nameId="stampsLogo"]');
     containerStamps.append(elem);
+
+    this.setUserDataPos(elem);
+
+    this.arrStamp.push(elem);
+
+    if (!this.containerPointsSvg) this.containerPointsSvg = this.createContainerPointsSvg({ container: containerStamps });
+  }
+
+  async addStamp2({ cssText, url }) {
+    const data = await this.xhrImg_1(url);
+
+    const div = document.createElement('div');
+    div.innerHTML = `
+    <div style="position: absolute; width: 420px; height: 200px; top: 0; left: 0; z-index: 5;">
+      <img src="${data}" style="width: 100%; height: 100%; object-fit: contain;">
+    </div>`;
+    const elem = div.children[0];
+    elem['style'].cssText = cssText;
+    elem['style'].cursor = 'pointer';
+    elem['userData'] = { url, cssTop: 0, cssLeft: 0, cssWidth: 0, cssHeight: 0 };
+
+    const containerStamps = this.containerSvg.querySelector('[nameId="stampsLogo"]');
+    containerStamps.append(elem);
+
+    this.setUserDataPos(elem);
 
     this.arrStamp.push(elem);
 
@@ -138,6 +164,7 @@ export class IsometricStampLogo {
   }
 
   onmousedown = (event) => {
+    if (event.button !== 0) return;
     if (!this.containerPointsSvg) return;
     event.preventDefault();
     event.stopPropagation();
@@ -206,6 +233,8 @@ export class IsometricStampLogo {
     elem.style.left = elem.offsetLeft + (event.clientX - this.offset.x) + 'px';
 
     this.setPosArrSvgCircle();
+
+    this.setUserDataPos(elem);
   }
 
   // перемещение svg точки, изменяем размер штампа
@@ -255,6 +284,8 @@ export class IsometricStampLogo {
 
     divStamp.style.width = bound2.left - bound0.left + 'px';
     divStamp.style.height = bound1.top - bound0.top + 'px';
+
+    this.setUserDataPos(divStamp);
   }
 
   activateStamp() {
@@ -308,9 +339,32 @@ export class IsometricStampLogo {
     });
   }
 
+  setUserDataPos(divStamp) {
+    divStamp['userData'].cssTop = divStamp.offsetTop / isometricPdfToSvg.scalePdf;
+    divStamp['userData'].cssLeft = divStamp.offsetLeft / isometricPdfToSvg.scalePdf;
+    divStamp['userData'].cssWidth = divStamp.clientWidth / isometricPdfToSvg.scalePdf;
+    divStamp['userData'].cssHeight = divStamp.clientHeight / isometricPdfToSvg.scalePdf;
+  }
+
+  setScale(scale) {
+    this.arrStamp.forEach((div) => {
+      div.style.top = div['userData'].cssTop * scale + 'px';
+      div.style.left = div['userData'].cssLeft * scale + 'px';
+      div.style.width = div['userData'].cssWidth * scale + 'px';
+      div.style.height = div['userData'].cssHeight * scale + 'px';
+    });
+
+    this.setPosArrSvgCircle();
+  }
+
   deleteDiv() {
     const div = this.getSelectedDiv();
     if (!div) return;
+
+    const index = this.arrStamp.indexOf(div);
+    if (index > -1) {
+      this.arrStamp.splice(index, 1);
+    }
 
     div.remove();
     this.clearSelectedObj();

@@ -9,7 +9,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 // npm install pdfjs-dist @types/pdfjs-dist  установка @types
 // https://github.com/mozilla/pdf.js/tree/master/examples/webpack  установка pdf.js для webpack (import * as pdfjsLib from 'pdfjs-dist/webpack';)
 
-import { isometricSvgElem, isometricSheets, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSvgElem, isometricSheets, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricStampLogo } from './index';
 
 // конвертация pdf в svg и добавление на страницу
 export class IsometricPdfToSvg {
@@ -266,17 +266,11 @@ export class IsometricPdfToSvg {
     if (!this.canvasPdf) return;
     value = Number(value) / 100;
 
-    const ratio = value / this.scalePdf;
-    const bound = this.canvasPdf.getBoundingClientRect();
-
     this.scalePdf = value;
 
     this.updateCanvasPdf();
 
-    // isometricSvgLine.scale(this.canvasPdf, ratio, bound);
-    // isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
-    // isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
-    // isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
+    isometricStampLogo.setScale(this.scalePdf);
 
     isometricSheets.setStyle(this.canvasPdf.style.cssText);
   }
