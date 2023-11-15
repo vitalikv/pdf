@@ -23,6 +23,7 @@ export class IsometricSheets {
       table1 = txt.table1;
       table2 = txt.table2;
     }
+
     this.delete();
     this.createSvgSheet(formatSheet, table1, table2);
   }
@@ -41,13 +42,13 @@ export class IsometricSheets {
       //url = 'assets/gis/isometry/A1.svg';
       url = 'img/sheets/A1.svg';
     }
-
+    console.log(table1, url);
     if (url === '') return;
 
-    this.formatSheet = formatSheet;
-
     const data = await this.xhrImg_1(url);
+
     this.delete();
+    this.formatSheet = formatSheet;
 
     const div = document.createElement('div');
     div.style.userSelect = 'none';

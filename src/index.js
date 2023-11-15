@@ -160,6 +160,7 @@ function initServ() {
   isometricMath = new IsometricMath();
 
   isometricSvgManager.init();
+  isometricSvgLoad.load();
 }
 
 function render() {
