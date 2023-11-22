@@ -158,6 +158,15 @@ export class Isometric3dto2d {
         this.arr.line.push(line);
       }
 
+      // let circle = {};
+      // let p1 = points[0];
+      // circle['point'] = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
+      // this.arr.circle.push(circle);
+      // circle = {};
+      // p1 = points[points.length - 1];
+      // circle['point'] = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
+      // this.arr.circle.push(circle);
+
       for (let i2 = 0; i2 < points.length; i2++) {
         let circle = {};
         const p1 = points[i2];

@@ -54,7 +54,7 @@ export let isometricModeService,
 
 init();
 initServ();
-initModel();
+//initModel();
 render();
 
 function init() {
@@ -168,7 +168,7 @@ function initServ() {
   //isometricSvgLoad.load();
 }
 
-async function initModel() {
+export async function initModel() {
   const loaderModel = new LoaderModel({ scene });
   const meshes = await loaderModel.loaderObj('0019.005-TH_02.osf');
   listMeshes = meshes;

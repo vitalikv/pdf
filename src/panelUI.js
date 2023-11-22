@@ -14,6 +14,7 @@ import {
   isometricStampLogo,
   isometricSvgSave,
   isometricSvgLoad,
+  initModel,
 } from './index';
 
 export class PanelUI {
@@ -44,6 +45,7 @@ export class PanelUI {
     this.btns$[15] = this.crBtn({ txt: 'Сохранить' });
     this.btns$[16] = this.crBtn({ txt: 'Загрузить' });
     this.btns$[17] = this.crListSheets();
+    this.btns$[18] = this.crBtn({ txt: 'из 3D в 2D' });
 
     this.initEvent();
   }
@@ -169,6 +171,11 @@ export class PanelUI {
 
     this.btns$[ind].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
+    };
+    ind++;
+
+    this.btns$[ind].onmousedown = (e) => {
+      initModel();
     };
     ind++;
   }
