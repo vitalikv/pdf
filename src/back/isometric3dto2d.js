@@ -1,8 +1,18 @@
 import * as THREE from 'three';
 
+import { isometricSvgElem } from '../index';
+
 export class Isometric3dto2d {
   modelsContainerInit = { control: null };
   mapControlInit = { control: null };
+  offsetSvg = new THREE.Vector2();
+
+  constructor() {
+    const container = document.querySelector('[nameId="svgTools"]');
+    const svgXmlns = isometricSvgElem.getSvgXmlns({ container });
+    const bound = svgXmlns.getBoundingClientRect();
+    this.offsetSvg = new THREE.Vector2(-bound.x, -bound.y);
+  }
 
   init({ scene, mapControlInit, data }) {
     this.modelsContainerInit.control = scene;
@@ -33,10 +43,19 @@ export class Isometric3dto2d {
       side: THREE.DoubleSide,
     });
 
+    const material2 = new THREE.MeshBasicMaterial({
+      color: 0x0000ff,
+      depthTest: false,
+      transparent: true,
+      opacity: 1,
+      side: THREE.DoubleSide,
+    });
+
     for (let i = 0; i < joints.length; i++) {
       const item = joints[i];
 
-      const object = new THREE.Mesh(newGeometry, material);
+      const m = item.ifc_joint_id.length === 1 ? material2 : material;
+      const object = new THREE.Mesh(newGeometry, m);
       const pos = item.pos;
       const rot = item.rot;
       const scale = item.scale;
@@ -136,7 +155,7 @@ export class Isometric3dto2d {
     this.mapControlInit.control.update();
 
     // визуализация boundBox изометрии
-    const helpVisual = true;
+    const helpVisual = false;
     if (helpVisual) {
       const shape = new THREE.Shape(points);
       const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
@@ -158,6 +177,8 @@ export class Isometric3dto2d {
     const arrData = { line: [], circle: [] };
 
     this.modelsContainerInit.control.updateWorldMatrix(true, false);
+
+    const bdPoints = [];
 
     for (let i = 0; i < lines.length; i++) {
       const points = lines[i];
@@ -184,6 +205,12 @@ export class Isometric3dto2d {
 
       for (let i2 = 0; i2 < points.length; i2++) {
         const p1 = points[i2];
+
+        const ind = bdPoints.findIndex((p) => p === p1);
+        if (ind > -1) continue;
+
+        bdPoints.push(p1);
+
         const pos = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
 
         arrData.circle.push(pos);
@@ -222,9 +249,9 @@ export class Isometric3dto2d {
     const pos2 = this.getPosition2D({ camera, canvas: domElement, pos: points[1] });
 
     const bound = domElement.getBoundingClientRect();
-    const offset = new THREE.Vector2(bound.x, bound.y);
-    pos1.add(offset);
-    pos2.add(offset);
+    const offset = new THREE.Vector2(-bound.x, -bound.y);
+    pos1.add(this.offsetSvg);
+    pos2.add(this.offsetSvg);
 
     return { pos: [pos1, pos2] };
   }
@@ -234,7 +261,7 @@ export class Isometric3dto2d {
 
     const bound = domElement.getBoundingClientRect();
     const offset = new THREE.Vector2(-bound.x, -bound.y);
-    pos.add(offset);
+    pos.add(this.offsetSvg);
 
     return { pos };
   }

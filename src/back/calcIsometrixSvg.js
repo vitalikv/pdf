@@ -28,6 +28,15 @@ export class CalcIsometrixSvg {
     const calcJointsForType = new CalcJointsForType();
     const joints = calcJointsForType.getJoints(meshes);
 
+    console.log(joints.length);
+
+    const jointsPos = new Map();
+    joints.forEach((item) => {
+      // const key = item.pos.x + '' + item.pos.y + '' + item.pos.z;
+      // jointsPos.set(key, value);
+      //console.log(item.ifc_joint_id);
+    });
+
     const calcTypeObj = new CalcTypeObj();
     const objs = calcTypeObj.calcTypes({ meshObjs: meshes, joints });
 

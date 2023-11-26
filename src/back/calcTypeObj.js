@@ -31,8 +31,12 @@ export class CalcTypeObj {
 
     let type = '';
 
+    if (arrJ.length === 0) {
+      this.detectObj({ obj, joints });
+    }
+
     // труба
-    if (arrJ.length === 2) {
+    else if (arrJ.length === 2) {
       const dirA = arrJ[0].dir;
       const dirB = arrJ[1].dir;
       const dot = Math.abs(dirA.dot(dirB));
@@ -83,6 +87,13 @@ export class CalcTypeObj {
     return { type, joints: arrJ.map((item) => item.pos) };
   }
 
+  // находим точку пересечения двух линий в 3D
+  // решение по ссылке
+  // https://discourse.threejs.org/t/find-intersection-between-two-line3/7119
+  // https://discourse.threejs.org/t/solved-how-to-find-intersection-between-two-rays/6464/8
+  // метод находит точку пересечения, даже если линии не пересеклись
+  // но есть проверка на пересечение (если dpnqnDet === 0, то линии пересекаются)
+  // по ссылке есть еще один метод, но я выбрал этот
   closestPointsDet(p1, dir1, p2, dir2) {
     const qp = new THREE.Vector3().subVectors(p1, p2);
 
@@ -105,5 +116,114 @@ export class CalcTypeObj {
     const cross = Number(dpnqnDet.toFixed(10)) < 0.0001 ? true : false;
 
     return { cross, pos: qnDet };
+  }
+
+  // определяем что за неопознанный объект
+  detectObj({ obj, joints }) {
+    //if (obj.userData.geoGuids[0] !== '1979413432464') return;
+
+    obj.material.color = obj.material.color.clone();
+    obj.material.color.set(0xff0000);
+
+    // if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+    // const pos = obj.localToWorld(obj.geometry.boundingSphere.center.clone());
+
+    const result = this.getBox({ obj });
+    const cube = result.box;
+    obj.parent.parent.add(cube);
+
+    for (let i = 0; i < joints.length; i++) {
+      if (joints[i].ifc_joint_id.length !== 1) continue;
+      const dir = joints[i].dir.clone();
+      //dir.negate();
+      const pos = joints[i].pos;
+
+      const dot = dir.dot(new THREE.Vector3().subVectors(pos, cube.position).normalize());
+      if (dot < 0) dir.negate();
+
+      let dist = dir.dot(new THREE.Vector3().subVectors(pos, cube.position)) - result.size.z / 2;
+
+      if (dist > 0.1) continue;
+      console.log(dist, dot);
+      // const dist = obj.position.distanceTo(pos);
+      this.helperArrow({ dir, pos, scene: obj.parent.parent });
+    }
+
+    // const ray = new THREE.Raycaster();
+    // ray.set( pos, new THREE.Vector3(0, -1, 0) );
+    // const intersects = ray.intersectObjects( room, true );
+  }
+
+  // получаем габариты объекта и строим box-форму
+  getBox({ obj }) {
+    const v = [];
+
+    obj.updateMatrixWorld();
+    if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+
+    let bound = obj.geometry.boundingBox;
+
+    v[v.length] = new THREE.Vector3(bound.min.x, bound.min.y, bound.max.z).applyMatrix4(obj.matrixWorld);
+    v[v.length] = new THREE.Vector3(bound.max.x, bound.min.y, bound.max.z).applyMatrix4(obj.matrixWorld);
+    v[v.length] = new THREE.Vector3(bound.min.x, bound.min.y, bound.min.z).applyMatrix4(obj.matrixWorld);
+    v[v.length] = new THREE.Vector3(bound.max.x, bound.min.y, bound.min.z).applyMatrix4(obj.matrixWorld);
+
+    v[v.length] = new THREE.Vector3(bound.min.x, bound.max.y, bound.max.z).applyMatrix4(obj.matrixWorld);
+    v[v.length] = new THREE.Vector3(bound.max.x, bound.max.y, bound.max.z).applyMatrix4(obj.matrixWorld);
+    v[v.length] = new THREE.Vector3(bound.min.x, bound.max.y, bound.min.z).applyMatrix4(obj.matrixWorld);
+    v[v.length] = new THREE.Vector3(bound.max.x, bound.max.y, bound.min.z).applyMatrix4(obj.matrixWorld);
+
+    bound = { min: { x: Infinity, y: Infinity, z: Infinity }, max: { x: -Infinity, y: -Infinity, z: -Infinity } };
+
+    for (let i = 0; i < v.length; i++) {
+      if (v[i].x < bound.min.x) {
+        bound.min.x = v[i].x;
+      }
+      if (v[i].x > bound.max.x) {
+        bound.max.x = v[i].x;
+      }
+      if (v[i].y < bound.min.y) {
+        bound.min.y = v[i].y;
+      }
+      if (v[i].y > bound.max.y) {
+        bound.max.y = v[i].y;
+      }
+      if (v[i].z < bound.min.z) {
+        bound.min.z = v[i].z;
+      }
+      if (v[i].z > bound.max.z) {
+        bound.max.z = v[i].z;
+      }
+    }
+
+    const x = bound.max.x - bound.min.x;
+    const y = bound.max.y - bound.min.y;
+    const z = bound.max.z - bound.min.z;
+
+    const geometry = new THREE.BoxGeometry(x, y, z);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
+    const box = new THREE.Mesh(geometry, material);
+
+    const center = new THREE.Vector3(
+      (bound.max.x - bound.min.x) / 2 + bound.min.x,
+      (bound.max.y - bound.min.y) / 2 + bound.min.y,
+      (bound.max.z - bound.min.z) / 2 + bound.min.z
+    );
+
+    box.position.copy(center);
+    box.updateMatrixWorld();
+    // box.geometry.computeBoundingBox();
+    // box.geometry.computeBoundingSphere();
+
+    return { box, size: { x, y, z } };
+  }
+
+  helperArrow({ dir, pos, length = 1, color = 0xff0000, scene }) {
+    const pos1 = pos.clone();
+
+    pos1.add(new THREE.Vector3().addScaledVector(dir, 0.3));
+    pos1.add(new THREE.Vector3(0, 1, 0));
+    const helper = new THREE.ArrowHelper(dir, pos1, length, color);
+    scene.add(helper);
   }
 }
