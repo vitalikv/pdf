@@ -10,9 +10,9 @@ export class CalcTypeObj {
       const result = this.getTypeObj({ obj: meshObjs[i], joints });
 
       if (result.type === 'line') arr.push(result);
-      if (result.type === 'curved') {
-        arr.push(result);
-      }
+      if (result.type === 'curved') arr.push(result);
+      if (result.type === 'undefined') arr.push(result);
+      console.log(result);
     }
 
     return arr;
@@ -32,7 +32,14 @@ export class CalcTypeObj {
     let type = '';
 
     if (arrJ.length === 0) {
-      this.detectObj({ obj, joints });
+      const result = this.detectObj({ obj, joints });
+
+      if (result.length > 0) {
+        arrJ.push(...result);
+
+        console.log(666, result);
+        type = 'undefined';
+      }
     }
 
     // труба
@@ -120,7 +127,8 @@ export class CalcTypeObj {
 
   // определяем что за неопознанный объект
   detectObj({ obj, joints }) {
-    //if (obj.userData.geoGuids[0] !== '1979413432464') return;
+    let arrJ = [];
+    //if (obj.userData.geoGuids[0] !== '1979413447952') return arrJ; //1979413432464
 
     obj.material.color = obj.material.color.clone();
     obj.material.color.set(0xff0000);
@@ -143,15 +151,22 @@ export class CalcTypeObj {
 
       let dist = dir.dot(new THREE.Vector3().subVectors(pos, cube.position)) - result.size.z / 2;
 
-      if (dist > 0.1) continue;
-      console.log(dist, dot);
-      // const dist = obj.position.distanceTo(pos);
-      this.helperArrow({ dir, pos, scene: obj.parent.parent });
+      // Math.abs(dist) тут нужно думать, все паралелльные объекты могут сработать
+      if (Math.abs(dist) < 0.01) {
+        // const dist = obj.position.distanceTo(pos);
+        this.helperArrow({ dir, pos, scene: obj.parent.parent });
+
+        arrJ.push(joints[i]);
+
+        console.log(arrJ.length, dist, dot, joints[i].ifc_joint_id, arrJ);
+      }
     }
 
     // const ray = new THREE.Raycaster();
     // ray.set( pos, new THREE.Vector3(0, -1, 0) );
     // const intersects = ray.intersectObjects( room, true );
+
+    return arrJ;
   }
 
   // получаем габариты объекта и строим box-форму
