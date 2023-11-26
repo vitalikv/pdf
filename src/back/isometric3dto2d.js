@@ -3,7 +3,6 @@ import * as THREE from 'three';
 export class Isometric3dto2d {
   modelsContainerInit = { control: null };
   mapControlInit = { control: null };
-  arr = { line: [], circle: [] };
 
   init({ scene, mapControlInit, data }) {
     this.modelsContainerInit.control = scene;
@@ -135,11 +134,28 @@ export class Isometric3dto2d {
     if (camera instanceof THREE.OrthographicCamera) camera.updateProjectionMatrix();
 
     this.mapControlInit.control.update();
+
+    // визуализация boundBox изометрии
+    const helpVisual = true;
+    if (helpVisual) {
+      const shape = new THREE.Shape(points);
+      const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+      const geometry = new THREE.ExtrudeGeometry(shape, { bevelEnabled: false, depth: -(bound.max.y - bound.min.y) });
+      geometry.rotateX(Math.PI / 2);
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.y = bound.min.y;
+      this.modelsContainerInit.control.add(cube);
+
+      const geometry2 = new THREE.BoxGeometry(1, 1, 1);
+      const material2 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+      const cube2 = new THREE.Mesh(geometry2, material2);
+      cube2.position.copy(center);
+      this.modelsContainerInit.control.add(cube2);
+    }
   }
 
   createSvgScheme({ lines }) {
-    this.arr.line = [];
-    this.arr.circle = [];
+    const arrData = { line: [], circle: [] };
 
     this.modelsContainerInit.control.updateWorldMatrix(true, false);
 
@@ -148,14 +164,13 @@ export class Isometric3dto2d {
       for (let i2 = 0; i2 < points.length - 1; i2++) {
         const p1 = points[i2];
         const p2 = points[i2 + 1];
-        const line = {};
 
-        line['points'] = [
+        const pos = [
           new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
           new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
         ];
 
-        this.arr.line.push(line);
+        arrData.line.push(pos);
       }
 
       // let circle = {};
@@ -168,58 +183,60 @@ export class Isometric3dto2d {
       // this.arr.circle.push(circle);
 
       for (let i2 = 0; i2 < points.length; i2++) {
-        let circle = {};
         const p1 = points[i2];
-        circle['point'] = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
+        const pos = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
 
-        this.arr.circle.push(circle);
+        arrData.circle.push(pos);
       }
     }
 
-    const data = this.updateSvg(this.mapControlInit.control.object, this.mapControlInit.control.domElement);
+    const camera = this.mapControlInit.control.object;
+    const domElement = this.mapControlInit.control.domElement;
+
+    const data = this.updateSvg({ camera, domElement, arrData });
 
     return data;
   }
 
-  updateSvg(camera, canvas) {
+  updateSvg({ camera, domElement, arrData }) {
     camera.updateMatrixWorld();
     camera.updateProjectionMatrix();
 
     const lines = [];
     const points = [];
 
-    for (let i = 0; i < this.arr.line.length; i++) {
-      const data = this.updateSvgLine(camera, canvas, this.arr.line[i]);
+    for (let i = 0; i < arrData.line.length; i++) {
+      const data = this.updateSvgLine(camera, domElement, arrData.line[i]);
       lines.push(data);
     }
-    for (let i = 0; i < this.arr.circle.length; i++) {
-      const data = this.updateSvgCircle(camera, canvas, this.arr.circle[i]);
+    for (let i = 0; i < arrData.circle.length; i++) {
+      const data = this.updateSvgCircle(camera, domElement, arrData.circle[i]);
       points.push(data);
     }
 
     return { lines, points };
   }
 
-  updateSvgLine(camera, canvas, line) {
-    const points = line.points;
+  updateSvgLine(camera, domElement, points) {
+    const pos1 = this.getPosition2D({ camera, canvas: domElement, pos: points[0] });
+    const pos2 = this.getPosition2D({ camera, canvas: domElement, pos: points[1] });
 
-    const pos1 = this.getPosition2D({ camera, canvas, pos: points[0] });
-    const pos2 = this.getPosition2D({ camera, canvas, pos: points[1] });
+    const bound = domElement.getBoundingClientRect();
+    const offset = new THREE.Vector2(bound.x, bound.y);
+    pos1.add(offset);
+    pos2.add(offset);
 
-    return {
-      pos: [
-        { x: pos1.x, y: pos1.y },
-        { x: pos2.x, y: pos2.y },
-      ],
-    };
+    return { pos: [pos1, pos2] };
   }
 
-  updateSvgCircle(camera, canvas, circle) {
-    const point = circle.point;
+  updateSvgCircle(camera, domElement, point) {
+    const pos = this.getPosition2D({ camera, canvas: domElement, pos: point });
 
-    const pos = this.getPosition2D({ camera, canvas, pos: point });
+    const bound = domElement.getBoundingClientRect();
+    const offset = new THREE.Vector2(-bound.x, -bound.y);
+    pos.add(offset);
 
-    return { pos: { x: pos.x, y: pos.y } };
+    return { pos };
   }
 
   getPosition2D({ camera, canvas, pos }) {
@@ -228,6 +245,6 @@ export class Isometric3dto2d {
     const x = (tempV.x * 0.5 + 0.5) * canvas.clientWidth;
     const y = (tempV.y * -0.5 + 0.5) * canvas.clientHeight;
 
-    return { x, y };
+    return new THREE.Vector2(x, y);
   }
 }

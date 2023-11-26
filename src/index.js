@@ -54,7 +54,7 @@ export let isometricModeService,
 
 init();
 initServ();
-//initModel();
+initModel();
 render();
 
 function init() {
@@ -124,9 +124,6 @@ function init() {
 
   controls = new OrbitControls(camera, container);
   mapControlInit = { control: controls };
-
-  const box = new THREE.Mesh(new THREE.BoxGeometry(2, 2, 2), new THREE.MeshStandardMaterial({ color: 0x0000ff }));
-  scene.add(box);
 
   window.addEventListener(
     'resize',
