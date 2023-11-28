@@ -206,7 +206,7 @@ export class Isometric3dto2d {
       for (let i2 = 0; i2 < points.length; i2++) {
         const p1 = points[i2];
 
-        const ind = bdPoints.findIndex((p) => p === p1);
+        const ind = bdPoints.findIndex((p) => p.x === p1.x && p.y === p1.y && p.z === p1.z);
         if (ind > -1) continue;
 
         bdPoints.push(p1);

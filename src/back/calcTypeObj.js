@@ -125,13 +125,8 @@ export class CalcTypeObj {
   // определяем что за неопознанный объект
   detectObj({ obj, joints }) {
     let arrJ = [];
-    //if (obj.userData.geoGuids[0] !== '1979311848704') return arrJ; //1979413432464
 
-    obj.material.color = obj.material.color.clone();
-    obj.material.color.set(0xff0000);
-
-    const { box } = this.getBox({ obj });
-    const arrP = this.getBox2({ obj });
+    const arrP = this.getBox({ obj });
 
     const listJ = [];
 
@@ -145,12 +140,8 @@ export class CalcTypeObj {
         const newDist = arrP[i2].distanceTo(pos);
         if (dist > newDist) dist = newDist;
       }
-      const dir = joints[i].dir.clone();
 
-      const dot = dir.dot(new THREE.Vector3().subVectors(pos, box.position).normalize());
-      if (dot < 0) dir.negate();
-
-      listJ.push({ dist: Math.abs(dist), dir, dot, joint: joints[i] });
+      listJ.push({ dist: Math.abs(dist), joint: joints[i] });
     }
 
     if (listJ.length > 1) {
@@ -158,92 +149,17 @@ export class CalcTypeObj {
 
       if (listJ[1].dist - listJ[0].dist < 0.1) {
         arrJ = [listJ[0].joint, listJ[1].joint];
-
-        for (let i = 0; i < 2; i++) {
-          this.helperArrow({ dir: listJ[i].dir, pos: listJ[i].joint.pos, scene: obj.parent.parent });
-          console.log(listJ[i].dist, listJ[i].dot, listJ[i].joint.ifc_joint_id);
-        }
       }
     }
-
-    // const ray = new THREE.Raycaster();
-    // ray.set( pos, new THREE.Vector3(0, -1, 0) );
-    // const intersects = ray.intersectObjects( room, true );
 
     return arrJ;
   }
 
-  // получаем габариты объекта и строим box-форму
   getBox({ obj }) {
     const v = [];
 
     obj.updateMatrixWorld();
-    if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
-
-    let bound = obj.geometry.boundingBox;
-
-    v[v.length] = new THREE.Vector3(bound.min.x, bound.min.y, bound.max.z).applyMatrix4(obj.matrixWorld);
-    v[v.length] = new THREE.Vector3(bound.max.x, bound.min.y, bound.max.z).applyMatrix4(obj.matrixWorld);
-    v[v.length] = new THREE.Vector3(bound.min.x, bound.min.y, bound.min.z).applyMatrix4(obj.matrixWorld);
-    v[v.length] = new THREE.Vector3(bound.max.x, bound.min.y, bound.min.z).applyMatrix4(obj.matrixWorld);
-
-    v[v.length] = new THREE.Vector3(bound.min.x, bound.max.y, bound.max.z).applyMatrix4(obj.matrixWorld);
-    v[v.length] = new THREE.Vector3(bound.max.x, bound.max.y, bound.max.z).applyMatrix4(obj.matrixWorld);
-    v[v.length] = new THREE.Vector3(bound.min.x, bound.max.y, bound.min.z).applyMatrix4(obj.matrixWorld);
-    v[v.length] = new THREE.Vector3(bound.max.x, bound.max.y, bound.min.z).applyMatrix4(obj.matrixWorld);
-
-    bound = { min: { x: Infinity, y: Infinity, z: Infinity }, max: { x: -Infinity, y: -Infinity, z: -Infinity } };
-
-    for (let i = 0; i < v.length; i++) {
-      if (v[i].x < bound.min.x) {
-        bound.min.x = v[i].x;
-      }
-      if (v[i].x > bound.max.x) {
-        bound.max.x = v[i].x;
-      }
-      if (v[i].y < bound.min.y) {
-        bound.min.y = v[i].y;
-      }
-      if (v[i].y > bound.max.y) {
-        bound.max.y = v[i].y;
-      }
-      if (v[i].z < bound.min.z) {
-        bound.min.z = v[i].z;
-      }
-      if (v[i].z > bound.max.z) {
-        bound.max.z = v[i].z;
-      }
-    }
-
-    const x = bound.max.x - bound.min.x;
-    const y = bound.max.y - bound.min.y;
-    const z = bound.max.z - bound.min.z;
-
-    const geometry = new THREE.BoxGeometry(x, y, z);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, transparent: true, opacity: 0.4 });
-    const box = new THREE.Mesh(geometry, material);
-
-    const center = new THREE.Vector3(
-      (bound.max.x - bound.min.x) / 2 + bound.min.x,
-      (bound.max.y - bound.min.y) / 2 + bound.min.y,
-      (bound.max.z - bound.min.z) / 2 + bound.min.z
-    );
-
-    box.position.copy(center);
-    box.updateMatrixWorld();
-    // box.geometry.computeBoundingBox();
-    // box.geometry.computeBoundingSphere();
-
-    obj.parent.parent.add(box);
-
-    return { box, size: { x, y, z } };
-  }
-
-  getBox2({ obj }) {
-    const v = [];
-
-    obj.updateMatrixWorld();
-    if (!obj.geometry.boundingBox) obj.geometry.computeBoundingBox();
+    obj.geometry.computeBoundingBox();
 
     let bound = obj.geometry.boundingBox;
 
@@ -287,17 +203,6 @@ export class CalcTypeObj {
     arrP.push(new THREE.Vector3((bound.max.x - bound.min.x) / 2 + bound.min.x, bound.max.y, (bound.max.z - bound.min.z) / 2 + bound.min.z));
     arrP.push(new THREE.Vector3((bound.max.x - bound.min.x) / 2 + bound.min.x, (bound.max.y - bound.min.y) / 2 + bound.min.y, bound.min.z));
     arrP.push(new THREE.Vector3((bound.max.x - bound.min.x) / 2 + bound.min.x, (bound.max.y - bound.min.y) / 2 + bound.min.y, bound.max.z));
-
-    for (let i = 0; i < arrP.length; i++) {
-      const center = arrP[i];
-
-      const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-      const material = new THREE.MeshStandardMaterial({ color: 0x0000ff, transparent: true, opacity: 1, depthTest: false });
-      const box = new THREE.Mesh(geometry, material);
-
-      obj.parent.parent.add(box);
-      box.position.copy(center);
-    }
 
     return arrP;
   }
