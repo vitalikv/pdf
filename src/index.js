@@ -103,7 +103,7 @@ function init() {
   const divisions = 30;
 
   const gridHelper = new THREE.GridHelper(size, divisions);
-  scene.add(gridHelper);
+  //scene.add(gridHelper);
 
   scene.add(light);
   scene.add(new THREE.HemisphereLight(0xffffff, 0x223344, 0.4));

@@ -5,13 +5,44 @@ export class CalcTypeObj {
     if (joints.length === 0) return;
 
     const arr = [];
+    const arrL = [];
+    const arrC = [];
 
     for (let i = 0; i < meshObjs.length; i++) {
       const result = this.getTypeObj({ obj: meshObjs[i], joints });
 
-      if (result.type === 'line') arr.push(result);
-      if (result.type === 'curved') arr.push(result);
+      if (result.type === 'line') arrL.push(result);
+      if (result.type === 'curved') arrC.push(result);
       if (result.type === 'undefined') arr.push(result);
+      if (result.type === 'tee') arr.push(result);
+    }
+
+    for (let i = 0; i < arrL.length; i++) {
+      const p1 = arrL[i].joints;
+
+      for (let i2 = 0; i2 < p1.length; i2++) {
+        for (let i3 = 0; i3 < arrC.length; i3++) {
+          const p2 = arrC[i3].joints;
+
+          const ind = [p2[0], p2[2]].findIndex((p) => p.x === p1[i2].x && p.y === p1[i2].y && p.z === p1[i2].z);
+          if (ind === -1) continue;
+          arrL[i].joints[i2] = p2[1];
+
+          const ind2 = ind === 0 ? 0 : 2;
+          arrC[i3].joints[ind2] = new THREE.Vector3(Infinity, Infinity, Infinity);
+        }
+      }
+    }
+
+    arr.push(...arrL);
+
+    // проверяем углы, если хоть одна линия угла не стыкуется с линией, то добавляем ее в общий массив как линия
+    for (let i = 0; i < arrC.length; i++) {
+      const p2 = arrC[i].joints;
+      if (p2[0].x === Infinity && p2[2].x === Infinity) continue;
+
+      if (p2[0].x !== Infinity) arr.push({ type: 'curved', joints: [p2[0], p2[1]] });
+      if (p2[2].x !== Infinity) arr.push({ type: 'curved', joints: [p2[2], p2[1]] });
     }
 
     return arr;
@@ -86,6 +117,20 @@ export class CalcTypeObj {
     // тройник
     else if (arrJ.length === 3) {
       type = 'tee';
+
+      const dirA = arrJ[0].dir;
+      const dirB = arrJ[1].dir;
+      const dot = Math.abs(dirA.dot(dirB));
+
+      let arrJ2 = [];
+
+      if (dot > 0.98) {
+        arrJ2 = [{ ...arrJ[0] }, { ...arrJ[1] }, { ...arrJ[2] }];
+      } else {
+        arrJ2 = [{ ...arrJ[0] }, { ...arrJ[2] }, { ...arrJ[1] }];
+      }
+
+      arrJ = arrJ2;
     }
 
     return { type, joints: arrJ.map((item) => item.pos) };

@@ -23,9 +23,7 @@ export class Isometric3dto2d {
     this.showJoints(data.joints);
     this.showLines(data.objs);
 
-    const result = this.createSvgScheme({
-      lines: data.objs.map((item) => item.joints),
-    });
+    const result = this.createSvgScheme({ data });
 
     return result;
   }
@@ -173,7 +171,23 @@ export class Isometric3dto2d {
     }
   }
 
-  createSvgScheme({ lines }) {
+  createSvgScheme({ data }) {
+    const lines = data.objs.map((item) => {
+      const points = [];
+      if (item.type === 'line' || item.type === 'curved' || item.type === 'undefined') {
+        points.push(...item.joints);
+      }
+      return points;
+    });
+
+    const objs = data.objs.map((item) => {
+      const points = [];
+      if (item.type === 'tee') {
+        points.push(...item.joints);
+      }
+      return points;
+    });
+
     const arrData = { line: [], circle: [] };
 
     this.modelsContainerInit.control.updateWorldMatrix(true, false);
@@ -182,6 +196,8 @@ export class Isometric3dto2d {
 
     for (let i = 0; i < lines.length; i++) {
       const points = lines[i];
+      if (points.length === 0) continue;
+
       for (let i2 = 0; i2 < points.length - 1; i2++) {
         const p1 = points[i2];
         const p2 = points[i2 + 1];
@@ -193,15 +209,6 @@ export class Isometric3dto2d {
 
         arrData.line.push(pos);
       }
-
-      // let circle = {};
-      // let p1 = points[0];
-      // circle['point'] = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
-      // this.arr.circle.push(circle);
-      // circle = {};
-      // p1 = points[points.length - 1];
-      // circle['point'] = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
-      // this.arr.circle.push(circle);
 
       for (let i2 = 0; i2 < points.length; i2++) {
         const p1 = points[i2];
@@ -217,12 +224,33 @@ export class Isometric3dto2d {
       }
     }
 
+    for (let i = 0; i < objs.length; i++) {
+      const points = objs[i];
+      if (points.length === 0) continue;
+
+      const p1 = points[0];
+      const p2 = points[1];
+      const p3 = points[2];
+
+      let pos = [
+        new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
+        new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
+      ];
+
+      arrData.line.push(pos);
+
+      const p4 = pos[1].clone().sub(pos[0]).divideScalar(2).add(pos[0]);
+      pos = [new THREE.Vector3(p3.x, p3.y, p3.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld), new THREE.Vector3(p4.x, p4.y, p4.z)];
+
+      arrData.line.push(pos);
+    }
+
     const camera = this.mapControlInit.control.object;
     const domElement = this.mapControlInit.control.domElement;
 
-    const data = this.updateSvg({ camera, domElement, arrData });
+    const svg = this.updateSvg({ camera, domElement, arrData });
 
-    return data;
+    return svg;
   }
 
   updateSvg({ camera, domElement, arrData }) {
