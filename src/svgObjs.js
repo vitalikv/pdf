@@ -84,6 +84,42 @@ export class IsometricSvgObjs {
     return { svg1, svg2, svg3 };
   }
 
+  createObjTee({ pos }) {
+    const svg1 = this.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
+    const svg2 = this.createSvgLine({ x1: pos[2].x, y1: pos[2].y, x2: pos[3].x, y2: pos[3].y });
+
+    this.groupObjs.append(svg1);
+    this.groupObjs.append(svg2);
+
+    svg1['userData'] = { objTee: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
+    svg2['userData'] = { objTee: true, tag: 'line2', lock: false, elems: [svg1, svg2] };
+
+    return { svg1, svg2 };
+  }
+
+  createObjUndefined({ pos }) {
+    const x = (pos[1].x - pos[0].x) / 2 + pos[0].x;
+    const y = (pos[1].y - pos[0].y) / 2 + pos[0].y;
+
+    const svg1 = this.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
+    const svg2 = isometricSvgElem.createPolygon({ x, y, points: '-10,-5 -10,5 10,5 10,-5', fill: 'rgb(255, 255, 255)' });
+
+    this.groupObjs.append(svg1);
+    this.groupObjs.append(svg2);
+
+    svg1['userData'] = { objUndefined: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
+    svg2['userData'] = { objUndefined: true, tag: 'line2', lock: false, elems: [svg1, svg2] };
+
+    const dir = pos[1].sub(pos[0]);
+    const rotY = Math.atan2(dir.x, dir.y);
+    const rotY1 = THREE.MathUtils.radToDeg(rotY - Math.PI / 2) * -1;
+    //const pos2 = isometricSvgElem.getPosCircle(elems.point);
+    isometricSvgElem.setRotPolygon1(svg2, rotY1);
+    //svg2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + x + ',' + y + ')');
+
+    return { svg1, svg2 };
+  }
+
   createSvgLine({ x1, y1, x2, y2, stroke = '#000000' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
 

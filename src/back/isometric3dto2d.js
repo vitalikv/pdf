@@ -174,13 +174,13 @@ export class Isometric3dto2d {
   createSvgScheme({ data }) {
     const lines = data.objs.map((item) => {
       const points = [];
-      if (item.type === 'line' || item.type === 'curved' || item.type === 'undefined') {
+      if (item.type === 'line' || item.type === 'curved') {
         points.push(...item.joints);
       }
       return points;
     });
 
-    const objs = data.objs.map((item) => {
+    const tees = data.objs.map((item) => {
       const points = [];
       if (item.type === 'tee') {
         points.push(...item.joints);
@@ -188,7 +188,17 @@ export class Isometric3dto2d {
       return points;
     });
 
-    const arrData = { line: [], circle: [] };
+    const undefinedes = data.objs.map((item) => {
+      const points = [];
+      if (item.type === 'undefined') {
+        points.push(...item.joints);
+      }
+      return points;
+    });
+
+    const objs = { tees, undefinedes };
+
+    const arrData = { line: [], circle: [], objs: [] };
 
     this.modelsContainerInit.control.updateWorldMatrix(true, false);
 
@@ -224,25 +234,39 @@ export class Isometric3dto2d {
       }
     }
 
-    for (let i = 0; i < objs.length; i++) {
-      const points = objs[i];
+    for (let i = 0; i < objs.undefinedes.length; i++) {
+      const points = objs.undefinedes[i];
+      if (points.length === 0) continue;
+
+      const p1 = points[0];
+      const p2 = points[1];
+
+      const pos = [
+        new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
+        new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
+      ];
+
+      arrData.objs.push({ tag: 'objUndefined', pos });
+    }
+
+    for (let i = 0; i < objs.tees.length; i++) {
+      const points = objs.tees[i];
       if (points.length === 0) continue;
 
       const p1 = points[0];
       const p2 = points[1];
       const p3 = points[2];
 
-      let pos = [
+      const pos = [
         new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
         new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
       ];
 
-      arrData.line.push(pos);
-
       const p4 = pos[1].clone().sub(pos[0]).divideScalar(2).add(pos[0]);
-      pos = [new THREE.Vector3(p3.x, p3.y, p3.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld), new THREE.Vector3(p4.x, p4.y, p4.z)];
+      pos.push(new THREE.Vector3(p3.x, p3.y, p3.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld));
+      pos.push(new THREE.Vector3(p4.x, p4.y, p4.z));
 
-      arrData.line.push(pos);
+      arrData.objs.push({ tag: 'objTee', pos });
     }
 
     const camera = this.mapControlInit.control.object;
@@ -259,6 +283,7 @@ export class Isometric3dto2d {
 
     const lines = [];
     const points = [];
+    const objs = [];
 
     for (let i = 0; i < arrData.line.length; i++) {
       const data = this.updateSvgLine(camera, domElement, arrData.line[i]);
@@ -268,8 +293,20 @@ export class Isometric3dto2d {
       const data = this.updateSvgCircle(camera, domElement, arrData.circle[i]);
       points.push(data);
     }
+    for (let i = 0; i < arrData.objs.length; i++) {
+      const points = arrData.objs[i].pos;
+      const pos = [];
 
-    return { lines, points };
+      for (let i2 = 0; i2 < points.length; i2++) {
+        const data = this.updateSvgCircle(camera, domElement, points[i2]);
+        pos.push(data.pos);
+      }
+      objs.push({ tag: arrData.objs[i].tag, pos });
+    }
+
+    const sheet = { format: 'a3', table1: [{ id: 0, txt: 'test' }] };
+
+    return { lines, points, objs };
   }
 
   updateSvgLine(camera, domElement, points) {

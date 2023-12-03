@@ -182,7 +182,7 @@ export class IsometricSvgLine {
     let pd2 = res2.ind === 1 ? line2['userData'].pd1 : line2['userData'].pd2;
     if (pd1 && pd2) return;
 
-    if (res1.dist > 40 && res2.dist > 40) {
+    if (res1.dist > 20 && res2.dist > 20) {
       const stroke = type === 'newline' ? '#ff0000' : '#000000';
 
       // создаем 2 точки перед углом

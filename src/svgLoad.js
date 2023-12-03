@@ -165,6 +165,16 @@ export class IsometricSvgLoad {
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg3 });
       }
+
+      if (obj.tag === 'objTee') {
+        const pos = obj.pos;
+        isometricSvgObjs.createObjTee({ pos });
+      }
+
+      if (obj.tag === 'objUndefined') {
+        const pos = obj.pos;
+        isometricSvgObjs.createObjUndefined({ pos });
+      }
     });
   }
 
