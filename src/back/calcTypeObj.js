@@ -133,6 +133,10 @@ export class CalcTypeObj {
       arrJ = arrJ2;
     }
 
+    const objJoints = arrJ.map((item) => {
+      return { pos: item.pos, id: item.ifc_joint_id };
+    });
+
     return { type, joints: arrJ.map((item) => item.pos) };
   }
 
