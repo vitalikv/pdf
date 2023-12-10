@@ -3,24 +3,21 @@ import * as THREE from 'three';
 import { AttributesUtil } from './attributesUtil';
 import { CalcJointsForType } from './calcJointsForType';
 import { CalcTypeObj } from './calcTypeObj';
-import { Isometric3dto2d } from './isometric3dto2d';
 import { MocksIsometry } from './mocks';
 
 export class CalcIsometrixSvg {
   attributesUtil;
-  isometric3dto2d;
   mocksIsometry;
 
   constructor() {
     this.attributesUtil = new AttributesUtil();
-    this.isometric3dto2d = new Isometric3dto2d();
     this.mocksIsometry = new MocksIsometry();
   }
 
   getType({ meshes, scene, mapControlInit, guids = [] }) {
     this.setId(meshes);
 
-    guids = this.mocksIsometry.listLine(); // в ручную добавленые id
+    guids = this.mocksIsometry.listLine(); // выбираем объекты из дисциплины в ручную добавленые по id
     if (guids.length > 0) {
       meshes = this.getSelectedMeshes({ meshes, guids });
     }
@@ -28,21 +25,10 @@ export class CalcIsometrixSvg {
     const calcJointsForType = new CalcJointsForType();
     const joints = calcJointsForType.getJoints(meshes);
 
-    console.log(joints.length);
-
-    const jointsPos = new Map();
-    joints.forEach((item) => {
-      // const key = item.pos.x + '' + item.pos.y + '' + item.pos.z;
-      // jointsPos.set(key, value);
-      //console.log(item.ifc_joint_id);
-    });
-
     const calcTypeObj = new CalcTypeObj();
     const objs = calcTypeObj.calcTypes({ meshObjs: meshes, joints });
 
-    const isometrix = this.isometric3dto2d.init({ scene, mapControlInit, data: { objs, joints } });
-
-    return { objs, joints, isometrix };
+    return { objs, joints };
   }
 
   // получаем и устанавливаем globalId

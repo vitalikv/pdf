@@ -24,25 +24,25 @@ export class CalcTypeObj {
         for (let i3 = 0; i3 < arrC.length; i3++) {
           const p2 = arrC[i3].joints;
 
-          const ind = [p2[0], p2[2]].findIndex((p) => p.x === p1[i2].x && p.y === p1[i2].y && p.z === p1[i2].z);
+          const ind = [p2[0], p2[2]].findIndex((p) => p.pos.x === p1[i2].pos.x && p.pos.y === p1[i2].pos.y && p.pos.z === p1[i2].pos.z);
           if (ind === -1) continue;
           arrL[i].joints[i2] = p2[1];
 
           const ind2 = ind === 0 ? 0 : 2;
-          arrC[i3].joints[ind2] = new THREE.Vector3(Infinity, Infinity, Infinity);
+          arrC[i3].joints[ind2].pos = new THREE.Vector3(Infinity, Infinity, Infinity);
         }
       }
     }
 
     arr.push(...arrL);
 
-    // проверяем углы, если хоть одна линия угла не стыкуется с линией, то добавляем ее в общий массив как линия
+    // проверяем углы, если хоть один стык угла не стыкуется с трубой, то добавляем ее в общий массив как трубам
     for (let i = 0; i < arrC.length; i++) {
       const p2 = arrC[i].joints;
-      if (p2[0].x === Infinity && p2[2].x === Infinity) continue;
+      if (p2[0].pos.x === Infinity && p2[2].pos.x === Infinity) continue;
 
-      if (p2[0].x !== Infinity) arr.push({ type: 'curved', joints: [p2[0], p2[1]] });
-      if (p2[2].x !== Infinity) arr.push({ type: 'curved', joints: [p2[2], p2[1]] });
+      if (p2[0].pos.x !== Infinity) arr.push({ type: 'curved', joints: [p2[0], p2[1]] });
+      if (p2[2].pos.x !== Infinity) arr.push({ type: 'curved', joints: [p2[2], p2[1]] });
     }
 
     return arr;
@@ -133,11 +133,11 @@ export class CalcTypeObj {
       arrJ = arrJ2;
     }
 
-    const objJoints = arrJ.map((item) => {
+    const dataJoints = arrJ.map((item) => {
       return { pos: item.pos, id: item.ifc_joint_id };
     });
 
-    return { type, joints: arrJ.map((item) => item.pos) };
+    return { type, joints: dataJoints };
   }
 
   // находим точку пересечения двух линий в 3D

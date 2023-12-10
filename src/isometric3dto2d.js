@@ -1,27 +1,25 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem } from '../index';
+import { isometricSvgElem } from './index';
 
 export class Isometric3dto2d {
   modelsContainerInit = { control: null };
   mapControlInit = { control: null };
   offsetSvg = new THREE.Vector2();
 
-  constructor() {
+  init({ scene, mapControlInit, data }) {
     const container = document.querySelector('[nameId="svgTools"]');
     const svgXmlns = isometricSvgElem.getSvgXmlns({ container });
     const bound = svgXmlns.getBoundingClientRect();
     this.offsetSvg = new THREE.Vector2(-bound.x, -bound.y);
-  }
 
-  init({ scene, mapControlInit, data }) {
     this.modelsContainerInit.control = scene;
     this.mapControlInit.control = mapControlInit.control;
 
-    this.fitCamera(data.joints);
+    this.fitCamera(data);
 
     this.showJoints(data.joints);
-    this.showLines(data.objs);
+    this.showLines(data);
 
     const result = this.createSvgScheme({ data });
 
@@ -66,9 +64,10 @@ export class Isometric3dto2d {
     }
   }
 
-  showLines(lines) {
-    for (let i = 0; i < lines.length; i++) {
-      const line = this.createLine({ points: lines[i].joints });
+  showLines(data) {
+    for (let i = 0; i < data.objs.length; i++) {
+      const points = data.objs[i].joints.map((joint) => joint.pos);
+      const line = this.createLine({ points });
 
       this.modelsContainerInit.control.add(line);
     }
@@ -88,13 +87,19 @@ export class Isometric3dto2d {
   }
 
   fitCamera(data) {
+    const arrPos = [];
+    data.objs.forEach((item) => {
+      const arr = item.joints.map((joint) => joint.pos);
+      arrPos.push(...arr);
+    });
+
     const bound = {
       min: { x: Infinity, y: Infinity, z: Infinity },
       max: { x: -Infinity, y: -Infinity, z: -Infinity },
     };
 
-    for (let i = 0; i < data.length; i++) {
-      const v = data[i].pos;
+    for (let i = 0; i < arrPos.length; i++) {
+      const v = arrPos[i];
 
       if (v.x < bound.min.x) {
         bound.min.x = v.x;
@@ -175,7 +180,8 @@ export class Isometric3dto2d {
     const lines = data.objs.map((item) => {
       const points = [];
       if (item.type === 'line' || item.type === 'curved') {
-        points.push(...item.joints);
+        const arrPos = item.joints.map((joint) => joint.pos);
+        points.push(...arrPos);
       }
       return points;
     });
@@ -183,7 +189,8 @@ export class Isometric3dto2d {
     const tees = data.objs.map((item) => {
       const points = [];
       if (item.type === 'tee') {
-        points.push(...item.joints);
+        const arrPos = item.joints.map((joint) => joint.pos);
+        points.push(...arrPos);
       }
       return points;
     });
@@ -191,7 +198,8 @@ export class Isometric3dto2d {
     const undefinedes = data.objs.map((item) => {
       const points = [];
       if (item.type === 'undefined') {
-        points.push(...item.joints);
+        const arrPos = item.joints.map((joint) => joint.pos);
+        points.push(...arrPos);
       }
       return points;
     });
