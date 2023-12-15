@@ -28,6 +28,7 @@ import { IsometricSvgLoad } from './svgLoad';
 import { IsometricMath } from './math';
 import { CalcIsometrixSvg } from './back/calcIsometrixSvg';
 import { Isometric3dto2d } from './isometric3dto2d';
+import { IsometricSetCalcNotes } from './setCalcNotes';
 
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
@@ -52,7 +53,8 @@ export let isometricModeService,
   isometricSvgSave,
   isometricSvgLoad,
   isometricMath,
-  isometric3dto2d;
+  isometric3dto2d,
+  isometricSetCalcNotes;
 
 init();
 initServ();
@@ -163,6 +165,7 @@ function initServ() {
   isometricSvgLoad = new IsometricSvgLoad();
   isometricMath = new IsometricMath();
   isometric3dto2d = new Isometric3dto2d();
+  isometricSetCalcNotes = new IsometricSetCalcNotes();
 
   isometricSvgManager.init();
   //isometricSvgLoad.load();
@@ -182,6 +185,8 @@ export async function initModel() {
   const isometrix = isometric3dto2d.init({ scene, mapControlInit, data });
 
   isometricSvgLoad.setIsometry(isometrix);
+
+  isometricSetCalcNotes.setNotes();
 }
 
 function fitCamera(meshes) {

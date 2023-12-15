@@ -18,6 +18,7 @@ import {
   isometricMovePdf,
   isometricSvgSave,
   isometricSvgLoad,
+  isometricSetCalcNotes,
 } from './index';
 
 export class IsometricSvgManager {
@@ -60,6 +61,7 @@ export class IsometricSvgManager {
     isometricMovePdf.init({ containerSvg });
     isometricSvgSave.init({ container, containerSvg });
     isometricSvgLoad.init({ container, containerSvg });
+    isometricSetCalcNotes.init({ container, containerSvg });
   }
 
   getContainer() {
