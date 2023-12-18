@@ -177,34 +177,20 @@ export class Isometric3dto2d {
   }
 
   createSvgScheme({ data }) {
-    const lines = data.objs.map((item) => {
-      const points = [];
+    const lines = [];
+    const objs = { tees: [], undefinedes: [] };
+
+    data.objs.forEach((item) => {
       if (item.type === 'line' || item.type === 'curved') {
-        const arrPos = item.joints.map((joint) => joint.pos);
-        points.push(...arrPos);
+        lines.push(item.joints);
       }
-      return points;
-    });
-
-    const tees = data.objs.map((item) => {
-      const points = [];
       if (item.type === 'tee') {
-        const arrPos = item.joints.map((joint) => joint.pos);
-        points.push(...arrPos);
+        objs.tees.push(item.joints);
       }
-      return points;
-    });
-
-    const undefinedes = data.objs.map((item) => {
-      const points = [];
       if (item.type === 'undefined') {
-        const arrPos = item.joints.map((joint) => joint.pos);
-        points.push(...arrPos);
+        objs.undefinedes.push(item.joints);
       }
-      return points;
     });
-
-    const objs = { tees, undefinedes };
 
     const arrData = { line: [], circle: [], objs: [] };
 
@@ -213,23 +199,26 @@ export class Isometric3dto2d {
     const bdPoints = [];
 
     for (let i = 0; i < lines.length; i++) {
-      const points = lines[i];
-      if (points.length === 0) continue;
+      const joints = lines[i];
+      if (joints.length === 0) continue;
 
-      for (let i2 = 0; i2 < points.length - 1; i2++) {
-        const p1 = points[i2];
-        const p2 = points[i2 + 1];
+      for (let i2 = 0; i2 < joints.length - 1; i2++) {
+        const p1 = joints[i2].pos;
+        const p2 = joints[i2 + 1].pos;
+
+        const ids = [joints[i2].id, joints[i2 + 1].id];
 
         const pos = [
           new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
           new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
         ];
 
-        arrData.line.push(pos);
+        arrData.line.push({ pos, ids });
       }
 
-      for (let i2 = 0; i2 < points.length; i2++) {
-        const p1 = points[i2];
+      for (let i2 = 0; i2 < joints.length; i2++) {
+        const p1 = joints[i2].pos;
+        const ids = [joints[i2].id];
 
         const ind = bdPoints.findIndex((p) => p.x === p1.x && p.y === p1.y && p.z === p1.z);
         if (ind > -1) continue;
@@ -238,32 +227,36 @@ export class Isometric3dto2d {
 
         const pos = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
 
-        arrData.circle.push(pos);
+        arrData.circle.push({ pos, ids });
       }
     }
 
     for (let i = 0; i < objs.undefinedes.length; i++) {
-      const points = objs.undefinedes[i];
-      if (points.length === 0) continue;
+      const joints = objs.undefinedes[i];
+      if (joints.length === 0) continue;
 
-      const p1 = points[0];
-      const p2 = points[1];
+      const p1 = joints[0].pos;
+      const p2 = joints[1].pos;
+
+      const ids = [joints[0].id, joints[1].id];
 
       const pos = [
         new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
         new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
       ];
 
-      arrData.objs.push({ tag: 'objUndefined', pos });
+      arrData.objs.push({ tag: 'objUndefined', joints: { pos, ids } });
     }
 
     for (let i = 0; i < objs.tees.length; i++) {
-      const points = objs.tees[i];
-      if (points.length === 0) continue;
+      const joints = objs.tees[i];
+      if (joints.length === 0) continue;
 
-      const p1 = points[0];
-      const p2 = points[1];
-      const p3 = points[2];
+      const p1 = joints[0].pos;
+      const p2 = joints[1].pos;
+      const p3 = joints[2].pos;
+
+      const ids = [joints[0].id, joints[1].id, joints[2].id, []];
 
       const pos = [
         new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
@@ -274,8 +267,10 @@ export class Isometric3dto2d {
       pos.push(new THREE.Vector3(p3.x, p3.y, p3.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld));
       pos.push(new THREE.Vector3(p4.x, p4.y, p4.z));
 
-      arrData.objs.push({ tag: 'objTee', pos });
+      arrData.objs.push({ tag: 'objTee', joints: { pos, ids } });
     }
+
+    console.log(arrData.line, arrData.circle);
 
     const camera = this.mapControlInit.control.object;
     const domElement = this.mapControlInit.control.domElement;
@@ -294,15 +289,15 @@ export class Isometric3dto2d {
     const objs = [];
 
     for (let i = 0; i < arrData.line.length; i++) {
-      const data = this.updateSvgLine(camera, domElement, arrData.line[i]);
+      const data = this.updateSvgLine(camera, domElement, arrData.line[i].pos);
       lines.push(data);
     }
     for (let i = 0; i < arrData.circle.length; i++) {
-      const data = this.updateSvgCircle(camera, domElement, arrData.circle[i]);
+      const data = this.updateSvgCircle(camera, domElement, arrData.circle[i].pos);
       points.push(data);
     }
     for (let i = 0; i < arrData.objs.length; i++) {
-      const points = arrData.objs[i].pos;
+      const points = arrData.objs[i].joints.pos;
       const pos = [];
 
       for (let i2 = 0; i2 < points.length; i2++) {
@@ -312,9 +307,9 @@ export class Isometric3dto2d {
       objs.push({ tag: arrData.objs[i].tag, pos });
     }
 
-    const sheet = { format: 'a3', table1: [{ id: 0, txt: 'test' }] };
+    const sheet = { format: 'a3', table1: [{ id: 0, txt: 'Автоматический расчет изометрии' }] };
 
-    return { lines, points, objs };
+    return { lines, points, objs, sheet };
   }
 
   updateSvgLine(camera, domElement, points) {
