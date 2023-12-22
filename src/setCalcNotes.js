@@ -106,18 +106,13 @@ export class IsometricSetCalcNotes {
       lines.push(points);
     });
 
-    const joints = [];
-
-    arrPoints.forEach((p) => {
-      joints.push(isometricSvgElem.getPosCircle(p));
-    });
-
     const notes = [];
 
-    joints.forEach((joint) => {
+    arrPoints.forEach((joint) => {
+      const pos = isometricSvgElem.getPosCircle(joint);
+      const ids = joint['userData'].ids;
       const note = { tag: 'note2', line: {}, point: {}, label: {}, passportId: 0 };
 
-      const pos = joint;
       let dir = new THREE.Vector2();
 
       lines.forEach((ps) => {
@@ -136,8 +131,10 @@ export class IsometricSetCalcNotes {
       note.point['pos'] = pos;
       note.offset = new THREE.Vector2(dir.x * 40, dir.y * 40);
 
-      note.label['txt1'] = { text: '1' };
-      note.label['txt2'] = { text: '2' };
+      const txt1 = ids[0] ? ids[0] : '';
+      const txt2 = ids[1] ? ids[1] : '';
+      note.label['txt1'] = { text: txt1 };
+      note.label['txt2'] = { text: txt2 };
 
       notes.push(note);
     });

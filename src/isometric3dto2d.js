@@ -218,7 +218,7 @@ export class Isometric3dto2d {
 
       for (let i2 = 0; i2 < joints.length; i2++) {
         const p1 = joints[i2].pos;
-        const ids = [joints[i2].id];
+        const ids = [...joints[i2].id];
 
         const ind = bdPoints.findIndex((p) => p.x === p1.x && p.y === p1.y && p.z === p1.z);
         if (ind > -1) continue;
@@ -290,11 +290,11 @@ export class Isometric3dto2d {
 
     for (let i = 0; i < arrData.line.length; i++) {
       const data = this.updateSvgLine(camera, domElement, arrData.line[i].pos);
-      lines.push(data);
+      lines.push({ pos: data.pos, ids: arrData.line[i].ids });
     }
     for (let i = 0; i < arrData.circle.length; i++) {
       const data = this.updateSvgCircle(camera, domElement, arrData.circle[i].pos);
-      points.push(data);
+      points.push({ pos: data.pos, ids: arrData.circle[i].ids });
     }
     for (let i = 0; i < arrData.objs.length; i++) {
       const points = arrData.objs[i].joints.pos;

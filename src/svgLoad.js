@@ -96,6 +96,7 @@ export class IsometricSvgLoad {
 
     points.forEach((point) => {
       const { x, y } = point.pos;
+      const ids = point.ids ? point.ids : [];
 
       const svg = isometricSvgElem.createSvgCircle({ x, y });
 
@@ -103,6 +104,7 @@ export class IsometricSvgLoad {
       svg['userData'].crossOffset = false;
       svg['userData'].move = false;
       svg['userData'].pds = [];
+      svg['userData'].ids = ids;
 
       groupLines.append(svg);
 
