@@ -289,49 +289,45 @@ export class Isometric3dto2d {
     const objs = [];
 
     for (let i = 0; i < arrData.line.length; i++) {
-      const data = this.updateSvgLine(camera, domElement, arrData.line[i].pos);
-      lines.push({ pos: data.pos, ids: arrData.line[i].ids });
+      const points = arrData.line[i].pos;
+      const arrPos = [];
+
+      for (let i2 = 0; i2 < points.length; i2++) {
+        const pos = this.getPosSvg(camera, domElement, points[i2]);
+        arrPos.push(pos);
+      }
+      lines.push({ pos: arrPos, ids: arrData.line[i].ids });
     }
     for (let i = 0; i < arrData.circle.length; i++) {
-      const data = this.updateSvgCircle(camera, domElement, arrData.circle[i].pos);
-      points.push({ pos: data.pos, ids: arrData.circle[i].ids });
+      const pos = this.getPosSvg(camera, domElement, arrData.circle[i].pos);
+      points.push({ pos, ids: arrData.circle[i].ids });
     }
     for (let i = 0; i < arrData.objs.length; i++) {
       const points = arrData.objs[i].joints.pos;
-      const pos = [];
+      const arrPos = [];
 
       for (let i2 = 0; i2 < points.length; i2++) {
-        const data = this.updateSvgCircle(camera, domElement, points[i2]);
-        pos.push(data.pos);
+        const pos = this.getPosSvg(camera, domElement, points[i2]);
+        arrPos.push(pos);
       }
-      objs.push({ tag: arrData.objs[i].tag, pos });
+      objs.push({ tag: arrData.objs[i].tag, pos: arrPos });
     }
 
-    const sheet = { format: 'a3', table1: [{ id: 0, txt: 'Автоматический расчет изометрии' }] };
+    const table = this.setTable();
+
+    const sheet = { format: 'a3', table1: table.table1, table2: table.table2 };
 
     return { lines, points, objs, sheet };
   }
 
-  updateSvgLine(camera, domElement, points) {
-    const pos1 = this.getPosition2D({ camera, canvas: domElement, pos: points[0] });
-    const pos2 = this.getPosition2D({ camera, canvas: domElement, pos: points[1] });
+  getPosSvg(camera, domElement, pos) {
+    const coord = this.getPosition2D({ camera, canvas: domElement, pos });
 
     const bound = domElement.getBoundingClientRect();
     const offset = new THREE.Vector2(-bound.x, -bound.y);
-    pos1.add(this.offsetSvg);
-    pos2.add(this.offsetSvg);
+    coord.add(this.offsetSvg);
 
-    return { pos: [pos1, pos2] };
-  }
-
-  updateSvgCircle(camera, domElement, point) {
-    const pos = this.getPosition2D({ camera, canvas: domElement, pos: point });
-
-    const bound = domElement.getBoundingClientRect();
-    const offset = new THREE.Vector2(-bound.x, -bound.y);
-    pos.add(this.offsetSvg);
-
-    return { pos };
+    return coord;
   }
 
   getPosition2D({ camera, canvas, pos }) {
@@ -341,5 +337,24 @@ export class Isometric3dto2d {
     const y = (tempV.y * -0.5 + 0.5) * canvas.clientHeight;
 
     return new THREE.Vector2(x, y);
+  }
+
+  setTable() {
+    const data = { table1: [], table2: [] };
+
+    data.table1.push({ id: 0, txt: 'Автоматический расчет изометрии' });
+    data.table1.push({ id: 1, txt: 'Проект ukpg_3-1' });
+    data.table1.push({ id: 2, txt: 'Дисциплина 0019.005-TH_02' });
+    data.table1.push({ id: 6, txt: 'А' });
+    data.table1.push({ id: 7, txt: '1' });
+    data.table1.push({ id: 8, txt: '1' });
+    data.table1.push({ id: 9, txt: 'Тестовая сборка' });
+
+    data.table2.push({ id: 36, txt: 'Иванов П.П.' });
+    data.table2.push({ id: 38, txt: '10.10.23' });
+    data.table2.push({ id: 40, txt: 'Петров И.И.' });
+    data.table2.push({ id: 42, txt: '15.10.23' });
+
+    return data;
   }
 }
