@@ -335,7 +335,7 @@ export class IsometricSvgManager {
           result = isometricSvgLine.onmousedown(event);
         }
 
-        if (svg['userData'].objBracket || svg['userData'].objValve) {
+        if (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee) {
           result = isometricSvgObjs.onmousedown(event);
         }
 
@@ -369,7 +369,10 @@ export class IsometricSvgManager {
           }
         }
 
-        if (isometricSvgObjs.selectedObj.el && (svg['userData'].objBracket || svg['userData'].objValve)) {
+        if (
+          isometricSvgObjs.selectedObj.el &&
+          (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee)
+        ) {
           if (isometricSvgObjs.selectedObj.el === svg) {
             isometricSvgObjs.actElem(svg, false);
           }

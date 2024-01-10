@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgLine, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
 
 export class IsometricSelectBox {
   activated = false;
@@ -229,6 +229,12 @@ export class IsometricSelectBox {
             arrPoints.push(svg);
           }
         }
+        if (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee) {
+          if (svg['userData'].tag === 'line1') {
+            arrLines.push(svg);
+          }
+        }
+
         if (svg['userData'].note1 || svg['userData'].note2) {
           if (svg['userData'].tag === 'line') {
             arrLines.push(svg);
@@ -344,6 +350,10 @@ export class IsometricSelectBox {
         svg.setAttribute('stroke', stroke);
         svg.setAttribute('fill', stroke);
       }
+    } else if (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee) {
+      if (svg['userData'].tag === 'line1') {
+        isometricSvgObjs.setColorElem(svg, act);
+      }
     } else if (svg['userData'].note1) {
       if (svg['userData'].tag === 'line') {
         isometricNoteSvg.setColorElem(svg, act);
@@ -378,6 +388,7 @@ export class IsometricSelectBox {
   moveOffset(offset) {
     const arrLines = [];
     const arrPoints = [];
+    const arrObjs = [];
     const arrNodes = [];
 
     this.selectedArr.objs.forEach((svg, ind) => {
@@ -395,6 +406,12 @@ export class IsometricSelectBox {
         if (svg['userData'].lineI && svg['userData'].tag === 'point') {
           arrPoints.push(svg);
         }
+
+        if (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee) {
+          if (svg['userData'].tag === 'line1') {
+            arrObjs.push(svg);
+          }
+        }
       }
     });
 
@@ -407,6 +424,10 @@ export class IsometricSelectBox {
         isometricSvgLine.moveSvgPoint({ svg: p, offset });
         p['userData'].move = true;
       }
+    });
+
+    arrObjs.forEach((svg) => {
+      isometricSvgObjs.moveSvgObj({ svg, offset });
     });
 
     arrNodes.forEach((svg) => {
@@ -433,6 +454,11 @@ export class IsometricSelectBox {
           }
           if (svg['userData'].tag === 'dline') {
             isometricSvgLine.deleteObj(svg);
+          }
+        }
+        if (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee) {
+          if (svg['userData'].tag === 'line1') {
+            isometricSvgObjs.deleteObj(svg);
           }
         }
         if (svg['userData'].note1) {
