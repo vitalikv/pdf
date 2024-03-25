@@ -113,7 +113,7 @@ export class IsometricSvgManager {
       }
     }
 
-    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
+    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve' || this.mode.type === 'objTee') {
       if (this.mode.type !== disabledType) {
         isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
       } else {
@@ -160,7 +160,7 @@ export class IsometricSvgManager {
     if (this.mode.type === 'line') {
       isometricSvgLine.deleteToolPoint();
     }
-    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
+    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve' || this.mode.type === 'objTee') {
       isometricSvgObjs.deleteAddObj();
     }
     if (this.mode.type === 'brush') {

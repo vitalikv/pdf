@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 
+// расчитываем стыки из модели
 export class CalcJointsForType {
   getJoints(meshes) {
     const joints = [];

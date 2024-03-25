@@ -41,11 +41,12 @@ export class PanelUI {
     this.btns$[11] = this.crBtn({ txt: 'Линия' });
     this.btns$[12] = this.crBtn({ txt: 'Опора' });
     this.btns$[13] = this.crBtn({ txt: 'Вентиль' });
-    this.btns$[14] = this.crBtn({ txt: 'Текст' });
-    this.btns$[15] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[16] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[17] = this.crListSheets();
-    this.btns$[18] = this.crBtn({ txt: 'из 3D в 2D' });
+    this.btns$[14] = this.crBtn({ txt: 'Тройник' });
+    this.btns$[15] = this.crBtn({ txt: 'Текст' });
+    this.btns$[16] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[17] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[18] = this.crListSheets();
+    this.btns$[19] = this.crBtn({ txt: 'из 3D в 2D' });
 
     this.initEvent();
   }
@@ -147,6 +148,15 @@ export class PanelUI {
 
     this.btns$[ind].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'objValve' });
+
+      const btn = e.target;
+      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
+      btn.style.background = color;
+    };
+    ind++;
+
+    this.btns$[ind].onmousedown = (e) => {
+      isometricSvgManager.setMode({ type: 'objTee' });
 
       const btn = e.target;
       const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';

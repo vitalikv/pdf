@@ -30,6 +30,8 @@ import { CalcIsometrixSvg } from './back/calcIsometrixSvg';
 import { Isometric3dto2d } from './isometric3dto2d';
 import { IsometricSetCalcNotes } from './setCalcNotes';
 
+import { ShowJointsAndLines } from './helper/showJointsAndLines';
+
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
 export let listMeshes = [];
@@ -58,7 +60,7 @@ export let isometricModeService,
 
 init();
 initServ();
-initModel();
+//initModel();
 render();
 
 function init() {
@@ -168,7 +170,7 @@ function initServ() {
   isometricSetCalcNotes = new IsometricSetCalcNotes();
 
   isometricSvgManager.init();
-  //isometricSvgLoad.load();
+  isometricSvgLoad.load();
 }
 
 export async function initModel() {
@@ -177,11 +179,13 @@ export async function initModel() {
   listMeshes = meshes;
   //fitCamera(meshes);
 
-  isometricPdfToSvg.containerPdf.style.display = 'none';
+  //isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
   const data = calcIsometrixSvg.getType({ meshes, scene, mapControlInit });
 
+  const showJointsAndLines = new ShowJointsAndLines();
+  showJointsAndLines.init({ scene, mapControlInit, data });
   const isometrix = isometric3dto2d.init({ scene, mapControlInit, data });
 
   isometricSvgLoad.setIsometry(isometrix);

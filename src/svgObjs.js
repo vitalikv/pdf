@@ -41,6 +41,22 @@ export class IsometricSvgObjs {
       this.actElem(svg3, true);
     }
 
+    if (type === 'objTee') {
+      let arrP = [];
+      console.log(99, pos);
+      if (!Array.isArray(pos)) {
+        arrP.push({ x: pos.x - 20, y: pos.y });
+        arrP.push({ x: pos.x + 20, y: pos.y });
+        arrP.push({ x: pos.x, y: pos.y });
+        arrP.push({ x: pos.x, y: pos.y + 20 });
+      } else {
+        arrP = pos;
+      }
+
+      const { svg1, svg2 } = this.createObjTee({ pos: arrP });
+      this.actElem(svg1, true);
+    }
+
     this.isDown = true;
     this.offset = event ? this.getCoord(event) : new THREE.Vector2(-99999, -99999);
     this.selectedObj.mode = 'add';
@@ -87,14 +103,17 @@ export class IsometricSvgObjs {
   createObjTee({ pos }) {
     const svg1 = this.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
     const svg2 = this.createSvgLine({ x1: pos[2].x, y1: pos[2].y, x2: pos[3].x, y2: pos[3].y });
+    const svg3 = this.createSvgCircle({ x: pos[2].x, y: pos[2].y });
 
     this.groupObjs.append(svg1);
     this.groupObjs.append(svg2);
+    this.groupObjs.append(svg3);
 
-    svg1['userData'] = { objTee: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
-    svg2['userData'] = { objTee: true, tag: 'line2', lock: false, elems: [svg1, svg2] };
+    svg1['userData'] = { objTee: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3] };
+    svg2['userData'] = { objTee: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3] };
+    svg3['userData'] = { objTee: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3] };
 
-    return { svg1, svg2 };
+    return { svg1, svg2, svg3 };
   }
 
   createObjUndefined({ pos }) {
@@ -229,6 +248,7 @@ export class IsometricSvgObjs {
     if (svg['userData'].objTee) {
       isometricSvgElem.setOffsetLine2(elems.line1, offset.x, offset.y);
       isometricSvgElem.setOffsetLine2(elems.line2, offset.x, offset.y);
+      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
     }
 
     if (svg['userData'].objUndefined) {
@@ -471,6 +491,7 @@ export class IsometricSvgObjs {
       elems = {
         line1: svg['userData'].elems[0],
         line2: svg['userData'].elems[1],
+        point: svg['userData'].elems[2],
       };
     }
 
