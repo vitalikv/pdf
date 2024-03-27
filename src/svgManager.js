@@ -6,6 +6,7 @@ import {
   isometricSelectBox,
   isometricPdfToSvg,
   isometricSheets,
+  isometricSvgJoint,
   isometricSvgLine,
   isometricSvgObjs,
   isometricNoteSvg,
@@ -49,6 +50,7 @@ export class IsometricSvgManager {
     isometricSelectBox.init({ container, containerSvg });
     isometricPdfToSvg.init({ container, containerSvg });
     isometricSheets.init({ container, containerSvg });
+    isometricSvgJoint.init({ container, containerSvg });
     isometricSvgLine.init({ container, containerSvg });
     isometricSvgObjs.init({ container, containerSvg });
     isometricNoteSvg.init({ container, containerSvg });
@@ -105,6 +107,14 @@ export class IsometricSvgManager {
     this.mode.type = type;
     this.mode.data = data;
 
+    if (this.mode.type === 'joint') {
+      if (this.mode.type !== disabledType) {
+        isometricSvgJoint.createToolPoint();
+      } else {
+        this.mode.type = '';
+      }
+    }
+
     if (this.mode.type === 'line') {
       if (this.mode.type !== disabledType) {
         isometricSvgLine.createToolPoint();
@@ -157,6 +167,9 @@ export class IsometricSvgManager {
   cleareMode() {
     const disabledType = this.mode.type;
 
+    if (this.mode.type === 'joint') {
+      isometricSvgJoint.deletePoint();
+    }
     if (this.mode.type === 'line') {
       isometricSvgLine.deleteToolPoint();
     }
@@ -205,6 +218,7 @@ export class IsometricSvgManager {
     isometricMovePdf.onmousemove(event);
     isometricSelectBox.onmousemove(event);
     isometricCutBox.onmousemove(event);
+    isometricSvgJoint.onmousemove(event);
     isometricSvgLine.onmousemove(event);
     isometricSvgObjs.onmousemove(event);
     isometricNoteSvg.onmousemove(event);
@@ -217,6 +231,7 @@ export class IsometricSvgManager {
     isometricMovePdf.onmouseup(event);
     isometricSelectBox.onmouseup(event);
     isometricCutBox.onmouseup(event);
+    isometricSvgJoint.onmouseup(event);
     isometricSvgLine.onmouseup(event);
     isometricSvgObjs.onmouseup(event);
     isometricNoteSvg.onmouseup(event);
@@ -231,6 +246,10 @@ export class IsometricSvgManager {
 
   checkMode(event) {
     if (this.mode.type === '') return false;
+
+    if (this.mode.type === 'joint') {
+      return false;
+    }
 
     if (this.mode.type === 'line') {
       if (event.button !== 2) {
@@ -331,6 +350,10 @@ export class IsometricSvgManager {
 
     elems.forEach((svg, ind) => {
       if (svg['userData'] && svg.contains(event.target)) {
+        if (svg['userData'].jointI) {
+          result = isometricSvgJoint.onmousedown(event);
+        }
+
         if (svg['userData'].lineI) {
           result = isometricSvgLine.onmousedown(event);
         }

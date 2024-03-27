@@ -38,15 +38,16 @@ export class PanelUI {
     this.btns$[8] = this.crInputSlider();
     this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
-    this.btns$[11] = this.crBtn({ txt: 'Линия' });
-    this.btns$[12] = this.crBtn({ txt: 'Опора' });
-    this.btns$[13] = this.crBtn({ txt: 'Вентиль' });
-    this.btns$[14] = this.crBtn({ txt: 'Тройник' });
-    this.btns$[15] = this.crBtn({ txt: 'Текст' });
-    this.btns$[16] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[17] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[18] = this.crListSheets();
-    this.btns$[19] = this.crBtn({ txt: 'из 3D в 2D' });
+    this.btns$[11] = this.crBtn({ txt: 'Стык' });
+    this.btns$[12] = this.crBtn({ txt: 'Линия' });
+    this.btns$[13] = this.crBtn({ txt: 'Опора' });
+    this.btns$[14] = this.crBtn({ txt: 'Вентиль' });
+    this.btns$[15] = this.crBtn({ txt: 'Тройник' });
+    this.btns$[16] = this.crBtn({ txt: 'Текст' });
+    this.btns$[17] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[18] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[19] = this.crListSheets();
+    this.btns$[20] = this.crBtn({ txt: 'из 3D в 2D' });
 
     this.initEvent();
   }
@@ -59,37 +60,37 @@ export class PanelUI {
 
     let ind = 0;
 
-    this.btns$[ind].onmousedown = () => {
+    this.btns$[0].onmousedown = () => {
       isometricPdfToSvg.inputFile.click();
     };
     ind++;
 
-    this.btns$[ind].onmousedown = () => {
+    this.btns$[1].onmousedown = () => {
       isometricPdfToSvg.rotateSvg({ degree: -90 });
     };
     ind++;
 
-    this.btns$[ind].onmousedown = () => {
+    this.btns$[2].onmousedown = () => {
       isometricPdfToSvg.rotateSvg({ degree: 90 });
     };
     ind++;
 
-    this.btns$[ind].onmousedown = () => {
+    this.btns$[3].onmousedown = () => {
       isometricExportPdf.export();
     };
     ind++;
 
-    this.btns$[ind].onmousedown = () => {
+    this.btns$[4].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС'], passport: { id: 232 } } });
     };
     ind++;
 
-    this.btns$[ind].onmousedown = () => {
+    this.btns$[5].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['2', 'ТК1-СПС31.1/1-И-1-012'], passport: { id: 44 } } });
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[6].onmousedown = (e) => {
       // console.log(isometricSvgManager.mode.type);
       // if (isometricSvgManager.mode.type === 'addRuler') {
       //   isometricSvgManager.cleareMode();
@@ -108,83 +109,77 @@ export class PanelUI {
     };
     ind++;
 
-    this.btns$[ind].onmousedown = () => {
+    this.btns$[7].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'brush' });
     };
     ind++;
 
-    this.btns$[ind].children[0].oninput = (e) => {
+    this.btns$[8].children[0].oninput = (e) => {
       isometricPdfToSvg.setScale({ value: e.target.value });
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[9].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'cutBox' });
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[10].onmousedown = (e) => {
       isometricStampLogo.addStamp('3');
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[11].onmousedown = (e) => {
+      isometricSvgManager.setMode({ type: 'joint' });
+      this.upColorBtn(e);
+    };
+    ind++;
+
+    this.btns$[12].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'line' });
-
-      const btn = e.target;
-      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
-      btn.style.background = color;
+      this.upColorBtn(e);
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[13].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'objBracket' });
-
-      const btn = e.target;
-      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
-      btn.style.background = color;
+      this.upColorBtn(e);
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[14].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'objValve' });
-
-      const btn = e.target;
-      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
-      btn.style.background = color;
+      this.upColorBtn(e);
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[15].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'objTee' });
-
-      const btn = e.target;
-      const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
-      btn.style.background = color;
+      this.upColorBtn(e);
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[16].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'addText' });
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[17].onmousedown = (e) => {
       isometricSvgSave.save();
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[18].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
     ind++;
 
-    this.btns$[ind].onchange = (e) => {
+    this.btns$[19].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
     };
     ind++;
 
-    this.btns$[ind].onmousedown = (e) => {
+    this.btns$[20].onmousedown = (e) => {
       initModel();
     };
     ind++;
@@ -268,5 +263,11 @@ export class PanelUI {
     this.container$.querySelector('[nameId="btns"]').append(div);
 
     return div;
+  }
+
+  upColorBtn(e) {
+    const btn = e.target;
+    const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
+    btn.style.background = color;
   }
 }
