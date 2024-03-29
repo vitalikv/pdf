@@ -123,7 +123,13 @@ export class IsometricSvgManager {
       }
     }
 
-    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve' || this.mode.type === 'objTee') {
+    if (
+      this.mode.type === 'objBracket' ||
+      this.mode.type === 'objValve' ||
+      this.mode.type === 'objTee' ||
+      this.mode.type === 'objFlap' ||
+      this.mode.type === 'objAdapter'
+    ) {
       if (this.mode.type !== disabledType) {
         isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
       } else {
@@ -173,7 +179,13 @@ export class IsometricSvgManager {
     if (this.mode.type === 'line') {
       isometricSvgLine.deleteToolPoint();
     }
-    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve' || this.mode.type === 'objTee') {
+    if (
+      this.mode.type === 'objBracket' ||
+      this.mode.type === 'objValve' ||
+      this.mode.type === 'objTee' ||
+      this.mode.type === 'objFlap' ||
+      this.mode.type === 'objAdapter'
+    ) {
       isometricSvgObjs.deleteAddObj();
     }
     if (this.mode.type === 'brush') {
@@ -273,7 +285,13 @@ export class IsometricSvgManager {
       }
     }
 
-    if (this.mode.type === 'objBracket' || this.mode.type === 'objValve') {
+    if (
+      this.mode.type === 'objBracket' ||
+      this.mode.type === 'objValve' ||
+      this.mode.type === 'objTee' ||
+      this.mode.type === 'objFlap' ||
+      this.mode.type === 'objAdapter'
+    ) {
       //isometricSvgObjs.addObj({ event, type: this.mode.type });
       if (event.button === 0) isometricSvgObjs.addObj2({ event, type: this.mode.type });
       //this.cleareMode();
@@ -358,7 +376,14 @@ export class IsometricSvgManager {
           result = isometricSvgLine.onmousedown(event);
         }
 
-        if (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee) {
+        if (
+          svg['userData'].objBracket ||
+          svg['userData'].objValve ||
+          svg['userData'].objUndefined ||
+          svg['userData'].objTee ||
+          svg['userData'].objFlap ||
+          svg['userData'].objAdapter
+        ) {
           result = isometricSvgObjs.onmousedown(event);
         }
 
@@ -394,7 +419,12 @@ export class IsometricSvgManager {
 
         if (
           isometricSvgObjs.selectedObj.el &&
-          (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee)
+          (svg['userData'].objBracket ||
+            svg['userData'].objValve ||
+            svg['userData'].objUndefined ||
+            svg['userData'].objTee ||
+            svg['userData'].objFlap ||
+            svg['userData'].objAdapter)
         ) {
           if (isometricSvgObjs.selectedObj.el === svg) {
             isometricSvgObjs.actElem(svg, false);

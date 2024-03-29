@@ -43,7 +43,7 @@ export class IsometricSvgObjs {
 
     if (type === 'objTee') {
       let arrP = [];
-      console.log(99, pos);
+
       if (!Array.isArray(pos)) {
         arrP.push({ x: pos.x - 20, y: pos.y });
         arrP.push({ x: pos.x + 20, y: pos.y });
@@ -55,6 +55,11 @@ export class IsometricSvgObjs {
 
       const { svg1, svg2 } = this.createObjTee({ pos: arrP });
       this.actElem(svg1, true);
+    }
+
+    if (type === 'objFlap') {
+      const { svg1, svg2, svg3 } = this.createObjFlap({ x: pos.x, y: pos.y });
+      this.actElem(svg3, true);
     }
 
     this.isDown = true;
@@ -96,6 +101,22 @@ export class IsometricSvgObjs {
     svg3['userData'] = { objValve: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3, svg4, svg5], crossOffset: false, link: null };
     svg4['userData'] = { objValve: true, tag: 'line3', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
     svg5['userData'] = { objValve: true, tag: 'line4', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
+
+    return { svg1, svg2, svg3 };
+  }
+
+  createObjFlap({ x, y }) {
+    const svg1 = isometricSvgElem.createPolygon({ x, y, points: '0,0 20,15 20,-15', fill: 'rgb(255, 255, 255)' });
+    const svg2 = isometricSvgElem.createPolygon({ x, y, points: '0,0 -20,15 -20,-15', fill: 'rgb(255, 255, 255)' });
+    const svg3 = this.createSvgCircle({ x, y });
+
+    this.groupObjs.append(svg1);
+    this.groupObjs.append(svg2);
+    this.groupObjs.append(svg3);
+
+    svg1['userData'] = { objFlap: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3] };
+    svg2['userData'] = { objFlap: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3] };
+    svg3['userData'] = { objFlap: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3], crossOffset: false, link: null };
 
     return { svg1, svg2, svg3 };
   }
@@ -185,7 +206,7 @@ export class IsometricSvgObjs {
     this.groupObjs.childNodes.forEach((svg, ind) => {
       if (
         svg['userData'] &&
-        (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee) &&
+        (svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee || svg['userData'].objFlap) &&
         svg.contains(event.target)
       ) {
         this.actElem(svg, true);
@@ -254,6 +275,12 @@ export class IsometricSvgObjs {
     if (svg['userData'].objUndefined) {
       isometricSvgElem.setOffsetLine2(elems.line1, offset.x, offset.y);
       isometricSvgElem.setOffsetPolygon1(elems.line2, offset.x, offset.y);
+    }
+
+    if (svg['userData'].objFlap) {
+      isometricSvgElem.setOffsetPolygon1(elems.line1, offset.x, offset.y);
+      isometricSvgElem.setOffsetPolygon1(elems.line2, offset.x, offset.y);
+      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
     }
   }
 
@@ -502,6 +529,14 @@ export class IsometricSvgObjs {
       };
     }
 
+    if (svg['userData'].objFlap) {
+      elems = {
+        line1: svg['userData'].elems[0],
+        line2: svg['userData'].elems[1],
+        point: svg['userData'].elems[2],
+      };
+    }
+
     return elems;
   }
 
@@ -516,11 +551,11 @@ export class IsometricSvgObjs {
 
     if (!elems) return;
 
-    if (elems.poin) this.unLink(elems.point);
+    if (elems.point) this.unLink(elems.point);
 
     elems.line1.remove();
     elems.line2.remove();
-    if (elems.poin) elems.point.remove();
+    if (elems.point) elems.point.remove();
     if (elems.line3) elems.line3.remove();
     if (elems.line4) elems.line4.remove();
 
