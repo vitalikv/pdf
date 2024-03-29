@@ -13,6 +13,7 @@ import { IsometricSvgManager } from './svgManager';
 import { IsometricSvgElem } from './svgElem';
 import { IsometricSelectBox } from './selectBox';
 import { IsometricSheets } from './sheets';
+import { IsometricSvgJoint } from './svgJoint';
 import { IsometricSvgLine } from './svgLine';
 import { IsometricSvgObjs } from './svgObjs';
 import { IsometricNoteSvg } from './noteSvg';
@@ -42,6 +43,7 @@ export let isometricModeService,
   isometricSvgElem,
   isometricSelectBox,
   isometricSheets,
+  isometricSvgJoint,
   isometricSvgLine,
   isometricSvgObjs,
   isometricNoteSvg,
@@ -153,6 +155,7 @@ function initServ() {
   isometricSvgElem = new IsometricSvgElem();
   isometricSelectBox = new IsometricSelectBox();
   isometricSheets = new IsometricSheets();
+  isometricSvgJoint = new IsometricSvgJoint();
   isometricSvgLine = new IsometricSvgLine();
   isometricSvgObjs = new IsometricSvgObjs();
   isometricNoteSvg = new IsometricNoteSvg();
