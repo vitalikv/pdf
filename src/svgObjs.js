@@ -417,7 +417,7 @@ export class IsometricSvgObjs {
       const rotY1 = THREE.MathUtils.radToDeg(rotY - Math.PI / 2) * -1;
 
       const pos2 = isometricSvgElem.getPosCircle(elems.point);
-
+      console.log(rotY1);
       if (svg['userData'].objBracket) {
         elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
         elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
@@ -427,6 +427,17 @@ export class IsometricSvgObjs {
         isometricSvgElem.setRotPolygon1(elems.line2, rotY1);
         elems.line3.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
         elems.line4.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+      }
+      if (svg['userData'].objTee) {
+        elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+        elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+      }
+      if (svg['userData'].objFlap) {
+        isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
+        isometricSvgElem.setRotPolygon1(elems.line2, rotY1);
+      }
+      if (svg['userData'].objAdapter) {
+        isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
       }
     } else {
       if (svg['userData'].objBracket) {
@@ -439,6 +450,20 @@ export class IsometricSvgObjs {
         isometricSvgElem.setRotPolygon1(elems.line2, 0);
         elems.line3.setAttribute('transform', 'rotate(0)');
         elems.line4.setAttribute('transform', 'rotate(0)');
+      }
+
+      if (svg['userData'].objTee) {
+        elems.line1.setAttribute('transform', 'rotate(0)');
+        elems.line2.setAttribute('transform', 'rotate(0)');
+      }
+
+      if (svg['userData'].objFlap) {
+        isometricSvgElem.setRotPolygon1(elems.line1, 0);
+        isometricSvgElem.setRotPolygon1(elems.line2, 0);
+      }
+
+      if (svg['userData'].objAdapter) {
+        isometricSvgElem.setRotPolygon1(elems.line1, 0);
       }
     }
   }
@@ -589,7 +614,7 @@ export class IsometricSvgObjs {
     if (elems.point) this.unLink(elems.point);
 
     elems.line1.remove();
-    elems.line2.remove();
+    if (elems.line2) elems.line2.remove();
     if (elems.point) elems.point.remove();
     if (elems.line3) elems.line3.remove();
     if (elems.line4) elems.line4.remove();
@@ -611,8 +636,8 @@ export class IsometricSvgObjs {
     this.unLink(elems.point);
 
     elems.line1.remove();
-    elems.line2.remove();
-    elems.point.remove();
+    if (elems.line2) elems.line2.remove();
+    if (elems.point) elems.point.remove();
     if (elems.line3) elems.line3.remove();
     if (elems.line4) elems.line4.remove();
 
