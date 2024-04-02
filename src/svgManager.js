@@ -128,7 +128,9 @@ export class IsometricSvgManager {
       this.mode.type === 'objValve' ||
       this.mode.type === 'objTee' ||
       this.mode.type === 'objFlap' ||
-      this.mode.type === 'objAdapter'
+      this.mode.type === 'objAdapter' ||
+      this.mode.type === 'objBox' ||
+      this.mode.type === 'objSplitter'
     ) {
       if (this.mode.type !== disabledType) {
         isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
@@ -184,7 +186,9 @@ export class IsometricSvgManager {
       this.mode.type === 'objValve' ||
       this.mode.type === 'objTee' ||
       this.mode.type === 'objFlap' ||
-      this.mode.type === 'objAdapter'
+      this.mode.type === 'objAdapter' ||
+      this.mode.type === 'objBox' ||
+      this.mode.type === 'objSplitter'
     ) {
       isometricSvgObjs.deleteAddObj();
     }
@@ -290,7 +294,9 @@ export class IsometricSvgManager {
       this.mode.type === 'objValve' ||
       this.mode.type === 'objTee' ||
       this.mode.type === 'objFlap' ||
-      this.mode.type === 'objAdapter'
+      this.mode.type === 'objAdapter' ||
+      this.mode.type === 'objBox' ||
+      this.mode.type === 'objSplitter'
     ) {
       //isometricSvgObjs.addObj({ event, type: this.mode.type });
       if (event.button === 0) isometricSvgObjs.addObj2({ event, type: this.mode.type });
@@ -382,7 +388,9 @@ export class IsometricSvgManager {
           svg['userData'].objUndefined ||
           svg['userData'].objTee ||
           svg['userData'].objFlap ||
-          svg['userData'].objAdapter
+          svg['userData'].objAdapter ||
+          svg['userData'].objBox ||
+          svg['userData'].objSplitter
         ) {
           result = isometricSvgObjs.onmousedown(event);
         }
@@ -424,7 +432,9 @@ export class IsometricSvgManager {
             svg['userData'].objUndefined ||
             svg['userData'].objTee ||
             svg['userData'].objFlap ||
-            svg['userData'].objAdapter)
+            svg['userData'].objAdapter ||
+            svg['userData'].objBox ||
+            svg['userData'].objSplitter)
         ) {
           if (isometricSvgObjs.selectedObj.el === svg) {
             isometricSvgObjs.actElem(svg, false);

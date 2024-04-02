@@ -46,11 +46,12 @@ export class PanelUI {
     this.btns$[16] = this.crBtn({ txt: 'Клапан' });
     this.btns$[17] = this.crBtn({ txt: 'Переходник' });
     this.btns$[18] = this.crBtn({ txt: 'РО' });
-    this.btns$[19] = this.crBtn({ txt: 'Текст' });
-    this.btns$[20] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[21] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[22] = this.crListSheets();
-    this.btns$[23] = this.crBtn({ txt: 'из 3D в 2D' });
+    this.btns$[19] = this.crBtn({ txt: 'Разделитель' });
+    this.btns$[20] = this.crBtn({ txt: 'Текст' });
+    this.btns$[21] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[22] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[23] = this.crListSheets();
+    this.btns$[24] = this.crBtn({ txt: 'из 3D в 2D' });
 
     this.initEvent();
   }
@@ -181,26 +182,32 @@ export class PanelUI {
     ind++;
 
     this.btns$[19].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'addText' });
+      isometricSvgManager.setMode({ type: 'objSplitter' });
+      this.upColorBtn(e);
     };
     ind++;
 
     this.btns$[20].onmousedown = (e) => {
-      isometricSvgSave.save();
+      isometricSvgManager.setMode({ type: 'addText' });
     };
     ind++;
 
     this.btns$[21].onmousedown = (e) => {
+      isometricSvgSave.save();
+    };
+    ind++;
+
+    this.btns$[22].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
     ind++;
 
-    this.btns$[22].onchange = (e) => {
+    this.btns$[23].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
     };
     ind++;
 
-    this.btns$[23].onmousedown = (e) => {
+    this.btns$[24].onmousedown = (e) => {
       initModel();
     };
     ind++;
