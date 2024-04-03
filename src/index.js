@@ -27,6 +27,7 @@ import { IsometricMovePdf } from './movePdf';
 import { IsometricSvgSave } from './svgSave';
 import { IsometricSvgLoad } from './svgLoad';
 import { IsometricMath } from './math';
+import { IsometricListObjs } from './svgListObjs';
 import { CalcIsometrixSvg } from './back/calcIsometrixSvg';
 import { Isometric3dto2d } from './isometric3dto2d';
 import { IsometricSetCalcNotes } from './setCalcNotes';
@@ -57,6 +58,7 @@ export let isometricModeService,
   isometricSvgSave,
   isometricSvgLoad,
   isometricMath,
+  isometricListObjs,
   isometric3dto2d,
   isometricSetCalcNotes;
 
@@ -169,6 +171,7 @@ function initServ() {
   isometricSvgSave = new IsometricSvgSave();
   isometricSvgLoad = new IsometricSvgLoad();
   isometricMath = new IsometricMath();
+  isometricListObjs = new IsometricListObjs();
   isometric3dto2d = new Isometric3dto2d();
   isometricSetCalcNotes = new IsometricSetCalcNotes();
 
