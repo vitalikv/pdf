@@ -1,6 +1,6 @@
 import { isometricSvgElem } from './index';
 
-export class IsometricListObjs {
+export class IsometricSvgListObjs {
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;

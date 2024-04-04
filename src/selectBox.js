@@ -5,7 +5,7 @@ import {
   isometricMath,
   isometricSvgLine,
   isometricSvgObjs,
-  isometricListObjs,
+  isometricSvgListObjs,
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
@@ -238,7 +238,7 @@ export class IsometricSelectBox {
             arrPoints.push(svg);
           }
         }
-        if (isometricListObjs.isObjBySvg(svg)) {
+        if (isometricSvgListObjs.isObjBySvg(svg)) {
           if (svg['userData'].tag === 'point') {
             arrPoints.push(svg);
           }
@@ -360,7 +360,7 @@ export class IsometricSelectBox {
         svg.setAttribute('stroke', stroke);
         svg.setAttribute('fill', stroke);
       }
-    } else if (isometricListObjs.isObjBySvg(svg)) {
+    } else if (isometricSvgListObjs.isObjBySvg(svg)) {
       if (svg['userData'].tag === 'point') {
         isometricSvgObjs.setColorElem(svg, act);
       }
@@ -417,7 +417,7 @@ export class IsometricSelectBox {
           arrPoints.push(svg);
         }
 
-        if (isometricListObjs.isObjBySvg(svg)) {
+        if (isometricSvgListObjs.isObjBySvg(svg)) {
           if (svg['userData'].tag === 'point') {
             arrObjs.push(svg);
           }
@@ -466,7 +466,7 @@ export class IsometricSelectBox {
             isometricSvgLine.deleteObj(svg);
           }
         }
-        if (isometricListObjs.isObjBySvg(svg)) {
+        if (isometricSvgListObjs.isObjBySvg(svg)) {
           if (svg['userData'].tag === 'point') {
             isometricSvgObjs.deleteObj(svg);
           }

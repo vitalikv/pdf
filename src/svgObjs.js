@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath, isometricListObjs } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgListObjs } from './index';
 
 export class IsometricSvgObjs {
   container;
@@ -17,7 +17,7 @@ export class IsometricSvgObjs {
     this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
     this.groupObjs = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'objs' });
 
-    isometricListObjs.init({ container, containerSvg });
+    isometricSvgListObjs.init({ container, containerSvg });
   }
 
   addObj({ event, type }) {
@@ -34,12 +34,12 @@ export class IsometricSvgObjs {
     const pos = event ? this.getCoord(event) : new THREE.Vector2(-99999, -99999);
 
     if (type === 'objBracket') {
-      const { svg1, svg2, svg3 } = isometricListObjs.createObjBracket({ x: pos.x, y: pos.y });
+      const { svg1, svg2, svg3 } = isometricSvgListObjs.createObjBracket({ x: pos.x, y: pos.y });
       this.actElem(svg3, true);
     }
 
     if (type === 'objValve') {
-      const { svg1, svg2, svg3 } = isometricListObjs.createObjValve({ x: pos.x, y: pos.y });
+      const { svg1, svg2, svg3 } = isometricSvgListObjs.createObjValve({ x: pos.x, y: pos.y });
       this.actElem(svg3, true);
     }
 
@@ -55,27 +55,27 @@ export class IsometricSvgObjs {
         arrP = pos;
       }
 
-      const { svg1, svg2 } = isometricListObjs.createObjTee({ pos: arrP });
+      const { svg1, svg2 } = isometricSvgListObjs.createObjTee({ pos: arrP });
       this.actElem(svg1, true);
     }
 
     if (type === 'objFlap') {
-      const { svg1, svg2, svg3 } = isometricListObjs.createObjFlap({ x: pos.x, y: pos.y });
+      const { svg1, svg2, svg3 } = isometricSvgListObjs.createObjFlap({ x: pos.x, y: pos.y });
       this.actElem(svg3, true);
     }
 
     if (type === 'objAdapter') {
-      const { svg1, svg2 } = isometricListObjs.createObjAdapter({ x: pos.x, y: pos.y });
+      const { svg1, svg2 } = isometricSvgListObjs.createObjAdapter({ x: pos.x, y: pos.y });
       this.actElem(svg2, true);
     }
 
     if (type === 'objBox') {
-      const { svg1, svg2 } = isometricListObjs.createObjBox({ x: pos.x, y: pos.y });
+      const { svg1, svg2 } = isometricSvgListObjs.createObjBox({ x: pos.x, y: pos.y });
       this.actElem(svg2, true);
     }
 
     if (type === 'objSplitter') {
-      const { svg1, svg2 } = isometricListObjs.createObjSplitter({ x: pos.x, y: pos.y });
+      const { svg1, svg2 } = isometricSvgListObjs.createObjSplitter({ x: pos.x, y: pos.y });
       this.actElem(svg2, true);
     }
 
