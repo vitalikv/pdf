@@ -65,9 +65,9 @@ export class IsometricListObjs {
 
     this.groupObjs.append(svg1);
     this.groupObjs.append(svg2);
-    this.groupObjs.append(svg3);
     this.groupObjs.append(svg4);
     this.groupObjs.append(svg5);
+    this.groupObjs.append(svg3);
 
     svg1['userData'] = { objValve: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
     svg2['userData'] = { objValve: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
@@ -176,5 +176,21 @@ export class IsometricListObjs {
     //svg2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + x + ',' + y + ')');
 
     return { svg1, svg2 };
+  }
+
+  isObjBySvg(svg) {
+    const isObj =
+      svg['userData'].objBracket ||
+      svg['userData'].objValve ||
+      svg['userData'].objUndefined ||
+      svg['userData'].objTee ||
+      svg['userData'].objFlap ||
+      svg['userData'].objAdapter ||
+      svg['userData'].objBox ||
+      svg['userData'].objSplitter
+        ? true
+        : false;
+
+    return isObj;
   }
 }

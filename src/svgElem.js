@@ -59,6 +59,10 @@ export class IsometricSvgElem {
     return new THREE.Vector2(x * ratio, y * ratio);
   }
 
+  getSvgType(svg) {
+    return svg.tagName.toLowerCase();
+  }
+
   // создаем svg line елемент
   createSvgLine({ x1, y1, x2, y2, stroke = '#000000' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
