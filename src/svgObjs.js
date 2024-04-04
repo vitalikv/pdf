@@ -106,6 +106,7 @@ export class IsometricSvgObjs {
           svg['userData'].objAdapter) &&
         svg.contains(event.target)
       ) {
+        isometricSvgListObjs.scaleObj(svg);
         this.actElem(svg, true);
 
         if (!svg['userData'].lock) {
@@ -333,6 +334,7 @@ export class IsometricSvgObjs {
         elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
         elems.line3.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
       }
+      elems.point['userData'].rotY1 = rotY1;
     } else {
       if (svg['userData'].objBracket) {
         elems.line1.setAttribute('transform', 'rotate(0)');
@@ -369,6 +371,8 @@ export class IsometricSvgObjs {
         elems.line2.setAttribute('transform', 'rotate(0)');
         elems.line3.setAttribute('transform', 'rotate(0)');
       }
+
+      elems.point['userData'].rotY1 = 0;
     }
   }
 
@@ -399,6 +403,7 @@ export class IsometricSvgObjs {
     if (act) {
       this.selectedObj.el = svg;
     } else {
+      isometricSvgListObjs.deActPointsScale();
       this.clearSelectedObj();
     }
   }
