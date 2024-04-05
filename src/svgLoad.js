@@ -171,7 +171,37 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objTee') {
         const pos = obj.pos;
-        //isometricSvgListObjs.createObjTee({ pos });
+        const { svg3 } = isometricSvgListObjs.createObjTee({ x: pos.x, y: pos.y });
+        isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
+        isometricSvgObjs.setRotObj({ svg: svg3 });
+      }
+
+      if (obj.tag === 'objFlap') {
+        const pos = obj.pos;
+        const { svg3 } = isometricSvgListObjs.createObjFlap({ x: pos.x, y: pos.y });
+        isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
+        isometricSvgObjs.setRotObj({ svg: svg3 });
+      }
+
+      if (obj.tag === 'objAdapter') {
+        const pos = obj.pos;
+        const { svg2 } = isometricSvgListObjs.createObjAdapter({ x: pos.x, y: pos.y });
+        isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
+        isometricSvgObjs.setRotObj({ svg: svg2 });
+      }
+
+      if (obj.tag === 'objBox') {
+        const pos = obj.pos;
+        const { svg2 } = isometricSvgListObjs.createObjBox({ x: pos.x, y: pos.y });
+        isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
+        isometricSvgObjs.setRotObj({ svg: svg2 });
+      }
+
+      if (obj.tag === 'objSplitter') {
+        const pos = obj.pos;
+        const { svg2 } = isometricSvgListObjs.createObjSplitter({ x: pos.x, y: pos.y });
+        isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
+        isometricSvgObjs.setRotObj({ svg: svg2 });
       }
 
       if (obj.tag === 'objUndefined') {

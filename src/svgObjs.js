@@ -44,19 +44,8 @@ export class IsometricSvgObjs {
     }
 
     if (type === 'objTee') {
-      let arrP = [];
-
-      if (!Array.isArray(pos)) {
-        arrP.push({ x: pos.x - 20, y: pos.y });
-        arrP.push({ x: pos.x + 20, y: pos.y });
-        arrP.push({ x: pos.x, y: pos.y });
-        arrP.push({ x: pos.x, y: pos.y + 20 });
-      } else {
-        arrP = pos;
-      }
-
-      const { svg1, svg2 } = isometricSvgListObjs.createObjTee({ pos: arrP });
-      this.actElem(svg1, true);
+      const { svg3 } = isometricSvgListObjs.createObjTee({ x: pos.x, y: pos.y });
+      this.actElem(svg3, true);
     }
 
     if (type === 'objFlap') {
@@ -96,16 +85,7 @@ export class IsometricSvgObjs {
     this.isDown = false;
 
     this.groupObjs.childNodes.forEach((svg, ind) => {
-      if (
-        svg['userData'] &&
-        (svg['userData'].objBracket ||
-          svg['userData'].objValve ||
-          svg['userData'].objUndefined ||
-          svg['userData'].objTee ||
-          svg['userData'].objFlap ||
-          svg['userData'].objAdapter) &&
-        svg.contains(event.target)
-      ) {
+      if (svg['userData'] && isometricSvgListObjs.isObjBySvg(svg) && svg.contains(event.target)) {
         isometricSvgListObjs.scaleObj(svg);
         this.actElem(svg, true);
 

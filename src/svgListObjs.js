@@ -138,10 +138,10 @@ export class IsometricSvgListObjs {
     return { svg1, svg2, svg3 };
   }
 
-  createObjTee({ pos }) {
-    const svg1 = this.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
-    const svg2 = this.createSvgLine({ x1: pos[2].x, y1: pos[2].y, x2: pos[3].x, y2: pos[3].y });
-    const svg3 = this.createSvgCircle({ x: pos[2].x, y: pos[2].y });
+  createObjTee({ x, y }) {
+    const svg1 = this.createSvgLine({ x1: x - 20, y1: y, x2: x + 20, y2: y });
+    const svg2 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y + 20 });
+    const svg3 = this.createSvgCircle({ x: x, y: y });
 
     this.groupObjs.append(svg1);
     this.groupObjs.append(svg2);
@@ -291,7 +291,7 @@ export class IsometricSvgListObjs {
     }
 
     if (elems.point['userData'].objFlap) {
-      const scale = -1.5;
+      const scale = 1.0;
 
       let points = profile.svg1.points;
       for (let i = 0; i < points.length; i++) {
@@ -311,7 +311,7 @@ export class IsometricSvgListObjs {
     }
 
     if (elems.point['userData'].objAdapter) {
-      const scale = -1.0;
+      const scale = 1.0;
 
       let points = profile.svg1.points;
       for (let i = 0; i < points.length; i++) {

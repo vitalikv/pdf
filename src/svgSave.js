@@ -43,6 +43,31 @@ export class IsometricSvgSave {
           isometry.objs.push({ tag: 'objValve', pos });
         }
 
+        if (svg['userData'].objTee && svg['userData'].tag === 'point') {
+          const pos = isometricSvgElem.getPosCircle(svg);
+          isometry.objs.push({ tag: 'objTee', pos });
+        }
+
+        if (svg['userData'].objFlap && svg['userData'].tag === 'point') {
+          const pos = isometricSvgElem.getPosCircle(svg);
+          isometry.objs.push({ tag: 'objFlap', pos });
+        }
+
+        if (svg['userData'].objAdapter && svg['userData'].tag === 'point') {
+          const pos = isometricSvgElem.getPosCircle(svg);
+          isometry.objs.push({ tag: 'objAdapter', pos });
+        }
+
+        if (svg['userData'].objBox && svg['userData'].tag === 'point') {
+          const pos = isometricSvgElem.getPosCircle(svg);
+          isometry.objs.push({ tag: 'objBox', pos });
+        }
+
+        if (svg['userData'].objSplitter && svg['userData'].tag === 'point') {
+          const pos = isometricSvgElem.getPosCircle(svg);
+          isometry.objs.push({ tag: 'objSplitter', pos });
+        }
+
         if (svg['userData'].note1 && svg['userData'].tag === 'line') {
           const obj = isometricNoteSvg.getStructureNote(svg);
 
