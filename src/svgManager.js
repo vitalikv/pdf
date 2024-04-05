@@ -9,6 +9,7 @@ import {
   isometricSvgJoint,
   isometricSvgLine,
   isometricSvgObjs,
+  isometricSvgListObjs,
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
@@ -237,6 +238,7 @@ export class IsometricSvgManager {
     isometricSvgJoint.onmousemove(event);
     isometricSvgLine.onmousemove(event);
     isometricSvgObjs.onmousemove(event);
+    isometricSvgListObjs.onmousemove(event);
     isometricNoteSvg.onmousemove(event);
     isometricNoteSvg2.onmousemove(event);
     isometricSvgRuler.onmousemove(event);
@@ -250,6 +252,7 @@ export class IsometricSvgManager {
     isometricSvgJoint.onmouseup(event);
     isometricSvgLine.onmouseup(event);
     isometricSvgObjs.onmouseup(event);
+    isometricSvgListObjs.onmouseup(event);
     isometricNoteSvg.onmouseup(event);
     isometricNoteSvg2.onmouseup(event);
     isometricSvgRuler.onmouseup(event);
@@ -382,16 +385,9 @@ export class IsometricSvgManager {
           result = isometricSvgLine.onmousedown(event);
         }
 
-        if (
-          svg['userData'].objBracket ||
-          svg['userData'].objValve ||
-          svg['userData'].objUndefined ||
-          svg['userData'].objTee ||
-          svg['userData'].objFlap ||
-          svg['userData'].objAdapter ||
-          svg['userData'].objBox ||
-          svg['userData'].objSplitter
-        ) {
+        if (svg['userData'].pointScale) {
+          isometricSvgListObjs.onmousedown(event);
+        } else if (isometricSvgListObjs.isObjBySvg(svg)) {
           result = isometricSvgObjs.onmousedown(event);
         }
 

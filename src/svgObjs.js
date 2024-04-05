@@ -8,6 +8,7 @@ export class IsometricSvgObjs {
   groupLines;
   groupObjs;
   isDown = false;
+  isMove = false;
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '', mode: '' };
 
@@ -83,6 +84,7 @@ export class IsometricSvgObjs {
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
 
     this.isDown = false;
+    this.isMove = false;
 
     this.groupObjs.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && isometricSvgListObjs.isObjBySvg(svg) && svg.contains(event.target)) {
@@ -106,6 +108,10 @@ export class IsometricSvgObjs {
 
   onmousemove = (event) => {
     if (!this.isDown) return;
+    if (!this.isMove) {
+      this.isMove = true;
+      isometricSvgListObjs.deActPointsScale();
+    }
 
     let svg = this.selectedObj.el;
     if (svg['userData'].lock) return;
@@ -125,6 +131,7 @@ export class IsometricSvgObjs {
   onmouseup = (event) => {
     if (this.selectedObj.el && this.selectedObj.mode === 'add') return;
     this.isDown = false;
+    this.isMove = false;
   };
 
   moveSvgObj({ svg, offset }) {

@@ -1,9 +1,17 @@
+import * as THREE from 'three';
+
 import { isometricSvgElem } from './index';
 
 export class IsometricSvgListObjs {
   container;
   containerSvg;
   svgPointsScale;
+
+  isDown = false;
+  isMove = false;
+  offset = new THREE.Vector2();
+  selectedObj = null;
+  pivot = { dir: new THREE.Vector2(), startPos: new THREE.Vector2() };
 
   init({ container, containerSvg }) {
     this.container = container;
@@ -237,8 +245,8 @@ export class IsometricSvgListObjs {
     const svgP1 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#000' });
     const svgP2 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#000' });
 
-    svgP1['userData'] = { pointScale: true, id: 0, elems: [svgP1, svgP2] };
-    svgP2['userData'] = { pointScale: true, id: 1, elems: [svgP1, svgP2] };
+    svgP1['userData'] = { pointScale: true, id: 0, elems: [svgP1, svgP2], svgObj: null };
+    svgP2['userData'] = { pointScale: true, id: 1, elems: [svgP1, svgP2], svgObj: null };
 
     this.groupObjs.append(svgP1);
     this.groupObjs.append(svgP2);
@@ -256,6 +264,7 @@ export class IsometricSvgListObjs {
     isometricSvgElem.setPosCircle(svgP, posC.x + offsetX, posC.y);
     svgP.setAttribute('transform', 'rotate(' + rotY1 + ', ' + posC.x + ',' + posC.y + ')');
     svgP.setAttribute('display', '');
+    svgP['userData'].svgObj = point;
   }
 
   deActPointsScale() {
@@ -263,14 +272,14 @@ export class IsometricSvgListObjs {
     this.svgPointsScale.p2.setAttribute('display', 'none');
   }
 
-  scaleObj(svg) {
+  scaleObj(svg, scale = null) {
     const elems = this.getStructureObj(svg);
     const profile = elems.point['userData'].profile;
     if (!profile) return;
 
-    if (elems.point['userData'].objValve) {
-      const scale = 1.0;
+    scale = scale ? scale : profile.scale;
 
+    if (elems.point['userData'].objValve) {
       let points = profile.svg1.points;
       for (let i = 0; i < points.length; i++) {
         const p = elems.line1.points[i];
@@ -291,8 +300,6 @@ export class IsometricSvgListObjs {
     }
 
     if (elems.point['userData'].objFlap) {
-      const scale = 1.0;
-
       let points = profile.svg1.points;
       for (let i = 0; i < points.length; i++) {
         const p = elems.line1.points[i];
@@ -311,8 +318,6 @@ export class IsometricSvgListObjs {
     }
 
     if (elems.point['userData'].objAdapter) {
-      const scale = 1.0;
-
       let points = profile.svg1.points;
       for (let i = 0; i < points.length; i++) {
         const p = elems.line1.points[i];
@@ -407,5 +412,75 @@ export class IsometricSvgListObjs {
         : false;
 
     return isObj;
+  }
+
+  onmousedown = (event) => {
+    this.isDown = false;
+    this.isMove = false;
+
+    this.groupObjs.childNodes.forEach((svg, ind) => {
+      if (svg['userData'] && svg['userData'].pointScale && svg.contains(event.target)) {
+        const svgObj = svg['userData'].svgObj;
+        if (svgObj) {
+          this.scaleObj(svgObj);
+          const posC = isometricSvgElem.getPosCircle(svgObj);
+          const posP = isometricSvgElem.getPosCircle(svg);
+          this.pivot.dir = new THREE.Vector2(posC.x, posC.y).sub(new THREE.Vector2(posP.x, posP.y)).normalize();
+
+          this.pivot.startPos = this.getCoord(event);
+
+          console.log(this.pivot);
+          this.selectedObj = svg;
+          this.isDown = true;
+        }
+      }
+    });
+
+    this.offset = this.getCoord(event);
+
+    return this.isDown;
+  };
+
+  onmousemove = (event) => {
+    if (!this.isDown) return;
+    if (!this.isMove) {
+      this.isMove = true;
+    }
+
+    let pos = this.getCoord(event);
+
+    let dist = this.pivot.dir.dot(new THREE.Vector2(pos.x, pos.y).sub(this.pivot.startPos));
+    pos = this.pivot.startPos.clone().add(new THREE.Vector2().addScaledVector(this.pivot.dir, dist));
+    const offset = new THREE.Vector2().subVectors(pos, this.pivot.startPos);
+
+    this.moveSvgObj({ svg: this.selectedObj, offset });
+
+    const svgObj = this.selectedObj['userData'].svgObj;
+    const profile = svgObj['userData'].profile;
+    //const distDef = new THREE.Vector2(profile.svg1.points[1][0], profile.svg1.points[1][1]);
+
+    const posC = isometricSvgElem.getPosCircle(svgObj);
+    const posP = isometricSvgElem.getPosCircle(this.selectedObj);
+    const scale = posC.distanceTo(posP) / profile.svg1.points[1][0];
+
+    this.scaleObj(svgObj, scale);
+    profile.scale = scale;
+
+    this.pivot.startPos = this.getCoord(event);
+  };
+
+  onmouseup = (event) => {
+    this.isDown = false;
+    this.isMove = false;
+  };
+
+  getCoord(event) {
+    const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+
+    return pos;
+  }
+
+  moveSvgObj({ svg, offset }) {
+    isometricSvgElem.setOffsetCircle(svg, offset.x, offset.y);
   }
 }
