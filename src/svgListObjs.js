@@ -101,6 +101,7 @@ export class IsometricSvgListObjs {
       svg4: { x1: 0, y1: 0, x2: 0, y2: 0 - 20 },
       svg5: { x1: 0 - 10, y1: 0 - 20, x2: 0 + 10, y2: 0 - 20 },
       scale: 1,
+      distDef: 20,
     };
 
     svg1['userData'] = { objValve: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
@@ -137,6 +138,7 @@ export class IsometricSvgListObjs {
         ],
       },
       scale: 1,
+      distDef: 20,
     };
 
     svg1['userData'] = { objFlap: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3] };
@@ -178,6 +180,7 @@ export class IsometricSvgListObjs {
         ],
       },
       scale: 1,
+      distDef: 20,
     };
 
     svg1['userData'] = { objAdapter: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
@@ -193,8 +196,21 @@ export class IsometricSvgListObjs {
     this.groupObjs.append(svg1);
     this.groupObjs.append(svg2);
 
+    const profile = {
+      svg1: {
+        points: [
+          [-20, -20],
+          [-20, 20],
+          [20, 20],
+          [20, -20],
+        ],
+      },
+      scale: 1,
+      distDef: 20,
+    };
+
     svg1['userData'] = { objBox: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
-    svg2['userData'] = { objBox: true, tag: 'point', lock: false, elems: [svg1, svg2], crossOffset: false, link: null };
+    svg2['userData'] = { objBox: true, tag: 'point', lock: false, elems: [svg1, svg2], crossOffset: false, link: null, profile };
 
     return { svg1, svg2 };
   }
@@ -325,6 +341,17 @@ export class IsometricSvgListObjs {
         p.y = points[i][1] * scale;
       }
       this.actPointsScale({ point: elems.point, p1: true, offsetX: points[1][0] * scale });
+    }
+
+    if (elems.point['userData'].objBox) {
+      let points = profile.svg1.points;
+      for (let i = 0; i < points.length; i++) {
+        const p = elems.line1.points[i];
+        p.x = points[i][0] * scale;
+        p.y = points[i][1] * scale;
+      }
+      this.actPointsScale({ point: elems.point, p1: true, offsetX: points[1][0] * scale });
+      this.actPointsScale({ point: elems.point, p2: true, offsetX: points[2][0] * scale });
     }
   }
 
@@ -457,12 +484,15 @@ export class IsometricSvgListObjs {
 
     const svgObj = this.selectedObj['userData'].svgObj;
     const profile = svgObj['userData'].profile;
-    //const distDef = new THREE.Vector2(profile.svg1.points[1][0], profile.svg1.points[1][1]);
 
     const posC = isometricSvgElem.getPosCircle(svgObj);
     const posP = isometricSvgElem.getPosCircle(this.selectedObj);
-    const scale = posC.distanceTo(posP) / profile.svg1.points[1][0];
+    let scale = posC.distanceTo(posP) / profile.distDef;
 
+    if (scale < 0.1) scale = 0.1;
+    const dot = this.pivot.dir.dot(new THREE.Vector2(pos.x, pos.y).sub(posC));
+
+    if (dot > 0) scale *= -1;
     this.scaleObj(svgObj, scale);
     profile.scale = scale;
 
