@@ -277,8 +277,11 @@ export class IsometricSvgListObjs {
     const posC = isometricSvgElem.getPosCircle(point);
     const rotY1 = point['userData'].rotY1;
 
-    isometricSvgElem.setPosCircle(svgP, posC.x + offsetX, posC.y);
-    svgP.setAttribute('transform', 'rotate(' + rotY1 + ', ' + posC.x + ',' + posC.y + ')');
+    const rad = THREE.MathUtils.degToRad(rotY1 - 90);
+    const cx = 0 * Math.cos(rad) - offsetX * Math.sin(rad);
+    const cy = 0 * Math.sin(rad) + offsetX * Math.cos(rad);
+    isometricSvgElem.setPosCircle(svgP, posC.x + cx, posC.y + cy);
+
     svgP.setAttribute('display', '');
     svgP['userData'].svgObj = point;
   }
