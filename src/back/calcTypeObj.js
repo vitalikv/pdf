@@ -23,6 +23,8 @@ export class CalcTypeObj {
       for (let i2 = 0; i2 < p1.length; i2++) {
         for (let i3 = 0; i3 < arrC.length; i3++) {
           const p2 = arrC[i3].joints;
+          if (!p2[2]) console.log(p2);
+          if (!p2[2]) continue;
 
           const ind = [p2[0], p2[2]].findIndex((p) => p.pos.x === p1[i2].pos.x && p.pos.y === p1[i2].pos.y && p.pos.z === p1[i2].pos.z);
           if (ind === -1) continue;
@@ -39,6 +41,7 @@ export class CalcTypeObj {
     // проверяем углы, если хоть один стык угла не стыкуется с трубой, то добавляем ее в общий массив как трубам
     for (let i = 0; i < arrC.length; i++) {
       const p2 = arrC[i].joints;
+      if (!p2[2]) continue;
       if (p2[0].pos.x === Infinity && p2[2].pos.x === Infinity) continue;
 
       if (p2[0].pos.x !== Infinity) arr.push({ type: 'curved', joints: [p2[0], p2[1]] });
