@@ -119,7 +119,7 @@ export class PanelUI {
     ind++;
 
     this.btns$[8].children[0].oninput = (e) => {
-      isometricPdfToSvg.setScale({ value: e.target.value });
+      isometricPdfToSvg.setScale2({ value: e.target.value });
     };
     ind++;
 

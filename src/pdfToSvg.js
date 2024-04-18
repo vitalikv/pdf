@@ -300,7 +300,7 @@ export class IsometricPdfToSvg {
     canvas.style.width = (canvas.width / aspect) * this.scalePdf + 'px';
     canvas.style.height = (canvas.height / aspect) * this.scalePdf + 'px';
     canvas.style.transform = 'translateX(-50%) translateY(-50%)';
-    canvas.style.border = '4px solid #515151';
+    canvas.style.border = 'none';
     canvas.style.boxSizing = 'border-box';
     canvas.style.zIndex = '3';
 
@@ -325,9 +325,9 @@ export class IsometricPdfToSvg {
     //isometricSheets.setStyle(this.canvasPdf.style.cssText);
 
     isometricSvgScale.scaleLines(this.canvasPdf, ratio, bound);
-    // isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
-    // isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
-    // isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
+    isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
+    isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
+    isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
   }
 
   deletePdf() {

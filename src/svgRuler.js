@@ -797,7 +797,7 @@ export class IsometricSvgRuler {
   scale(canvas, ratio, bound2) {
     const svgArr = [];
 
-    this.groupLines.childNodes.forEach((svg, ind) => {
+    this.groupRulers.childNodes.forEach((svg, ind) => {
       if (svg['userData']) {
         if (svg['userData'].ruler && svg['userData'].tag === 'line') {
           svgArr.push(svg);
