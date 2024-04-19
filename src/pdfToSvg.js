@@ -284,52 +284,6 @@ export class IsometricPdfToSvg {
     isometricSheets.setStyle(this.canvasPdf.style.cssText);
   }
 
-  updateCanvasPdf2() {
-    const div = this.containerPdf;
-
-    const canvas = this.canvasPdf;
-    const width = canvas.width;
-    const height = canvas.height;
-
-    const width2 = div.clientWidth;
-    const height2 = div.clientHeight;
-
-    const aspect = width / width2 > height / height2 ? width / width2 : height / height2;
-
-    canvas.style.position = 'absolute';
-    canvas.style.width = (canvas.width / aspect) * this.scalePdf + 'px';
-    canvas.style.height = (canvas.height / aspect) * this.scalePdf + 'px';
-    canvas.style.transform = 'translateX(-50%) translateY(-50%)';
-    canvas.style.border = 'none';
-    canvas.style.boxSizing = 'border-box';
-    canvas.style.zIndex = '3';
-
-    // this.containerSvg.style.cssText = canvas.style.cssText;
-    // this.containerSvg.style.zIndex = '4';
-    // this.containerSvg.style.userSelect = 'none';
-  }
-
-  setScale2({ value }) {
-    if (!this.canvasPdf) return;
-    value = Number(value) / 100;
-
-    const ratio = value / this.scalePdf;
-    const bound = this.canvasPdf.getBoundingClientRect();
-
-    this.scalePdf = value;
-
-    this.updateCanvasPdf2();
-
-    //isometricStampLogo.setScale(this.scalePdf);
-
-    //isometricSheets.setStyle(this.canvasPdf.style.cssText);
-
-    isometricSvgScale.scaleLines(this.canvasPdf, ratio, bound);
-    isometricNoteSvg.scale(this.canvasPdf, ratio, bound);
-    isometricNoteSvg2.scale(this.canvasPdf, ratio, bound);
-    isometricSvgRuler.scale(this.canvasPdf, ratio, bound);
-  }
-
   deletePdf() {
     if (!this.containerPdf) return;
 

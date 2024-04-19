@@ -105,8 +105,8 @@ export class IsometricSvgRuler {
     svg1['userData'] = { ruler: true, tag: 'line', line: svg1, p1: svg2, p2: svg3 };
     svg2['userData'] = { ruler: true, tag: 'p1', line: svg1, p1: svg2, p2: svg3, line2: svg4 };
     svg3['userData'] = { ruler: true, tag: 'p2', line: svg1, p1: svg2, p2: svg3, line2: svg5 };
-    svg4['userData'] = { p: svg6 };
-    svg5['userData'] = { p: svg7 };
+    svg4['userData'] = { ruler: true, p: svg6 };
+    svg5['userData'] = { ruler: true, p: svg7 };
     svg6['userData'] = { ruler: true, tag: 'dpoint', line: svg1, dline: svg4, crossOffset: false, link: null };
     svg7['userData'] = { ruler: true, tag: 'dpoint', line: svg1, dline: svg5, crossOffset: false, link: null };
 
@@ -165,6 +165,7 @@ export class IsometricSvgRuler {
     elem.style.zIndex = '4';
 
     elem.textContent = txt;
+    elem['userData'] = { ruler: true };
     this.groupRulers.append(elem);
 
     p2['userData'].divText = elem;

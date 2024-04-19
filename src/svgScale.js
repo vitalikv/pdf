@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
+import { isometricSvgElem, isometricSvgListObjs } from './index';
 
 export class IsometricSvgScale {
   container;
@@ -12,7 +12,6 @@ export class IsometricSvgScale {
   button = -1;
   activated = false;
   isDown = false;
-  startOffset = new THREE.Vector2();
   offset = new THREE.Vector2();
   sumOffset = new THREE.Vector2();
 
@@ -40,7 +39,6 @@ export class IsometricSvgScale {
   onmousedown = (event) => {
     if (!this.activated) return;
 
-    this.startOffset = new THREE.Vector2(event.clientX, event.clientY);
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
     this.sumOffset = new THREE.Vector2();
 
@@ -58,11 +56,15 @@ export class IsometricSvgScale {
     }
 
     if (this.button === 0) {
-      const coord = new THREE.Vector2(event.clientX, event.clientY);
-      const dist = this.startOffset.distanceTo(coord);
-      const dir = this.startOffset.clone().sub(coord);
-      const dot = dir.dot(new THREE.Vector2(0, 1));
-      console.log(dot, dist);
+      const offset = new THREE.Vector2(event.clientX - this.offset.x, event.clientY - this.offset.y);
+
+      const rect = this.containerSvg.getBoundingClientRect();
+      const centerPos = new THREE.Vector2(rect.width / 2 - rect.x, rect.height / 2 - rect.y);
+
+      this.scaleLines({ centerPos, offsetY: offset.y * 0.005 });
+      this.scaleNotes({ centerPos, offsetY: offset.y * 0.005 });
+      this.scaleRulers({ centerPos, offsetY: offset.y * 0.005 });
+      this.scaleObjs({ centerPos, offsetY: offset.y * 0.005 });
     }
 
     if (this.button === 2) {
@@ -142,8 +144,7 @@ export class IsometricSvgScale {
     }
   }
 
-  scaleLines(canvas, ratio, bound2) {
-    const arrLines = [];
+  scaleLines({ centerPos, offsetY }) {
     const arrPoints = [];
     const arrDPoints = [];
 
@@ -158,47 +159,31 @@ export class IsometricSvgScale {
       }
     });
 
-    const bound = canvas.getBoundingClientRect();
-    const boundC = this.container.getBoundingClientRect();
+    arrPoints.forEach((svgCircle, ind) => {
+      const pos = isometricSvgElem.getPosCircle(svgCircle);
 
-    arrPoints.forEach((svgCircle) => {
-      const cx = svgCircle.getAttribute('cx');
-      const cy = svgCircle.getAttribute('cy');
+      const dir = centerPos.clone().sub(pos);
+      dir.x *= offsetY;
+      dir.y *= offsetY;
+      pos.add(dir);
 
-      const nx1 = (cx - bound2.x) * ratio + bound.x;
-      const ny1 = (cy - bound2.y) * ratio + bound.y + (boundC.y * ratio - boundC.y);
-
-      svgCircle.setAttribute('cx', Number(nx1));
-      svgCircle.setAttribute('cy', Number(ny1));
+      isometricSvgElem.setPosCircle(svgCircle, pos.x, pos.y);
     });
-
-    const arrPds = [];
 
     arrPoints.forEach((svg) => {
       svg['userData'].lines.forEach((svgLine) => {
-        const coord = this.getCoordLine(svgLine);
-        svgLine.setAttribute('x1', coord.a.x);
-        svgLine.setAttribute('y1', coord.a.y);
-        svgLine.setAttribute('x2', coord.b.x);
-        svgLine.setAttribute('y2', coord.b.y);
+        const coord = isometricSvgElem.getPosLine1(svgLine);
+
+        isometricSvgElem.setPosLine2({ svg: svgLine, x1: coord[0].x, y1: coord[0].y, x2: coord[1].x, y2: coord[1].y });
 
         if (svgLine['userData'].pd1) {
           const svgCircle = svgLine['userData'].pd1;
           const svgLd = svgLine['userData'].ld1;
           const pos = this.getCoordPointOnLine({ line: svgLine, ind: 2 });
 
-          svgCircle.setAttribute('cx', pos.pos.x);
-          svgCircle.setAttribute('cy', pos.pos.y);
-
-          svgLd.setAttribute('x1', pos.pos.x);
-          svgLd.setAttribute('y1', pos.pos.y);
-          svgLd.setAttribute('x2', pos.pos1.x);
-          svgLd.setAttribute('y2', pos.pos1.y);
-
-          svgLine.setAttribute('x1', pos.pos.x);
-          svgLine.setAttribute('y1', pos.pos.y);
-
-          arrPds.push(svgCircle);
+          isometricSvgElem.setPosCircle(svgCircle, pos.pos.x, pos.pos.y);
+          isometricSvgElem.setPosLine2({ svg: svgLd, x1: pos.pos.x, y1: pos.pos.y, x2: pos.pos1.x, y2: pos.pos1.y });
+          isometricSvgElem.setPosLine2({ svg: svgLine, x1: pos.pos.x, y1: pos.pos.y });
         }
 
         if (svgLine['userData'].pd2) {
@@ -206,38 +191,12 @@ export class IsometricSvgScale {
           const svgLd = svgLine['userData'].ld2;
           const pos = this.getCoordPointOnLine({ line: svgLine, ind: 1 });
 
-          svgCircle.setAttribute('cx', pos.pos.x);
-          svgCircle.setAttribute('cy', pos.pos.y);
-
-          svgLd.setAttribute('x1', pos.pos.x);
-          svgLd.setAttribute('y1', pos.pos.y);
-          svgLd.setAttribute('x2', pos.pos2.x);
-          svgLd.setAttribute('y2', pos.pos2.y);
-
-          svgLine.setAttribute('x2', pos.pos.x);
-          svgLine.setAttribute('y2', pos.pos.y);
-
-          arrPds.push(svgCircle);
+          isometricSvgElem.setPosCircle(svgCircle, pos.pos.x, pos.pos.y);
+          isometricSvgElem.setPosLine2({ svg: svgLd, x1: pos.pos.x, y1: pos.pos.y, x2: pos.pos2.x, y2: pos.pos2.y });
+          isometricSvgElem.setPosLine2({ svg: svgLine, x2: pos.pos.x, y2: pos.pos.y });
         }
       });
     });
-
-    arrPoints.forEach((p) => {
-      p['userData'].move = false;
-    });
-  }
-
-  // координаты линии
-  getCoordLine(svg) {
-    const p1 = svg['userData'].p1;
-    const p2 = svg['userData'].p2;
-
-    const cx1 = Number(p1.getAttribute('cx'));
-    const cy1 = Number(p1.getAttribute('cy'));
-    const cx2 = Number(p2.getAttribute('cx'));
-    const cy2 = Number(p2.getAttribute('cy'));
-
-    return { a: new THREE.Vector2(cx1, cy1), b: new THREE.Vector2(cx2, cy2) };
   }
 
   // координаты создаваемой точки/стыка на линии (перед углом)
@@ -272,5 +231,98 @@ export class IsometricSvgScale {
     const posPoint = pos1.clone().add(offset);
 
     return { ind, pos: posPoint, dist, pos1: pos[0], pos2: pos[1] };
+  }
+
+  scaleNotes({ centerPos, offsetY }) {
+    const svgArr = [];
+
+    this.groupNotes.childNodes.forEach((svg) => {
+      if (svg['userData'] && (svg['userData'].note1 || svg['userData'].note2)) {
+        svgArr.push(svg);
+      }
+    });
+
+    svgArr.forEach((svg) => {
+      this.svgScale({ svg, centerPos, offsetY });
+    });
+  }
+
+  scaleRulers({ centerPos, offsetY }) {
+    const svgArr = [];
+
+    this.groupRulers.childNodes.forEach((svg) => {
+      if (svg['userData'] && svg['userData'].ruler) {
+        svgArr.push(svg);
+      }
+    });
+
+    svgArr.forEach((svg) => {
+      this.svgScale({ svg, centerPos, offsetY });
+    });
+  }
+
+  scaleObjs({ centerPos, offsetY }) {
+    const svgArr = [];
+
+    this.groupObjs.childNodes.forEach((svg) => {
+      if (svg['userData'] && isometricSvgListObjs.isObjBySvg(svg)) {
+        svgArr.push(svg);
+      }
+    });
+
+    svgArr.forEach((svg) => {
+      this.svgScale({ svg, centerPos, offsetY });
+    });
+  }
+
+  svgScale({ svg, centerPos, offsetY }) {
+    const type = isometricSvgElem.getSvgType(svg);
+    if (type === 'line') {
+      const pos = isometricSvgElem.getPosLine2(svg);
+
+      for (let i = 0; i < pos.length; i++) {
+        const dir = centerPos.clone().sub(pos[i]);
+        dir.x *= offsetY;
+        dir.y *= offsetY;
+        pos[i].add(dir);
+
+        if (i === 0) isometricSvgElem.setPosLine2({ svg, x1: pos[i].x, y1: pos[i].y });
+        else isometricSvgElem.setPosLine2({ svg, x2: pos[i].x, y2: pos[i].y });
+      }
+    }
+    if (type === 'circle') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+
+      const dir = centerPos.clone().sub(pos);
+      dir.x *= offsetY;
+      dir.y *= offsetY;
+      pos.add(dir);
+
+      isometricSvgElem.setPosCircle(svg, pos.x, pos.y);
+    }
+    if (type === 'polygon') {
+      const pos = isometricSvgElem.getPosPolygon(svg);
+      const dir = centerPos.clone().sub(pos);
+      dir.x *= offsetY;
+      dir.y *= offsetY;
+      pos.add(dir);
+
+      isometricSvgElem.setPosPolygon1(svg, pos.x, pos.y);
+    }
+    if (type === 'text') {
+      const pos = isometricSvgElem.getPosText1(svg);
+
+      const dir = centerPos.clone().sub(pos);
+      dir.x *= offsetY;
+      dir.y *= offsetY;
+      pos.add(dir);
+
+      isometricSvgElem.setPosText1(svg, pos.x, pos.y);
+    }
+    if (type === 'g') {
+      svg.childNodes.forEach((svgChild) => {
+        this.svgScale({ svg: svgChild, centerPos, offsetY });
+      });
+    }
   }
 }

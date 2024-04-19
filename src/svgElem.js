@@ -164,6 +164,11 @@ export class IsometricSvgElem {
   setPosText1(svg, x, y) {
     svg.setAttribute('x', Number(x));
     svg.setAttribute('y', Number(y));
+
+    if (svg.transform.baseVal.length > 0) {
+      const rotY = svg.transform.baseVal[0].angle;
+      svg.setAttribute('transform', 'rotate(' + rotY + ', ' + Number(x) + ',' + Number(y) + ')');
+    }
   }
 
   // позиция полигона
