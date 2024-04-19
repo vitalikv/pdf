@@ -190,7 +190,7 @@ export class IsometricSvgElem {
   }
 
   // смещение линии
-  setOffsetLine2(svg, offsetX, offsetY) {
+  setOffsetLine2(svg, offsetX, offsetY, scale = false) {
     const pos = this.getPosLine2(svg);
 
     const x1 = pos[0].x + offsetX;
@@ -199,6 +199,19 @@ export class IsometricSvgElem {
     const y2 = pos[1].y + offsetY;
 
     this.setPosLine2({ svg, x1, y1, x2, y2 });
+
+    if (scale) {
+      const transform = svg.getAttribute('transform');
+      if (transform) {
+        const result = transform.split(',');
+        if (result.length > 2) {
+          const x = Number(result[1]);
+          const y = Number(result[2].slice(0, -1));
+          const rotY = svg.transform.baseVal[0].angle;
+          svg.setAttribute('transform', 'rotate(' + rotY + ', ' + (x + offsetX) + ',' + (y + offsetY) + ')');
+        }
+      }
+    }
   }
 
   // смещение полигона
@@ -208,6 +221,19 @@ export class IsometricSvgElem {
     const rot = svg.transform.baseVal[1].angle;
 
     svg.setAttribute('transform', `translate(${x}, ${y}) rotate(${rot})`);
+  }
+
+  // смещение текста
+  setOffsetText1(svg, offsetX, offsetY) {
+    const pos = this.getPosText1(svg);
+
+    svg.setAttribute('x', pos.x + offsetX);
+    svg.setAttribute('y', pos.y + offsetY);
+
+    if (svg.transform.baseVal.length > 0) {
+      const rotY = svg.transform.baseVal[0].angle;
+      svg.setAttribute('transform', 'rotate(' + rotY + ', ' + (pos.x + offsetX) + ',' + (pos.y + offsetY) + ')');
+    }
   }
 
   // обновляем положения линии через 2 точки привязанные к линии

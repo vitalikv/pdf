@@ -3,10 +3,143 @@ import * as THREE from 'three';
 import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler } from './index';
 
 export class IsometricSvgScale {
+  container;
+  containerSvg;
+  groupLines;
+  groupObjs;
+  groupRulers;
+  groupNotes;
+  button = -1;
+  activated = false;
+  isDown = false;
+  startOffset = new THREE.Vector2();
+  offset = new THREE.Vector2();
+  sumOffset = new THREE.Vector2();
+
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
     this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
+    this.groupObjs = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'objs' });
+    this.groupRulers = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'rulers' });
+    this.groupNotes = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'notes' });
+  }
+
+  onKeyDown = (event) => {
+    if (event.code === 'ShiftLeft' && !event.repeat) {
+      this.activated = true;
+    }
+  };
+
+  onKeyUp = (event) => {
+    if (event.code === 'ShiftLeft') {
+      this.activated = false;
+    }
+  };
+
+  onmousedown = (event) => {
+    if (!this.activated) return;
+
+    this.startOffset = new THREE.Vector2(event.clientX, event.clientY);
+    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+    this.sumOffset = new THREE.Vector2();
+
+    this.button = event.button;
+    this.isDown = true;
+
+    return this.isDown;
+  };
+
+  onmousemove = (event) => {
+    if (!this.isDown) return;
+    if (!this.activated) {
+      this.deActivate();
+      return;
+    }
+
+    if (this.button === 0) {
+      const coord = new THREE.Vector2(event.clientX, event.clientY);
+      const dist = this.startOffset.distanceTo(coord);
+      const dir = this.startOffset.clone().sub(coord);
+      const dot = dir.dot(new THREE.Vector2(0, 1));
+      console.log(dot, dist);
+    }
+
+    if (this.button === 2) {
+      const offset = new THREE.Vector2(event.clientX - this.offset.x, event.clientY - this.offset.y);
+      this.sumOffset.add(offset);
+      this.groupLines.setAttribute('transform', `translate(${this.sumOffset.x},${this.sumOffset.y})`);
+      this.groupObjs.setAttribute('transform', `translate(${this.sumOffset.x},${this.sumOffset.y})`);
+      this.groupNotes.setAttribute('transform', `translate(${this.sumOffset.x},${this.sumOffset.y})`);
+      this.groupRulers.setAttribute('transform', `translate(${this.sumOffset.x},${this.sumOffset.y})`);
+    }
+
+    this.offset = new THREE.Vector2(event.clientX, event.clientY);
+  };
+
+  onmouseup = (event) => {
+    if (!this.isDown) return;
+
+    this.deActivate();
+  };
+
+  deActivate() {
+    this.isDown = false;
+    this.activated = false;
+    this.button = -1;
+
+    this.endOffset();
+    this.offset = new THREE.Vector2();
+  }
+
+  // закончили смещение svg group
+  endOffset() {
+    if (!this.containerSvg) return;
+
+    const offsetX = this.sumOffset.x;
+    const offsetY = this.sumOffset.y;
+
+    this.groupLines.childNodes.forEach((svg) => {
+      this.svgOffset({ svg, offsetX, offsetY });
+    });
+
+    this.groupObjs.childNodes.forEach((svg) => {
+      this.svgOffset({ svg, offsetX, offsetY });
+    });
+
+    this.groupNotes.childNodes.forEach((svg) => {
+      this.svgOffset({ svg, offsetX, offsetY });
+    });
+
+    this.groupRulers.childNodes.forEach((svg) => {
+      this.svgOffset({ svg, offsetX, offsetY });
+    });
+
+    this.groupLines.setAttribute('transform', `translate(0,0)`);
+    this.groupObjs.setAttribute('transform', `translate(0,0)`);
+    this.groupNotes.setAttribute('transform', `translate(0,0)`);
+    this.groupRulers.setAttribute('transform', `translate(0,0)`);
+  }
+
+  svgOffset({ svg, offsetX, offsetY }) {
+    const type = isometricSvgElem.getSvgType(svg);
+    if (type === 'line') {
+      isometricSvgElem.setOffsetLine2(svg, offsetX, offsetY, true);
+    }
+    if (type === 'circle') {
+      isometricSvgElem.setOffsetCircle(svg, offsetX, offsetY);
+    }
+    if (type === 'polygon') {
+      isometricSvgElem.setOffsetPolygon1(svg, offsetX, offsetY);
+    }
+    if (type === 'text') {
+      isometricSvgElem.setOffsetText1(svg, offsetX, offsetY);
+    }
+    if (type === 'g') {
+      svg.childNodes.forEach((svgChild) => {
+        this.svgOffset({ svg: svgChild, offsetX, offsetY });
+      });
+    }
   }
 
   scaleLines(canvas, ratio, bound2) {

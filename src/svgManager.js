@@ -40,10 +40,12 @@ export class IsometricSvgManager {
 
     isometricCutBox.onKeyDown(event);
     isometricSelectBox.onKeyDown(event);
+    isometricSvgScale.onKeyDown(event);
   };
 
   onKeyUp = (event) => {
     isometricSelectBox.onKeyUp(event);
+    isometricSvgScale.onKeyUp(event);
   };
 
   init() {
@@ -212,7 +214,7 @@ export class IsometricSvgManager {
     this.unselectAllNotes(event);
 
     let result = isometricSelectBox.onmousedown(event);
-
+    if (!result) result = isometricSvgScale.onmousedown(event);
     if (!result) result = isometricMovePdf.onmousedown(event);
 
     if (!result) {
@@ -236,6 +238,7 @@ export class IsometricSvgManager {
 
     isometricMovePdf.onmousemove(event);
     isometricSelectBox.onmousemove(event);
+    isometricSvgScale.onmousemove(event);
     isometricCutBox.onmousemove(event);
     isometricSvgJoint.onmousemove(event);
     isometricSvgLine.onmousemove(event);
@@ -250,6 +253,7 @@ export class IsometricSvgManager {
   onmouseup = (event) => {
     isometricMovePdf.onmouseup(event);
     isometricSelectBox.onmouseup(event);
+    isometricSvgScale.onmouseup(event);
     isometricCutBox.onmouseup(event);
     isometricSvgJoint.onmouseup(event);
     isometricSvgLine.onmouseup(event);
