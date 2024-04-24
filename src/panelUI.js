@@ -22,6 +22,7 @@ export class PanelUI {
   elemBtnView;
   input;
   btns$ = [];
+  actType = '';
 
   init() {
     this.crPanel();
@@ -62,46 +63,31 @@ export class PanelUI {
       e.stopPropagation();
     };
 
-    let ind = 0;
-
     this.btns$[0].onmousedown = () => {
       isometricPdfToSvg.inputFile.click();
     };
-    ind++;
 
     this.btns$[1].onmousedown = () => {
       isometricPdfToSvg.rotateSvg({ degree: -90 });
     };
-    ind++;
 
     this.btns$[2].onmousedown = () => {
       isometricPdfToSvg.rotateSvg({ degree: 90 });
     };
-    ind++;
 
     this.btns$[3].onmousedown = () => {
       isometricExportPdf.export();
     };
-    ind++;
 
     this.btns$[4].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'addNote1', data: { text: ['1', 'ТК1-СПС'], passport: { id: 232 } } });
     };
-    ind++;
 
     this.btns$[5].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'addNote2', data: { text: ['2', 'ТК1-СПС31.1/1-И-1-012'], passport: { id: 44 } } });
     };
-    ind++;
 
     this.btns$[6].onmousedown = (e) => {
-      // console.log(isometricSvgManager.mode.type);
-      // if (isometricSvgManager.mode.type === 'addRuler') {
-      //   isometricSvgManager.cleareMode();
-      // } else {
-      //   isometricSvgManager.setMode({ type: 'addRuler' });
-      // }
-
       isometricSvgManager.setMode({ type: 'addRuler' });
 
       const btn = e.target;
@@ -111,106 +97,78 @@ export class PanelUI {
         isometricSvgManager.cleareMode();
       }
     };
-    ind++;
 
     this.btns$[7].onmousedown = () => {
       isometricSvgManager.setMode({ type: 'brush' });
     };
-    ind++;
 
     this.btns$[8].children[0].oninput = (e) => {
       isometricPdfToSvg.setScale({ value: e.target.value });
     };
-    ind++;
 
     this.btns$[9].onmousedown = (e) => {
       isometricSvgManager.setMode({ type: 'cutBox' });
     };
-    ind++;
 
     this.btns$[10].onmousedown = (e) => {
       isometricStampLogo.addStamp('3');
     };
-    ind++;
 
     this.btns$[11].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'joint' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'joint', e });
     };
-    ind++;
 
     this.btns$[12].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'line' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'line', e });
     };
-    ind++;
 
     this.btns$[13].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'objBracket' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'objBracket', e });
     };
-    ind++;
 
     this.btns$[14].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'objValve' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'objValve', e });
     };
-    ind++;
 
     this.btns$[15].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'objTee' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'objTee', e });
     };
-    ind++;
 
     this.btns$[16].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'objFlap' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'objFlap', e });
     };
-    ind++;
 
     this.btns$[17].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'objAdapter' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'objAdapter', e });
     };
-    ind++;
 
     this.btns$[18].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'objBox' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'objBox', e });
     };
-    ind++;
 
     this.btns$[19].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'objSplitter' });
-      this.upColorBtn(e);
+      this.activateType({ type: 'objSplitter', e });
     };
-    ind++;
 
     this.btns$[20].onmousedown = (e) => {
-      isometricSvgManager.setMode({ type: 'addText' });
+      this.activateType({ type: 'addText', e });
     };
-    ind++;
 
     this.btns$[21].onmousedown = (e) => {
       isometricSvgSave.save();
     };
-    ind++;
 
     this.btns$[22].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
-    ind++;
 
     this.btns$[23].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
     };
-    ind++;
 
     this.btns$[24].onmousedown = (e) => {
       initModel();
     };
-    ind++;
   }
 
   crPanel() {
@@ -293,9 +251,33 @@ export class PanelUI {
     return div;
   }
 
-  upColorBtn(e) {
-    const btn = e.target;
-    const color = btn.style.background === 'rgb(255, 255, 255)' ? '#87ea89' : '#fff';
+  upColorBtn({ btn, actBtn }) {
+    const color = actBtn ? '#87ea89' : '#fff';
     btn.style.background = color;
   }
+
+  activateType({ type, e }) {
+    const btn = e.target;
+    let actBtn = true;
+
+    if (this.actType === type) actBtn = false;
+
+    if (type === 'joint') isometricSvgManager.setMode({ type });
+    else if (type === 'line') isometricSvgManager.setMode({ type });
+    else if (type === 'objBracket') isometricSvgManager.setMode({ type });
+    else if (type === 'objValve') isometricSvgManager.setMode({ type });
+    else if (type === 'objTee') isometricSvgManager.setMode({ type });
+    else if (type === 'objFlap') isometricSvgManager.setMode({ type });
+    else if (type === 'objAdapter') isometricSvgManager.setMode({ type });
+    else if (type === 'objBox') isometricSvgManager.setMode({ type });
+    else if (type === 'objSplitter') isometricSvgManager.setMode({ type });
+    else if (type === 'addText') isometricSvgManager.setMode({ type });
+    else actBtn = false;
+
+    this.actType = actBtn ? type : '';
+
+    this.upColorBtn({ btn, actBtn });
+  }
+
+  deActivateType() {}
 }

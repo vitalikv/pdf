@@ -128,15 +128,7 @@ export class IsometricSvgManager {
       }
     }
 
-    if (
-      this.mode.type === 'objBracket' ||
-      this.mode.type === 'objValve' ||
-      this.mode.type === 'objTee' ||
-      this.mode.type === 'objFlap' ||
-      this.mode.type === 'objAdapter' ||
-      this.mode.type === 'objBox' ||
-      this.mode.type === 'objSplitter'
-    ) {
+    if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       if (this.mode.type !== disabledType) {
         isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
       } else {
@@ -186,15 +178,7 @@ export class IsometricSvgManager {
     if (this.mode.type === 'line') {
       isometricSvgLine.deleteToolPoint();
     }
-    if (
-      this.mode.type === 'objBracket' ||
-      this.mode.type === 'objValve' ||
-      this.mode.type === 'objTee' ||
-      this.mode.type === 'objFlap' ||
-      this.mode.type === 'objAdapter' ||
-      this.mode.type === 'objBox' ||
-      this.mode.type === 'objSplitter'
-    ) {
+    if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       isometricSvgObjs.deleteAddObj();
     }
     if (this.mode.type === 'brush') {
@@ -273,11 +257,21 @@ export class IsometricSvgManager {
     if (this.mode.type === '') return false;
 
     if (this.mode.type === 'joint') {
-      return false;
+      if (event.button === 2) {
+        isometricSvgJoint.deletePoint();
+        this.cleareMode();
+      } else {
+        isometricSvgJoint.onmousedown(event);
+        isometricSvgJoint.deletePoint();
+        isometricSvgJoint.createToolPoint();
+      }
     }
 
     if (this.mode.type === 'line') {
-      if (event.button !== 2) {
+      if (event.button === 2) {
+        isometricSvgLine.deleteToolPoint();
+        this.cleareMode();
+      } else {
         isometricSvgLine.addLine(event);
         isometricSvgLine.deleteToolPoint();
         this.mode.type = 'nextLine';
@@ -298,18 +292,9 @@ export class IsometricSvgManager {
       }
     }
 
-    if (
-      this.mode.type === 'objBracket' ||
-      this.mode.type === 'objValve' ||
-      this.mode.type === 'objTee' ||
-      this.mode.type === 'objFlap' ||
-      this.mode.type === 'objAdapter' ||
-      this.mode.type === 'objBox' ||
-      this.mode.type === 'objSplitter'
-    ) {
-      //isometricSvgObjs.addObj({ event, type: this.mode.type });
+    if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       if (event.button === 0) isometricSvgObjs.addObj2({ event, type: this.mode.type });
-      //this.cleareMode();
+      if (event.button === 2) this.cleareMode();
     }
 
     if (this.mode.type === 'addNote1') {
@@ -427,18 +412,9 @@ export class IsometricSvgManager {
           }
         }
 
-        if (
-          isometricSvgObjs.selectedObj.el &&
-          (svg['userData'].objBracket ||
-            svg['userData'].objValve ||
-            svg['userData'].objUndefined ||
-            svg['userData'].objTee ||
-            svg['userData'].objFlap ||
-            svg['userData'].objAdapter ||
-            svg['userData'].objBox ||
-            svg['userData'].objSplitter)
-        ) {
+        if (isometricSvgObjs.selectedObj.el && isometricSvgListObjs.isObjBySvg(svg)) {
           if (isometricSvgObjs.selectedObj.el === svg) {
+            if (event.button === 2) isometricSvgObjs.deleteAddObj();
             isometricSvgObjs.actElem(svg, false);
           }
         }

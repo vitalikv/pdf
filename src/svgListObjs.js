@@ -444,6 +444,20 @@ export class IsometricSvgListObjs {
     return isObj;
   }
 
+  isObjByType(type) {
+    let isObj = false;
+    const listTypes = ['objBracket', 'objValve', 'objUndefined', 'objTee', 'objFlap', 'objAdapter', 'objBox', 'objSplitter'];
+
+    for (let i = 0; i < listTypes.length; i++) {
+      if (listTypes[i] === type) {
+        isObj = true;
+        break;
+      }
+    }
+
+    return isObj;
+  }
+
   onmousedown = (event) => {
     this.isDown = false;
     this.isMove = false;
