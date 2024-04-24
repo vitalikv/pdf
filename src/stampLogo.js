@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { mapControlInit, isometricPdfToSvg } from './index';
+import { mapControlInit } from './index';
 
 export class IsometricStampLogo {
   isDown = false;
@@ -36,8 +36,6 @@ export class IsometricStampLogo {
     const containerStamps = this.containerSvg.querySelector('[nameId="stampsLogo"]');
     containerStamps.append(elem);
 
-    this.setUserDataPos(elem);
-
     this.arrStamp.push(elem);
 
     if (!this.containerPointsSvg) this.containerPointsSvg = this.createContainerPointsSvg({ container: containerStamps });
@@ -58,8 +56,6 @@ export class IsometricStampLogo {
 
     const containerStamps = this.containerSvg.querySelector('[nameId="stampsLogo"]');
     containerStamps.append(elem);
-
-    this.setUserDataPos(elem);
 
     this.arrStamp.push(elem);
 
@@ -233,8 +229,6 @@ export class IsometricStampLogo {
     elem.style.left = elem.offsetLeft + (event.clientX - this.offset.x) + 'px';
 
     this.setPosArrSvgCircle();
-
-    this.setUserDataPos(elem);
   }
 
   // перемещение svg точки, изменяем размер штампа
@@ -284,8 +278,6 @@ export class IsometricStampLogo {
 
     divStamp.style.width = bound2.left - bound0.left + 'px';
     divStamp.style.height = bound1.top - bound0.top + 'px';
-
-    this.setUserDataPos(divStamp);
   }
 
   activateStamp() {
@@ -339,19 +331,12 @@ export class IsometricStampLogo {
     });
   }
 
-  setUserDataPos(divStamp) {
-    divStamp['userData'].cssTop = divStamp.offsetTop / isometricPdfToSvg.scalePdf;
-    divStamp['userData'].cssLeft = divStamp.offsetLeft / isometricPdfToSvg.scalePdf;
-    divStamp['userData'].cssWidth = divStamp.clientWidth / isometricPdfToSvg.scalePdf;
-    divStamp['userData'].cssHeight = divStamp.clientHeight / isometricPdfToSvg.scalePdf;
-  }
-
   setScale(scale) {
     this.arrStamp.forEach((div) => {
-      div.style.top = div['userData'].cssTop * scale + 'px';
-      div.style.left = div['userData'].cssLeft * scale + 'px';
-      div.style.width = div['userData'].cssWidth * scale + 'px';
-      div.style.height = div['userData'].cssHeight * scale + 'px';
+      div.style.top = div.offsetTop * scale + 'px';
+      div.style.left = div.offsetLeft * scale + 'px';
+      div.style.width = div.clientWidth * scale + 'px';
+      div.style.height = div.clientHeight * scale + 'px';
     });
 
     this.setPosArrSvgCircle();

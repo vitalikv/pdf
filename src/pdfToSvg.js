@@ -16,6 +16,7 @@ import {
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
+  isometricNoteText,
   isometricStampLogo,
   isometricSvgScale,
 } from './index';
@@ -269,19 +270,21 @@ export class IsometricPdfToSvg {
     this.containerSvg.style.cssText = canvas.style.cssText;
     this.containerSvg.style.zIndex = '4';
     this.containerSvg.style.userSelect = 'none';
+
+    isometricSheets.setStyle(this.canvasPdf.style.cssText);
   }
 
   setScale({ value }) {
     if (!this.canvasPdf) return;
     value = Number(value) / 100;
 
+    const ratioScale = value / this.scalePdf;
     this.scalePdf = value;
 
     this.updateCanvasPdf();
 
-    isometricStampLogo.setScale(this.scalePdf);
-
-    isometricSheets.setStyle(this.canvasPdf.style.cssText);
+    isometricNoteText.setScale(ratioScale);
+    isometricStampLogo.setScale(ratioScale);
   }
 
   deletePdf() {

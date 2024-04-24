@@ -25,8 +25,6 @@ export class IsometricMovePdf {
   onmousemove = (event) => {
     if (!this.isDown) return;
 
-    const offset = new THREE.Vector2(event.clientX - this.offset.x, event.clientY - this.offset.y);
-
     const pdf = isometricPdfToSvg.canvasPdf;
     if (pdf) {
       pdf.style.top = pdf.offsetTop + (event.clientY - this.offset.y) + 'px';
@@ -39,8 +37,6 @@ export class IsometricMovePdf {
       this.containerSvg.style.userSelect = 'none';
     }
 
-    //this.moveSvg(offset);
-
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
   };
 
@@ -49,26 +45,4 @@ export class IsometricMovePdf {
 
     this.offset = new THREE.Vector2();
   };
-
-  moveSvg(offset) {
-    if (!this.containerSvg) return;
-
-    isometricSvgLine.moveOffset(offset);
-
-    this.containerSvg.children[0].childNodes.forEach((svg, ind) => {
-      if (svg['userData']) {
-        if (svg['userData'].note1 && svg['userData'].tag === 'line') {
-          isometricNoteSvg.moveOffset({ svg, offset });
-        }
-
-        if (svg['userData'].note2 && svg['userData'].tag === 'line') {
-          isometricNoteSvg2.moveOffset({ svg, offset });
-        }
-
-        if (svg['userData'].ruler && svg['userData'].tag === 'line') {
-          isometricSvgRuler.moveSvgLine({ svg, offset, type: 'offsetPdf' });
-        }
-      }
-    });
-  }
 }

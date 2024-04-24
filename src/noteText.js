@@ -356,6 +356,17 @@ export class IsometricNoteText {
     });
   }
 
+  setScale(scale) {
+    this.arrText.forEach((div) => {
+      div.style.top = div.offsetTop * scale + 'px';
+      div.style.left = div.offsetLeft * scale + 'px';
+      div.style.width = div.clientWidth * scale + 'px';
+      div.style.height = div.clientHeight * scale + 'px';
+    });
+
+    //this.setPosArrSvgCircle();
+  }
+
   deleteNote() {
     const div = this.getSelectedDiv();
     if (!div) return;
