@@ -12,6 +12,7 @@ export class IsometricSvgScale {
   button = -1;
   activated = false;
   isDown = false;
+  startCoord = new THREE.Vector2();
   offset = new THREE.Vector2();
   sumOffset = new THREE.Vector2();
 
@@ -39,6 +40,7 @@ export class IsometricSvgScale {
   onmousedown = (event) => {
     if (!this.activated) return;
 
+    this.startCoord = this.getCoord(event);
     this.offset = new THREE.Vector2(event.clientX, event.clientY);
     this.sumOffset = new THREE.Vector2();
 
@@ -58,8 +60,11 @@ export class IsometricSvgScale {
     if (this.button === 0) {
       const offset = new THREE.Vector2(event.clientX - this.offset.x, event.clientY - this.offset.y);
 
-      const rect = this.containerSvg.getBoundingClientRect();
-      const centerPos = new THREE.Vector2(rect.width / 2 - rect.x, rect.height / 2 - rect.y);
+      // центр листа
+      //const rect = this.containerSvg.getBoundingClientRect();
+      //const centerPos = new THREE.Vector2(rect.width / 2 - rect.x, rect.height / 2 - rect.y);
+
+      const centerPos = this.startCoord;
 
       this.scaleLines({ centerPos, offsetY: offset.y * 0.005 });
       this.scaleNotes({ centerPos, offsetY: offset.y * 0.005 });
@@ -84,6 +89,12 @@ export class IsometricSvgScale {
 
     this.deActivate();
   };
+
+  getCoord(event) {
+    const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
+
+    return pos;
+  }
 
   deActivate() {
     this.isDown = false;
