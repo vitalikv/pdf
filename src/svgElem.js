@@ -60,7 +60,7 @@ export class IsometricSvgElem {
   }
 
   getSvgType(svg) {
-    return svg.tagName.toLowerCase();
+    return svg.tagName;
   }
 
   // создаем svg line елемент
