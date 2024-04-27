@@ -90,11 +90,18 @@ export class IsometricSvgManager {
     div.setAttribute('nameId', 'svgTools');
     div.style.cssText = 'position: absolute; width: 100%; height: 100%; user-select: none; z-index: 4;';
     div.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 409 293" style="overflow: visible;">
-    <g nameid="lines"></g>
-    <g nameid="objs"></g>
-    <g nameid="rulers"></g>
-    <g nameid="notes"></g>
-    <g nameid="sheetText"></g>
+
+    <defs>
+    <clipPath id="cut-off-bottom">
+    <rect x="0" y="0" width="100%" height="100%" />
+    </clipPath>
+    </defs>
+
+    <g nameid="lines" clip-path="url(#cut-off-bottom)"></g>
+    <g nameid="objs" clip-path="url(#cut-off-bottom)"></g>
+    <g nameid="rulers" clip-path="url(#cut-off-bottom)"></g>
+    <g nameid="notes" clip-path="url(#cut-off-bottom)"></g>
+    <g nameid="sheetText" clip-path="url(#cut-off-bottom)"></g>
     </svg>`;
     div.innerHTML += `<div nameId="notesText" style="position: absolute; top: 0; left: 0;"></div>`;
     div.innerHTML += `<div nameId="stampsLogo" style="position: absolute; top: 0; left: 0;"></div>`;
