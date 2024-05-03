@@ -365,7 +365,7 @@ export class IsometricSvgObjs {
 
   updataPos(line) {
     line['userData'].links.forEach((svg) => {
-      if ((svg['userData'].objBracket || svg['userData'].objValve) && svg['userData'].tag === 'point') {
+      if (isometricSvgListObjs.isObjBySvg(svg) && svg['userData'].tag === 'point') {
         const { dist } = svg['userData'].link;
 
         const coord = isometricSvgElem.getPosLine2(line);

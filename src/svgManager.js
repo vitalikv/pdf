@@ -426,6 +426,10 @@ export class IsometricSvgManager {
           }
         }
 
+        if (isometricSvgListObjs.selectedObj && svg['userData'].pointScale) {
+          isometricSvgListObjs.deActPointsScale();
+        }
+
         if (svg['userData'].note1) {
           isometricNoteSvg.actElem(svg, false);
         }
