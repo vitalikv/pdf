@@ -391,6 +391,10 @@ export class IsometricSvgLine {
       this.svgPointCross({ p2: svg, event });
     }
 
+    if (svg['userData'].tag === 'dpoint') {
+      this.moveSvgDPoint({ svg, pos });
+    }
+
     this.offset = this.getCoord(event);
   };
 
@@ -468,6 +472,7 @@ export class IsometricSvgLine {
     this.moveSvgPoint({ svg: svg['userData'].p2, offset, stopLine: svg });
   }
 
+  // перемещение точки
   moveSvgPoint({ svg, offset, stopLine = null }) {
     const svgCircle = svg;
     const offsetX = offset.x;
@@ -534,6 +539,67 @@ export class IsometricSvgLine {
     });
 
     this.updateCorner({ point: svg });
+
+    svg['userData'].lines.forEach((svgLine) => {
+      isometricNoteSvg.updataPos(svgLine);
+      isometricSvgObjs.updataPos(svgLine);
+      isometricNoteSvg2.updataPos(svgLine);
+      isometricSvgRuler.updataPos(svgLine);
+    });
+  }
+
+  // перемещение точки угла
+  moveSvgDPoint({ svg, pos }) {
+    const pd1 = svg;
+    const ld1 = pd1['userData'].ld;
+    const line1 = ld1['userData'].line;
+
+    const pCenter = ld1['userData'].pCenter;
+    const lines = pCenter['userData'].lines;
+    const pds = pCenter['userData'].pds;
+
+    const pd2 = pds[0] === pd1 ? pds[1] : pds[0];
+    const ld2 = pd2['userData'].ld;
+    const line2 = lines[0] === line1 ? lines[1] : lines[0];
+
+    const posC = isometricSvgElem.getPosCircle(pCenter);
+    const ind = pds[0] === pd1 ? 1 : 0;
+
+    // смещение перетаскиваемой точки по линии
+    const posL1 = isometricSvgElem.getPosLine2(line1);
+    const posPr = isometricMath.spPoint(posL1[0], posL1[1], pos);
+    isometricSvgElem.setPosCircle(pd1, posPr.x, posPr.y);
+
+    // смещение второй точки по линии
+    let pos2 = isometricSvgElem.getPosCircle(pd2);
+    const dir2 = pos2.clone().sub(posC).normalize();
+    let pos1 = isometricSvgElem.getPosCircle(pd1);
+    const dist1 = pos1.distanceTo(posC);
+    dir2.x *= dist1;
+    dir2.y *= dist1;
+    isometricSvgElem.setPosCircle(pd2, posC.x + dir2.x, posC.y + dir2.y);
+
+    // изменение длины линии угла (относится к перетаскиваемой точки)
+    isometricSvgElem.setPosLine2({ svg: ld1, x1: pos1.x, y1: pos1.y });
+
+    // изменение длины линии угла (относится к второй точки)
+    pos2 = isometricSvgElem.getPosCircle(pd2);
+    isometricSvgElem.setPosLine2({ svg: ld2, x1: pos2.x, y1: pos2.y });
+
+    //
+    // изменение длины основной линии (относится к перетаскиваемой точки)
+    if (ind === 0) {
+      isometricSvgElem.setPosLine2({ svg: line1, x2: pos1.x, y2: pos1.y });
+    } else {
+      isometricSvgElem.setPosLine2({ svg: line1, x1: pos1.x, y1: pos1.y });
+    }
+
+    // изменение длины основной линии (относится к второй точки)
+    if (ind === 1) {
+      isometricSvgElem.setPosLine2({ svg: line2, x2: pos2.x, y2: pos2.y });
+    } else {
+      isometricSvgElem.setPosLine2({ svg: line2, x1: pos2.x, y1: pos2.y });
+    }
 
     svg['userData'].lines.forEach((svgLine) => {
       isometricNoteSvg.updataPos(svgLine);

@@ -291,7 +291,7 @@ export class IsometricSvgObjs {
       const rotY1 = THREE.MathUtils.radToDeg(rotY - Math.PI / 2) * -1;
 
       const pos2 = isometricSvgElem.getPosCircle(elems.point);
-      console.log(rotY1);
+
       if (svg['userData'].objBracket) {
         elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
         elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
