@@ -362,7 +362,7 @@ export class IsometricSelectBox {
       }
     } else if (isometricSvgListObjs.isObjBySvg(svg)) {
       if (svg['userData'].tag === 'point') {
-        isometricSvgObjs.setColorElem(svg, act);
+        isometricSvgListObjs.setColorElem(svg, act);
       }
     } else if (svg['userData'].note1) {
       if (svg['userData'].tag === 'line') {

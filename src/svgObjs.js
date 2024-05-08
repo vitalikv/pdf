@@ -114,13 +114,29 @@ export class IsometricSvgObjs {
     }
 
     let svg = this.selectedObj.el;
+
+    if (svg['userData'].objTee && svg['userData'].tag === 'joint3') {
+      let pos = this.getCoord(event);
+      const offset = pos.sub(this.offset);
+      const elems = isometricSvgListObjs.getStructureObj(svg);
+
+      isometricSvgElem.setOffsetCircle(svg, offset.x, offset.y);
+
+      let pos1 = isometricSvgElem.getPosCircle(svg);
+      elems.line2.setAttribute('transform', 'rotate(0)');
+      isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
+
+      this.offset = this.getCoord(event);
+      return;
+    }
+
     if (svg['userData'].lock) return;
 
     let pos = this.getCoord(event);
     const offset = pos.sub(this.offset);
 
     this.moveSvgObj({ svg, offset });
-    const elems = this.getStructureObj(svg);
+    const elems = isometricSvgListObjs.getStructureObj(svg);
     if (elems.point) this.addLink({ svgPoint: elems.point, event });
 
     if (elems.point) this.setRotObj({ svg: elems.point });
@@ -135,7 +151,7 @@ export class IsometricSvgObjs {
   };
 
   moveSvgObj({ svg, offset }) {
-    const elems = this.getStructureObj(svg);
+    const elems = isometricSvgListObjs.getStructureObj(svg);
 
     if (svg['userData'].objBracket) {
       isometricSvgElem.setOffsetLine2(elems.line1, offset.x, offset.y);
@@ -155,6 +171,9 @@ export class IsometricSvgObjs {
       isometricSvgElem.setOffsetLine2(elems.line1, offset.x, offset.y);
       isometricSvgElem.setOffsetLine2(elems.line2, offset.x, offset.y);
       isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
+      isometricSvgElem.setOffsetCircle(elems.joint1, offset.x, offset.y);
+      isometricSvgElem.setOffsetCircle(elems.joint2, offset.x, offset.y);
+      isometricSvgElem.setOffsetCircle(elems.joint3, offset.x, offset.y);
     }
 
     if (svg['userData'].objUndefined) {
@@ -278,7 +297,7 @@ export class IsometricSvgObjs {
   }
 
   setRotObj({ svg }) {
-    const elems = this.getStructureObj(svg);
+    const elems = isometricSvgListObjs.getStructureObj(svg);
 
     if (elems.point['userData'].link) {
       const link = elems.point['userData'].link;
@@ -304,7 +323,13 @@ export class IsometricSvgObjs {
       }
       if (svg['userData'].objTee) {
         elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-        elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+        //elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: rotY1, offsetX: -20 });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: rotY1, offsetX: 20 });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: rotY1, offsetY: -20 });
+
+        let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
+        isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
       }
       if (svg['userData'].objFlap) {
         isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
@@ -338,6 +363,13 @@ export class IsometricSvgObjs {
       if (svg['userData'].objTee) {
         elems.line1.setAttribute('transform', 'rotate(0)');
         elems.line2.setAttribute('transform', 'rotate(0)');
+        const pos2 = isometricSvgElem.getPosCircle(elems.point);
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: 0, offsetX: -20 });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: 0, offsetX: 20 });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: 0, offsetY: -20 });
+
+        let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
+        isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
       }
 
       if (svg['userData'].objFlap) {
@@ -383,7 +415,7 @@ export class IsometricSvgObjs {
   }
 
   actElem(svg, act = false) {
-    this.setColorElem(svg, act);
+    isometricSvgListObjs.setColorElem(svg, act);
 
     console.log(svg, act);
 
@@ -395,26 +427,8 @@ export class IsometricSvgObjs {
     }
   }
 
-  setColorElem(svg, act = false) {
-    const elems = this.getStructureObj(svg);
-
-    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
-    const display = act ? '' : 'none';
-
-    let stroke2 = stroke;
-    if (svg['userData'].objSplitter) stroke2 = 'rgb(255, 255, 255)';
-
-    elems.line1.setAttribute('stroke', stroke2);
-    if (elems.line2) elems.line2.setAttribute('stroke', stroke);
-    if (elems.point) elems.point.setAttribute('stroke', stroke);
-    if (elems.line3) elems.line3.setAttribute('stroke', stroke);
-    if (elems.line4) elems.line4.setAttribute('stroke', stroke);
-
-    if (elems.point) elems.point.setAttribute('display', display);
-  }
-
   setLockOnSvg(svg, lock = null) {
-    const elems = this.getStructureObj(svg);
+    const elems = isometricSvgListObjs.getStructureObj(svg);
 
     if (lock !== null) {
       elems.line1['userData'].lock = lock;
@@ -442,84 +456,14 @@ export class IsometricSvgObjs {
 
     const svg = this.selectedObj.el;
 
-    return this.getStructureObj(svg);
-  }
-
-  getStructureObj(svg) {
-    let elems = {};
-
-    if (svg['userData'].objBracket) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        line2: svg['userData'].elems[1],
-        point: svg['userData'].elems[2],
-      };
-    }
-
-    if (svg['userData'].objValve) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        line2: svg['userData'].elems[1],
-        point: svg['userData'].elems[2],
-        line3: svg['userData'].elems[3],
-        line4: svg['userData'].elems[4],
-      };
-    }
-
-    if (svg['userData'].objTee) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        line2: svg['userData'].elems[1],
-        point: svg['userData'].elems[2],
-      };
-    }
-
-    if (svg['userData'].objUndefined) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        line2: svg['userData'].elems[1],
-      };
-    }
-
-    if (svg['userData'].objFlap) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        line2: svg['userData'].elems[1],
-        point: svg['userData'].elems[2],
-      };
-    }
-
-    if (svg['userData'].objAdapter) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        point: svg['userData'].elems[1],
-      };
-    }
-
-    if (svg['userData'].objBox) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        point: svg['userData'].elems[1],
-      };
-    }
-
-    if (svg['userData'].objSplitter) {
-      elems = {
-        line1: svg['userData'].elems[0],
-        point: svg['userData'].elems[1],
-        line2: svg['userData'].elems[2],
-        line3: svg['userData'].elems[3],
-      };
-    }
-
-    return elems;
+    return isometricSvgListObjs.getStructureObj(svg);
   }
 
   deleteObj(svg = null) {
     let elems = null;
 
     if (svg) {
-      elems = this.getStructureObj(svg);
+      elems = isometricSvgListObjs.getStructureObj(svg);
     } else {
       elems = this.getSelectedObj();
     }

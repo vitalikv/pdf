@@ -178,6 +178,15 @@ export class IsometricSvgElem {
     svg.setAttribute('transform', `translate(${x}, ${y}) rotate(${rot})`);
   }
 
+  // поворот точки
+  setRotCircle_1({ svg, centerPos, deg, offsetX = 0, offsetY = 0 }) {
+    const rad = THREE.MathUtils.degToRad(deg - 90);
+    const cx = offsetY * Math.cos(rad) - offsetX * Math.sin(rad);
+    const cy = offsetY * Math.sin(rad) + offsetX * Math.cos(rad);
+
+    this.setPosCircle(svg, centerPos.x + cx, centerPos.y + cy);
+  }
+
   // поворот полигона
   setRotPolygon1(svg, rot) {
     const x = svg.transform.baseVal[0].matrix.e;

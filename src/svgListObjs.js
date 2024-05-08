@@ -35,7 +35,7 @@ export class IsometricSvgListObjs {
     return svg;
   }
 
-  createSvgCircle({ x, y, r = 4.2, fill = '#fff' }) {
+  createSvgCircle({ x, y, r = '4.2', fill = '#fff', display = 'none' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 
     svg.setAttribute('cx', x);
@@ -49,7 +49,7 @@ export class IsometricSvgListObjs {
     svg.setAttribute('fill', fill);
 
     svg.setAttributeNS(null, 'style', 'transform: translateX(0) translateY(0);');
-    svg.setAttribute('display', 'none');
+    svg.setAttribute('display', display);
 
     return svg;
   }
@@ -156,14 +156,22 @@ export class IsometricSvgListObjs {
     const svg1 = this.createSvgLine({ x1: x - 20, y1: y, x2: x + 20, y2: y });
     const svg2 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y + 20 });
     const svg3 = this.createSvgCircle({ x: x, y: y });
+    const svg4 = this.createSvgCircle({ x: x - 20, y: y, r: '3.2', fill: '#000000', display: '' });
+    const svg5 = this.createSvgCircle({ x: x + 20, y: y, r: '3.2', fill: '#000000', display: '' });
+    const svg6 = this.createSvgCircle({ x: x, y: y + 20, r: '3.2', fill: '#000000', display: '' });
 
-    this.groupObjs.append(svg1);
-    this.groupObjs.append(svg2);
-    this.groupObjs.append(svg3);
+    const arr = [svg1, svg2, svg3, svg4, svg5, svg6];
 
-    svg1['userData'] = { objTee: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3] };
-    svg2['userData'] = { objTee: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3] };
-    svg3['userData'] = { objTee: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3] };
+    arr.forEach((svg) => {
+      this.groupObjs.append(svg);
+    });
+
+    svg1['userData'] = { objTee: true, tag: 'line1', lock: false, elems: arr };
+    svg2['userData'] = { objTee: true, tag: 'line2', lock: false, elems: arr };
+    svg3['userData'] = { objTee: true, tag: 'point', lock: false, elems: arr };
+    svg4['userData'] = { objTee: true, tag: 'joint1', lock: false, elems: arr };
+    svg5['userData'] = { objTee: true, tag: 'joint2', lock: false, elems: arr };
+    svg6['userData'] = { objTee: true, tag: 'joint3', lock: false, elems: arr };
 
     return { svg1, svg2, svg3 };
   }
@@ -288,10 +296,7 @@ export class IsometricSvgListObjs {
     const posC = isometricSvgElem.getPosCircle(point);
     const rotY1 = point['userData'].rotY1;
 
-    const rad = THREE.MathUtils.degToRad(rotY1 - 90);
-    const cx = 0 * Math.cos(rad) - offsetX * Math.sin(rad);
-    const cy = 0 * Math.sin(rad) + offsetX * Math.cos(rad);
-    isometricSvgElem.setPosCircle(svgP, posC.x + cx, posC.y + cy);
+    isometricSvgElem.setRotCircle_1({ svg: svgP, centerPos: posC, deg: rotY1, offsetX });
 
     svgP.setAttribute('display', '');
     svgP['userData'].svgObj = point;
@@ -417,6 +422,9 @@ export class IsometricSvgListObjs {
         line1: svg['userData'].elems[0],
         line2: svg['userData'].elems[1],
         point: svg['userData'].elems[2],
+        joint1: svg['userData'].elems[3],
+        joint2: svg['userData'].elems[4],
+        joint3: svg['userData'].elems[5],
       };
     }
 
@@ -459,6 +467,30 @@ export class IsometricSvgListObjs {
     }
 
     return elems;
+  }
+
+  setColorElem(svg, act = false) {
+    const elems = this.getStructureObj(svg);
+
+    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    const display = act ? '' : 'none';
+
+    let stroke2 = stroke;
+    if (svg['userData'].objSplitter) {
+      stroke2 = 'rgb(255, 255, 255)';
+      elems.line1.setAttribute('stroke', stroke2);
+    } else {
+      for (let elem in elems) {
+        if (elem === 'point') continue;
+
+        const type = isometricSvgElem.getSvgType(elems[elem]);
+        if (type === 'circle') elems[elem].setAttribute('fill', stroke);
+
+        elems[elem].setAttribute('stroke', stroke);
+      }
+    }
+
+    if (elems.point) elems.point.setAttribute('display', display);
   }
 
   isObjBySvg(svg) {
@@ -518,6 +550,7 @@ export class IsometricSvgListObjs {
     return this.isDown;
   };
 
+  // scale и направление
   onmousemove = (event) => {
     if (!this.isDown) return;
     if (!this.isMove) {
