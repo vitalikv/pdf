@@ -28,8 +28,11 @@ export class IsometricSvgSave {
             isometry.lines.push({ pos });
           }
           if (svg['userData'].tag === 'point') {
-            const pos = isometricSvgElem.getPosCircle(svg);
-            isometry.points.push({ pos });
+            const data = {};
+            data['pos'] = isometricSvgElem.getPosCircle(svg);
+            if (svg['userData'].pdDist) data['pdDist'] = svg['userData'].pdDist;
+
+            isometry.points.push(data);
           }
         }
 

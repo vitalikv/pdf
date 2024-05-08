@@ -126,10 +126,16 @@ export class IsometricSvgLine {
     let pos1 = pos[0];
     let pos2 = pos[1];
 
+    let pdDist = 20;
+
     if (pCenter) {
       const posC = isometricSvgElem.getPosCircle(pCenter);
       const dist1 = new THREE.Vector2(posC.x, posC.y).distanceTo(pos1);
       const dist2 = new THREE.Vector2(posC.x, posC.y).distanceTo(pos2);
+
+      if (pCenter['userData'].pdDist) {
+        pdDist = pCenter['userData'].pdDist;
+      }
 
       if (dist1 < dist2) {
         pos1 = pos[0];
@@ -143,11 +149,19 @@ export class IsometricSvgLine {
     } else if (ind === 1) {
       pos1 = pos[1];
       pos2 = pos[0];
+
+      const pd = line['userData'].pd2;
+      const pCenter = pd['userData'].ld['userData'].pCenter;
+      if (pCenter['userData'].pdDist) pdDist = pCenter['userData'].pdDist;
+    } else if (ind === 2) {
+      const pd = line['userData'].pd1;
+      const pCenter = pd['userData'].ld['userData'].pCenter;
+      if (pCenter['userData'].pdDist) pdDist = pCenter['userData'].pdDist;
     }
 
     const dir = pos2.clone().sub(pos1).normalize();
     const dist = pos2.distanceTo(pos1);
-    const offset = new THREE.Vector2().addScaledVector(dir, 20);
+    const offset = new THREE.Vector2().addScaledVector(dir, pdDist);
     const posPoint = pos1.clone().add(offset);
 
     return { ind, pos: posPoint, dist, pos1: pos[0], pos2: pos[1] };
@@ -601,7 +615,9 @@ export class IsometricSvgLine {
       isometricSvgElem.setPosLine2({ svg: line2, x1: pos2.x, y1: pos2.y });
     }
 
-    svg['userData'].lines.forEach((svgLine) => {
+    pCenter['userData'].pdDist = dist1;
+
+    pCenter['userData'].lines.forEach((svgLine) => {
       isometricNoteSvg.updataPos(svgLine);
       isometricSvgObjs.updataPos(svgLine);
       isometricNoteSvg2.updataPos(svgLine);
