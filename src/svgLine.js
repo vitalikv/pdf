@@ -299,6 +299,7 @@ export class IsometricSvgLine {
     svg['userData'].ld1 = null;
     svg['userData'].ld2 = null;
     svg['userData'].links = [];
+    svg['userData'].segments = [];
 
     return svg;
   }
@@ -560,6 +561,10 @@ export class IsometricSvgLine {
       isometricNoteSvg2.updataPos(svgLine);
       isometricSvgRuler.updataPos(svgLine);
     });
+
+    svg['userData'].lines.forEach((svgLine) => {
+      this.upLineSegments({ line: svgLine });
+    });
   }
 
   // перемещение точки угла
@@ -622,6 +627,10 @@ export class IsometricSvgLine {
       isometricSvgObjs.updataPos(svgLine);
       isometricNoteSvg2.updataPos(svgLine);
       isometricSvgRuler.updataPos(svgLine);
+    });
+
+    pCenter['userData'].lines.forEach((line) => {
+      this.upLineSegments({ line });
     });
   }
 
@@ -851,6 +860,43 @@ export class IsometricSvgLine {
     }
     if (ld2) {
       ld2.setAttribute('stroke', stroke);
+    }
+  }
+
+  // при изменении длины линии, обновляем длину сегментов
+  upLineSegments({ line }) {
+    line['userData'].links.sort((a, b) => {
+      return a['userData'].link.dist - b['userData'].link.dist;
+    });
+
+    line['userData'].links.forEach((svgPoint, ind, arr) => {
+      const segment = line['userData'].segments[ind];
+      if (segment) {
+        let pos1 = new THREE.Vector2();
+        let pos2 = new THREE.Vector2();
+        if (ind === 0) {
+          pos1 = isometricSvgElem.getPosLine2(line)[0];
+          pos2 = isometricSvgElem.getPosCircle(svgPoint);
+        } else {
+          pos1 = isometricSvgElem.getPosCircle(arr[ind - 1]);
+          pos2 = isometricSvgElem.getPosCircle(svgPoint);
+        }
+
+        isometricSvgElem.setPosLine2({ svg: segment, x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y });
+      }
+    });
+
+    if (line['userData'].links.length > 0) {
+      const ind = line['userData'].links.length - 1;
+      const svgPoint = line['userData'].links[ind];
+
+      const segment = line['userData'].segments[ind + 1];
+      if (segment) {
+        const pos1 = isometricSvgElem.getPosCircle(svgPoint);
+        const pos2 = isometricSvgElem.getPosLine2(line)[1];
+
+        isometricSvgElem.setPosLine2({ svg: segment, x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y });
+      }
     }
   }
 

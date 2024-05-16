@@ -115,6 +115,7 @@ export class IsometricSvgObjs {
 
     let svg = this.selectedObj.el;
 
+    // перетаскивание у тройника точки, чтобы изменить длину/направление линии
     if (svg['userData'].objTee && svg['userData'].tag === 'joint3') {
       let pos = this.getCoord(event);
       const offset = pos.sub(this.offset);
@@ -205,6 +206,7 @@ export class IsometricSvgObjs {
     }
   }
 
+  // привязка/отвязка объекта к трубе
   addLink({ svgPoint, event, pos = null }) {
     const arrLines = [];
 
@@ -270,30 +272,82 @@ export class IsometricSvgObjs {
     const link = svgPoint['userData'].link;
     if (!link) return;
 
+    const line = link.obj;
     const links = link.obj['userData'].links;
 
     let index = links.indexOf(svgPoint);
     if (index > -1) links.splice(index, 1);
 
     svgPoint['userData'].link = null;
+
+    this.upLineSegments({ line });
   }
 
   addLinkUp({ svgPoint, result }) {
     const line = result.obj;
 
     const index = line['userData'].links.indexOf(svgPoint);
-    if (index > -1) return;
-
-    svgPoint['userData'].link = { obj: line, dist: 0 };
 
     const pos = isometricSvgElem.getPosLine2(line);
     const fullDist = pos[0].distanceTo(pos[1]);
     const distFirst = pos[0].distanceTo(result.pos);
     const dist = Math.round((distFirst / fullDist) * 100) / 100;
 
-    svgPoint['userData'].link.dist = dist;
+    if (index === -1) {
+      svgPoint['userData'].link = { obj: line, dist };
 
-    line['userData'].links.push(svgPoint);
+      line['userData'].links.push(svgPoint);
+      this.upLineSegments({ line });
+    }
+
+    svgPoint['userData'].link.dist = dist;
+  }
+
+  // при прикреклении/откреплении объекта на линии, обновляем кол-во сегментов
+  upLineSegments({ line }) {
+    line['userData'].segments.forEach((svgObj) => {
+      svgObj.remove();
+    });
+    line['userData'].segments = [];
+
+    line['userData'].links.sort((a, b) => {
+      return a['userData'].link.dist - b['userData'].link.dist;
+    });
+
+    line['userData'].links.forEach((svgPoint, ind, arr) => {
+      const color = '#' + (Math.random().toString(16) + '000000').substring(2, 8).toUpperCase();
+
+      let pos1 = new THREE.Vector2();
+      let pos2 = new THREE.Vector2();
+      if (ind === 0) {
+        pos1 = isometricSvgElem.getPosLine2(line)[0];
+        pos2 = isometricSvgElem.getPosCircle(svgPoint);
+      } else {
+        pos1 = isometricSvgElem.getPosCircle(arr[ind - 1]);
+        pos2 = isometricSvgElem.getPosCircle(svgPoint);
+      }
+
+      const line1 = isometricSvgElem.createSvgLine({ x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y, stroke: color });
+      this.groupLines.append(line1);
+
+      line['userData'].segments.push(line1);
+    });
+
+    if (line['userData'].links.length > 0) {
+      const color = '#' + (Math.random().toString(16) + '000000').substring(2, 8).toUpperCase();
+
+      const svgPoint = line['userData'].links[line['userData'].links.length - 1];
+      const pos1 = isometricSvgElem.getPosCircle(svgPoint);
+      const pos2 = isometricSvgElem.getPosLine2(line)[1];
+
+      const line1 = isometricSvgElem.createSvgLine({ x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y, stroke: color });
+      this.groupLines.append(line1);
+
+      line['userData'].segments.push(line1);
+    }
+
+    console.log(line['userData'].links);
+    console.log(line['userData'].segments);
   }
 
   setRotObj({ svg }) {
@@ -472,13 +526,11 @@ export class IsometricSvgObjs {
 
     if (elems.point) this.unLink(elems.point);
 
-    elems.line1.remove();
-    if (elems.line2) elems.line2.remove();
-    if (elems.point) elems.point.remove();
-    if (elems.line3) elems.line3.remove();
-    if (elems.line4) elems.line4.remove();
+    isometricSvgListObjs.removeObj(elems.point);
 
     this.clearSelectedObj();
+
+    isometricSvgListObjs.deActPointsScale();
   }
 
   deleteAddObj() {
@@ -494,11 +546,7 @@ export class IsometricSvgObjs {
 
     this.unLink(elems.point);
 
-    elems.line1.remove();
-    if (elems.line2) elems.line2.remove();
-    if (elems.point) elems.point.remove();
-    if (elems.line3) elems.line3.remove();
-    if (elems.line4) elems.line4.remove();
+    isometricSvgListObjs.removeObj(elems.point);
 
     this.clearSelectedObj();
   }

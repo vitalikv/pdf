@@ -274,9 +274,9 @@ export class IsometricSvgListObjs {
   }
 
   createPointsScale() {
-    const svgP1 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#000' });
-    const svgP2 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#000' });
-    const svgP3 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#000' });
+    const svgP1 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#ffffff' });
+    const svgP2 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#ffffff' });
+    const svgP3 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#ffffff' });
 
     svgP1['userData'] = { pointScale: true, id: 0, elems: [svgP1, svgP2], svgObj: null };
     svgP2['userData'] = { pointScale: true, id: 1, elems: [svgP1, svgP2], svgObj: null };
@@ -521,6 +521,15 @@ export class IsometricSvgListObjs {
     }
 
     return isObj;
+  }
+
+  // удаление только svg (без удаления привязок и т.д)
+  removeObj(svg) {
+    const elems = this.getStructureObj(svg);
+
+    for (let key in elems) {
+      elems[key].remove();
+    }
   }
 
   onmousedown = (event) => {

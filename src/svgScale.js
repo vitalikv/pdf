@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricSvgListObjs } from './index';
+import { isometricSvgElem, isometricSvgLine, isometricSvgListObjs } from './index';
 
 export class IsometricSvgScale {
   container;
@@ -70,6 +70,14 @@ export class IsometricSvgScale {
       this.scaleNotes({ centerPos, offsetY: offset.y * 0.005 });
       this.scaleRulers({ centerPos, offsetY: offset.y * 0.005 });
       this.scaleObjs({ centerPos, offsetY: offset.y * 0.005 });
+
+      this.groupLines.childNodes.forEach((svg) => {
+        if (svg['userData']) {
+          if (svg['userData'].lineI && svg['userData'].tag === 'line') {
+            isometricSvgLine.upLineSegments({ line: svg });
+          }
+        }
+      });
     }
 
     if (this.button === 2) {

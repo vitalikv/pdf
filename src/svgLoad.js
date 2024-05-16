@@ -89,6 +89,7 @@ export class IsometricSvgLoad {
       svg['userData'].ld1 = null;
       svg['userData'].ld2 = null;
       svg['userData'].links = [];
+      svg['userData'].segments = [];
 
       groupLines.append(svg);
 
