@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath } from './index';
+import { isometricSvgLineSegments, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath } from './index';
 
 export class IsometricSvgLine {
   container;
@@ -17,6 +17,8 @@ export class IsometricSvgLine {
     this.container = container;
     this.containerSvg = containerSvg;
     this.groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
+
+    isometricSvgLineSegments.init({ container, containerSvg });
   }
 
   createToolPoint(event = null) {
@@ -563,7 +565,7 @@ export class IsometricSvgLine {
     });
 
     svg['userData'].lines.forEach((svgLine) => {
-      this.upLineSegments({ line: svgLine });
+      isometricSvgLineSegments.upLineSegments({ line: svgLine });
     });
   }
 
@@ -630,7 +632,7 @@ export class IsometricSvgLine {
     });
 
     pCenter['userData'].lines.forEach((line) => {
-      this.upLineSegments({ line });
+      isometricSvgLineSegments.upLineSegments({ line });
     });
   }
 
@@ -860,43 +862,6 @@ export class IsometricSvgLine {
     }
     if (ld2) {
       ld2.setAttribute('stroke', stroke);
-    }
-  }
-
-  // при изменении длины линии, обновляем длину сегментов
-  upLineSegments({ line }) {
-    line['userData'].links.sort((a, b) => {
-      return a['userData'].link.dist - b['userData'].link.dist;
-    });
-
-    line['userData'].links.forEach((svgPoint, ind, arr) => {
-      const segment = line['userData'].segments[ind];
-      if (segment) {
-        let pos1 = new THREE.Vector2();
-        let pos2 = new THREE.Vector2();
-        if (ind === 0) {
-          pos1 = isometricSvgElem.getPosLine2(line)[0];
-          pos2 = isometricSvgElem.getPosCircle(svgPoint);
-        } else {
-          pos1 = isometricSvgElem.getPosCircle(arr[ind - 1]);
-          pos2 = isometricSvgElem.getPosCircle(svgPoint);
-        }
-
-        isometricSvgElem.setPosLine2({ svg: segment, x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y });
-      }
-    });
-
-    if (line['userData'].links.length > 0) {
-      const ind = line['userData'].links.length - 1;
-      const svgPoint = line['userData'].links[ind];
-
-      const segment = line['userData'].segments[ind + 1];
-      if (segment) {
-        const pos1 = isometricSvgElem.getPosCircle(svgPoint);
-        const pos2 = isometricSvgElem.getPosLine2(line)[1];
-
-        isometricSvgElem.setPosLine2({ svg: segment, x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y });
-      }
     }
   }
 
