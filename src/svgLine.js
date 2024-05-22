@@ -818,6 +818,8 @@ export class IsometricSvgLine {
 
     if (svg['userData'].tag === 'line') {
       svg.setAttribute('stroke', stroke);
+    } else if (svg['userData'].tag === 'segmentLine') {
+      svg.setAttribute('stroke', stroke);
     } else if (svg['userData'].tag === 'point') {
       svg.setAttribute('stroke', stroke);
       svg.setAttribute('fill', stroke);
@@ -1174,6 +1176,10 @@ export class IsometricSvgLine {
 
     if (svg['userData'].tag === 'line') {
       this.deleteLine(svg);
+    }
+
+    if (svg['userData'].tag === 'segmentLine') {
+      isometricSvgLineSegments.deleteSegment({ segment: svg });
     }
 
     if (svg['userData'].tag === 'point') {
