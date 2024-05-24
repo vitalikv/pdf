@@ -274,9 +274,9 @@ export class IsometricSvgListObjs {
   }
 
   createPointsScale() {
-    const svgP1 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#ffffff' });
-    const svgP2 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#ffffff' });
-    const svgP3 = this.createSvgCircle({ x: -999999, y: -999999, fill: '#ffffff' });
+    const svgP1 = isometricSvgElem.createSvgCircle({ x: -999999, y: -999999, r: '4.2', fill: '#ffffff', display: 'none' });
+    const svgP2 = isometricSvgElem.createSvgCircle({ x: -999999, y: -999999, r: '4.2', fill: '#ffffff', display: 'none' });
+    const svgP3 = isometricSvgElem.createSvgCircle({ x: -999999, y: -999999, r: '4.2', fill: '#ffffff', display: 'none' });
 
     svgP1['userData'] = { pointScale: true, id: 0, elems: [svgP1, svgP2], svgObj: null };
     svgP2['userData'] = { pointScale: true, id: 1, elems: [svgP1, svgP2], svgObj: null };
@@ -295,6 +295,7 @@ export class IsometricSvgListObjs {
     this.groupObjs.append(svgP);
     const posC = isometricSvgElem.getPosCircle(point);
     const rotY1 = point['userData'].rotY1;
+    if (!rotY1) return;
 
     isometricSvgElem.setRotCircle_1({ svg: svgP, centerPos: posC, deg: rotY1, offsetX });
 

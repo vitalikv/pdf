@@ -78,7 +78,7 @@ export class IsometricSvgElem {
   }
 
   // создаем svg точки
-  createSvgCircle({ ind = 0, x, y, r = '3.2', stroke = '#000000' }) {
+  createSvgCircle({ ind = 0, x, y, r = '3.2', stroke = '#000000', fill = '#000000', display = '' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 
     svg.setAttribute('cx', x);
@@ -87,9 +87,10 @@ export class IsometricSvgElem {
     svg.setAttribute('stroke-width', '2px');
     svg.setAttribute('stroke', stroke);
     svg.setAttribute('transform-origin', 'center');
-    svg.setAttribute('fill', stroke);
+    svg.setAttribute('fill', fill);
     svg.setAttribute('ind', ind);
     svg.setAttributeNS(null, 'style', 'transform: translateX(0) translateY(0);');
+    svg.setAttribute('display', display);
 
     return svg;
   }

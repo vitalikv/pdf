@@ -55,17 +55,16 @@ export class IsometricSvgLineSegments {
           pos1 = isometricSvgElem.getPosLine2(line)[0];
           pos2 = isometricSvgElem.getPosCircle(svgPoint);
 
-          const point = line['userData'].pd1 ? line['userData'].pd1 : line['userData'].p1;
-          linksObj.push(point, svgPoint);
+          linksObj.push(1, svgPoint);
         } else if (ind === arr.length - 1) {
           pos1 = isometricSvgElem.getPosCircle(svgPoint);
           pos2 = isometricSvgElem.getPosLine2(line)[1];
 
-          const point = line['userData'].pd2 ? line['userData'].pd2 : line['userData'].p2;
-          linksObj.push(svgPoint, point);
+          linksObj.push(svgPoint, 2);
         } else {
           pos1 = isometricSvgElem.getPosCircle(arr[ind - 1]);
           pos2 = isometricSvgElem.getPosCircle(svgPoint);
+
           linksObj.push(arr[ind - 1], svgPoint);
         }
 
@@ -84,8 +83,20 @@ export class IsometricSvgLineSegments {
       const linksObj = segment['userData'].linksObj;
 
       if (linksObj.length === 2) {
-        const pos1 = isometricSvgElem.getPosCircle(linksObj[0]);
-        const pos2 = isometricSvgElem.getPosCircle(linksObj[1]);
+        let svg1 = linksObj[0];
+        let svg2 = linksObj[1];
+
+        if (typeof linksObj[0] === 'number') {
+          if (linksObj[0] === 1) svg1 = line['userData'].pd1 ? line['userData'].pd1 : line['userData'].p1;
+          if (linksObj[0] === 2) svg1 = line['userData'].pd2 ? line['userData'].pd2 : line['userData'].p2;
+        }
+        if (typeof linksObj[1] === 'number') {
+          if (linksObj[1] === 1) svg2 = line['userData'].pd1 ? line['userData'].pd1 : line['userData'].p1;
+          if (linksObj[1] === 2) svg2 = line['userData'].pd2 ? line['userData'].pd2 : line['userData'].p2;
+        }
+
+        const pos1 = isometricSvgElem.getPosCircle(svg1);
+        const pos2 = isometricSvgElem.getPosCircle(svg2);
 
         isometricSvgElem.setPosLine2({ svg: segment, x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y });
       }

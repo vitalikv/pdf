@@ -298,6 +298,8 @@ export class IsometricSvgObjs {
 
       line['userData'].links.push(svgPoint);
       isometricSvgLineSegments.addLineSegments({ line });
+    } else if (svgPoint['userData'].link.dist !== dist) {
+      isometricSvgLineSegments.upLineSegments({ line });
     }
 
     svgPoint['userData'].link.dist = dist;
