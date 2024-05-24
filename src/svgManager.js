@@ -22,6 +22,8 @@ import {
   isometricSvgLoad,
   isometricSetCalcNotes,
   isometricSvgScale,
+  isometricSvgUndo,
+  isometricSvgRedo,
 } from './index';
 
 export class IsometricSvgManager {
@@ -32,15 +34,30 @@ export class IsometricSvgManager {
   isMove = false;
   mode = { type: '', data: null };
   selectedObj = { el: null, type: '' };
+  lastKeyCode = '';
 
   onKeyDown = (event) => {
     if (event.code === 'Delete') {
       this.deleteElem();
     }
 
+    if (this.lastKeyCode === 'ControlLeft' && event.code === 'KeyZ' && !event.repeat) {
+      isometricSvgUndo.undo();
+      this.lastKeyCode = 'ControlLeft';
+      return;
+    }
+
+    if (this.lastKeyCode === 'ControlLeft' && event.code === 'KeyY' && !event.repeat) {
+      isometricSvgRedo.redo();
+      this.lastKeyCode = 'ControlLeft';
+      return;
+    }
+
     isometricCutBox.onKeyDown(event);
     isometricSelectBox.onKeyDown(event);
     isometricSvgScale.onKeyDown(event);
+
+    this.lastKeyCode = event.code;
   };
 
   onKeyUp = (event) => {

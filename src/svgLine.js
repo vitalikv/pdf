@@ -1,6 +1,15 @@
 import * as THREE from 'three';
 
-import { isometricSvgLineSegments, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath } from './index';
+import {
+  isometricSvgLineSegments,
+  isometricSvgObjs,
+  isometricNoteSvg,
+  isometricNoteSvg2,
+  isometricSvgRuler,
+  isometricSvgElem,
+  isometricMath,
+  isometricSvgUndoRedo,
+} from './index';
 
 export class IsometricSvgLine {
   container;
@@ -8,6 +17,7 @@ export class IsometricSvgLine {
   groupLines;
   arrLine = [];
   isDown = false;
+  isMove = false;
   newNote = { type: '', line: null, p2: null, arr: { l: [], p: [] } };
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '' };
@@ -344,6 +354,7 @@ export class IsometricSvgLine {
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
 
     this.isDown = false;
+    this.isMove = false;
 
     this.groupLines.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].lineI && svg.contains(event.target)) {
@@ -393,6 +404,12 @@ export class IsometricSvgLine {
 
     const svg = this.selectedObj.el;
     if (!svg) return;
+
+    if (!this.isMove) {
+      this.isMove = true;
+
+      isometricSvgUndoRedo.writeBd({ svg });
+    }
 
     const pos = this.getCoord(event);
     const offsetX = pos.x - this.offset.x;

@@ -33,6 +33,9 @@ import { IsometricSvgScale } from './svgScale';
 import { CalcIsometrixSvg } from './back/calcIsometrixSvg';
 import { Isometric3dto2d } from './isometric3dto2d';
 import { IsometricSetCalcNotes } from './setCalcNotes';
+import { IsometricSvgUndoRedo } from './svgUndoRedo';
+import { IsometricSvgUndo } from './svgUndo';
+import { IsometricSvgRedo } from './svgRedo';
 
 import { ShowJointsAndLines } from './helper/showJointsAndLines';
 
@@ -64,7 +67,10 @@ export let isometricModeService,
   isometricSvgListObjs,
   isometricSvgScale,
   isometric3dto2d,
-  isometricSetCalcNotes;
+  isometricSetCalcNotes,
+  isometricSvgUndoRedo,
+  isometricSvgUndo,
+  isometricSvgRedo;
 
 init();
 initServ();
@@ -180,6 +186,9 @@ function initServ() {
   isometric3dto2d = new Isometric3dto2d();
   isometricSetCalcNotes = new IsometricSetCalcNotes();
   isometricSvgScale = new IsometricSvgScale();
+  isometricSvgUndoRedo = new IsometricSvgUndoRedo();
+  isometricSvgUndo = new IsometricSvgUndo();
+  isometricSvgRedo = new IsometricSvgRedo();
 
   isometricSvgManager.init();
   isometricSvgLoad.load();
