@@ -2,6 +2,7 @@ import { isometricSvgElem, isometricSvgLine, isometricSvgUndoRedo } from './inde
 
 export class IsometricSvgRedo {
   redo() {
+    isometricSvgUndoRedo.checkIndex({ keyCode: 'Y' });
     isometricSvgUndoRedo.increaseIndex();
 
     const bd = isometricSvgUndoRedo.getCurrentItemBd();
