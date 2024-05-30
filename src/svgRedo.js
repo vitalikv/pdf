@@ -5,12 +5,25 @@ export class IsometricSvgRedo {
     isometricSvgUndoRedo.checkIndex({ keyCode: 'Y' });
     isometricSvgUndoRedo.increaseIndex();
 
-    const bd = isometricSvgUndoRedo.getCurrentItemBd();
+    const bd = isometricSvgUndoRedo.getItemBd({ number: -1 });
+    if (!bd) return;
+
     const svg = bd.svg;
-    const pos = isometricSvgElem.getPosCircle(svg);
-    const offset = bd.pos.clone().sub(pos);
+    const type = bd.type;
+
     console.log(bd);
 
-    isometricSvgLine.moveSvgPoint({ svg, offset });
+    if (type === 'circle') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const offset = bd.pos.clone().sub(pos);
+
+      isometricSvgLine.moveSvgPoint({ svg, offset });
+    }
+    if (type === 'line') {
+      const pos = isometricSvgElem.getPosLine2(svg);
+      const offset = bd.pos[0].clone().sub(pos[0]);
+
+      isometricSvgLine.moveSvgLine({ svg, offset });
+    }
   }
 }
