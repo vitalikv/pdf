@@ -25,6 +25,7 @@ export class IsometricSvgLineSegments {
 
   // при прикреклении/откреплении объекта на линии, обновляем кол-во сегментов
   addLineSegments({ line }) {
+    return;
     line.setAttribute('display', '');
 
     line['userData'].segments.forEach((svgObj) => {

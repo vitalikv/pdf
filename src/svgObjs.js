@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath, isometricSvgLineSegments, isometricSvgListObjs } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgLineSegments, isometricSvgListObjs, isometricSvgUndoRedo } from './index';
 
 export class IsometricSvgObjs {
   container;
@@ -111,6 +111,11 @@ export class IsometricSvgObjs {
     if (!this.isMove) {
       this.isMove = true;
       isometricSvgListObjs.deActPointsScale();
+
+      if (this.selectedObj.el) {
+        const elems = isometricSvgListObjs.getStructureObj(this.selectedObj.el);
+        isometricSvgUndoRedo.writeBd({ svg: elems.point });
+      }
     }
 
     let svg = this.selectedObj.el;

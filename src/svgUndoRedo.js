@@ -20,17 +20,23 @@ export class IsometricSvgUndoRedo {
     let type = null;
     let pos = null;
 
+    this.offsetIndBd();
+
     if (svg['userData']) {
+      type = isometricSvgElem.getSvgType(svg);
+
+      if (checkNewSvg) this.checkAddNewSvg({ svg });
+
       if (svg['userData'].lineI) {
-        if (checkNewSvg) this.checkAddNewSvg({ svg });
-
-        type = isometricSvgElem.getSvgType(svg);
-
         if (type === 'circle') {
           pos = isometricSvgElem.getPosCircle(svg);
         }
         if (type === 'line') {
           pos = isometricSvgElem.getPosLine2(svg);
+        }
+      } else if (isometricSvgListObjs.isObjBySvg(svg)) {
+        if (type === 'circle') {
+          pos = isometricSvgElem.getPosCircle(svg);
         }
       }
     }
@@ -46,6 +52,22 @@ export class IsometricSvgUndoRedo {
       }
 
       console.log(this.bd);
+    }
+  }
+
+  // очистака бд до текущего индекса (когда мы откатились ctrlZ, а спереди есть ctrlY)
+  offsetIndBd() {
+    if (this.ind < this.bd.length - 1) {
+      const upBd = [];
+      for (let i = 0; i < this.ind; i++) {
+        const item = this.bd[i];
+        item.ind = i;
+        upBd.push(item);
+      }
+      this.bd = upBd;
+      console.log(222, this.ind, [...this.bd]);
+      this.ind--;
+      if (this.ind < 0) this.ind = 0;
     }
   }
 
@@ -71,12 +93,10 @@ export class IsometricSvgUndoRedo {
     if (ind > 0 && ind < this.bd.length) bd2 = this.bd[ind];
 
     if (bd && bd2) {
-      console.log(this.ind, ind, bd.svg !== bd2.svg, bd, bd2);
       if (bd.svg !== bd2.svg) {
         number > 0 ? this.ind-- : this.ind++;
         bd = this.getCurrentItemBd();
       }
-      console.log(bd);
     }
 
     return bd;
@@ -107,6 +127,6 @@ export class IsometricSvgUndoRedo {
     if (this.ind !== this.bd.length - 1) return;
 
     const bd = this.getCurrentItemBd();
-    if (!bd.lastAdd) this.writeBd({ svg: bd.svg, lastAdd: true });
+    if (bd && !bd.lastAdd) this.writeBd({ svg: bd.svg, lastAdd: true });
   }
 }
