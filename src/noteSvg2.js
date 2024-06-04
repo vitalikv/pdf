@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem } from './index';
+import { isometricSvgElem, isometricSvgUndoRedo } from './index';
 
 export class IsometricNoteSvg2 {
   container;
@@ -8,6 +8,7 @@ export class IsometricNoteSvg2 {
   groupLines;
   groupNotes;
   isDown = false;
+  isMove = false;
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '' };
   toolPoint;
@@ -168,6 +169,7 @@ export class IsometricNoteSvg2 {
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
 
     this.isDown = false;
+    this.isMove = false;
 
     this.groupNotes.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].note2 && svg.contains(event.target)) {
@@ -195,6 +197,14 @@ export class IsometricNoteSvg2 {
     }
 
     if (!this.isDown) return;
+
+    if (!this.isMove) {
+      this.isMove = true;
+
+      if (!this.toolPoint && this.selectedObj.el) {
+        isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el });
+      }
+    }
 
     let svg = this.selectedObj.el;
     if (svg['userData'].lock) return;

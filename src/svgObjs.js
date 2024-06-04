@@ -113,8 +113,7 @@ export class IsometricSvgObjs {
       isometricSvgListObjs.deActPointsScale();
 
       if (this.selectedObj.el) {
-        const elems = isometricSvgListObjs.getStructureObj(this.selectedObj.el);
-        isometricSvgUndoRedo.writeBd({ svg: elems.point });
+        isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el });
       }
     }
 

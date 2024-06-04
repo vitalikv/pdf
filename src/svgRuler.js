@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgUndoRedo } from './index';
 
 export class IsometricSvgRuler {
   container;
@@ -9,6 +9,7 @@ export class IsometricSvgRuler {
   groupRulers;
   newNote = { type: '', data: null, p2: null, r2: { dir: new THREE.Vector2(), startPos: new THREE.Vector2() } };
   isDown = false;
+  isMove = false;
   offset = new THREE.Vector2();
   actInput = null;
   selectedObj = { el: null, type: '' };
@@ -337,6 +338,7 @@ export class IsometricSvgRuler {
 
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
     this.isDown = false;
+    this.isMove = false;
 
     this.groupRulers.childNodes.forEach((svg, ind) => {
       if (svg['userData'] && svg['userData'].ruler && svg.contains(event.target)) {
@@ -405,6 +407,14 @@ export class IsometricSvgRuler {
     }
 
     if (!this.isDown) return;
+
+    if (!this.isMove) {
+      this.isMove = true;
+
+      if (this.selectedObj.el) {
+        isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el });
+      }
+    }
 
     const svg = this.selectedObj.el;
     let pos = this.getCoord(event);
