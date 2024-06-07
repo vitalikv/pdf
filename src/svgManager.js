@@ -86,6 +86,9 @@ export class IsometricSvgManager {
     isometricSvgLoad.init({ container, containerSvg });
     isometricSetCalcNotes.init({ container, containerSvg });
     isometricSvgScale.init({ container, containerSvg });
+
+    isometricSvgUndo.init({ isometricSvgManager: this });
+    isometricSvgRedo.init({ isometricSvgManager: this });
   }
 
   getContainer() {
@@ -296,18 +299,21 @@ export class IsometricSvgManager {
         isometricSvgLine.deleteToolPoint();
         this.cleareMode();
       } else {
+        console.log(444);
         isometricSvgLine.addLine(event);
         isometricSvgLine.deleteToolPoint();
         this.mode.type = 'nextLine';
       }
     } else if (this.mode.type === 'nextLine') {
       if (event.button === 2) {
+        console.log(111);
         isometricSvgLine.stopLine();
         isometricSvgLine.createToolPoint(event);
         this.mode.type = 'line';
       } else {
         const result = isometricSvgLine.addNextLine(event);
         if (result) {
+          console.log(222);
           this.mode.type = 'line';
           isometricSvgLine.createToolPoint(event);
         } else {
@@ -423,8 +429,8 @@ export class IsometricSvgManager {
     return result;
   }
 
-  unselectAllNotes(event) {
-    isometricSvgRuler.deleteInput(event.target);
+  unselectAllNotes(event = null) {
+    if (event) isometricSvgRuler.deleteInput(event.target);
 
     const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
 
@@ -438,7 +444,7 @@ export class IsometricSvgManager {
 
         if (isometricSvgObjs.selectedObj.el && isometricSvgListObjs.isObjBySvg(svg)) {
           if (isometricSvgObjs.selectedObj.el === svg) {
-            if (event.button === 2) isometricSvgObjs.deleteAddObj();
+            if (event && event.button === 2) isometricSvgObjs.deleteAddObj();
             isometricSvgObjs.actElem(svg, false);
           }
         }

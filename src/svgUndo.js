@@ -12,7 +12,15 @@ import {
 } from './index';
 
 export class IsometricSvgUndo {
+  isometricSvgManager;
+
+  init({ isometricSvgManager }) {
+    this.isometricSvgManager = isometricSvgManager;
+  }
+
   undo() {
+    this.isometricSvgManager.unselectAllNotes();
+
     isometricSvgUndoRedo.addLastItemBd();
     isometricSvgUndoRedo.checkIndex({ keyCode: 'Z' });
 

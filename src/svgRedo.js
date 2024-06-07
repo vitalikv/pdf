@@ -12,7 +12,15 @@ import {
 } from './index';
 
 export class IsometricSvgRedo {
+  isometricSvgManager;
+
+  init({ isometricSvgManager }) {
+    this.isometricSvgManager = isometricSvgManager;
+  }
+
   redo() {
+    this.isometricSvgManager.unselectAllNotes();
+
     isometricSvgUndoRedo.checkIndex({ keyCode: 'Y' });
     isometricSvgUndoRedo.increaseIndex();
 
@@ -120,6 +128,25 @@ export class IsometricSvgRedo {
         isometricSvgRuler.addLink({ svgPoint: pd1, event: null, pos: new THREE.Vector2(params.p1line[1].x, params.p1line[1].y) });
         isometricSvgRuler.addLink({ svgPoint: pd2, event: null, pos: new THREE.Vector2(params.p2line[1].x, params.p2line[1].y) });
       }
+    }
+
+    if (bd.typeData === 'ruler') {
+      const { line, p1, p2, p1line, p2line, pd1, pd2 } = isometricSvgRuler.getStructureNote(params.svg);
+
+      isometricSvgElem.setPosLine1(line, params.line[0].x, params.line[0].y, params.line[1].x, params.line[1].y);
+      isometricSvgElem.setPosPolygon1(p1, params.p1.x, params.p1.y);
+      isometricSvgElem.setPosPolygon1(p2, params.p2.x, params.p2.y);
+      isometricSvgElem.setPosLine1(p1line, params.p1line[0].x, params.p1line[0].y, params.p1line[1].x, params.p1line[1].y);
+      isometricSvgElem.setPosLine1(p2line, params.p2line[0].x, params.p2line[0].y, params.p2line[1].x, params.p2line[1].y);
+      isometricSvgElem.setPosCircle(pd1, params.p1line[1].x, params.p1line[1].y);
+      isometricSvgElem.setPosCircle(pd2, params.p2line[1].x, params.p2line[1].y);
+
+      isometricSvgRuler.setRotArrows({ svg: p2 });
+      isometricSvgRuler.setPosRotDivText({ p1, p2 });
+      //isometricSvgRuler.createDivText({ p1, p2, txt: params.divText.txt });
+
+      isometricSvgRuler.addLink({ svgPoint: pd1, event: null, pos: new THREE.Vector2(params.p1line[1].x, params.p1line[1].y) });
+      isometricSvgRuler.addLink({ svgPoint: pd2, event: null, pos: new THREE.Vector2(params.p2line[1].x, params.p2line[1].y) });
     }
   }
 }

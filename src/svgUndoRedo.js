@@ -22,7 +22,7 @@ export class IsometricSvgUndoRedo {
 
     this.offsetIndBd();
 
-    if (checkNewSvg) this.checkAddNewSvg({ svg: data.svg });
+    if (checkNewSvg && !lastAdd) this.checkAddNewSvg({ svg: data.params.svg });
 
     if (lastAdd) {
       this.bd[this.ind + 1] = { ind: this.ind + 1, ...data, lastAdd: true };
@@ -32,7 +32,7 @@ export class IsometricSvgUndoRedo {
       this.bd[this.ind] = { ind: this.ind, ...data };
     }
 
-    console.log(this.bd);
+    console.log(lastAdd, this.ind, this.bd);
   }
 
   // очистака бд до текущего индекса (когда мы откатились ctrlZ, а спереди есть ctrlY)
