@@ -68,6 +68,7 @@ export class IsometricSvgManager {
   init() {
     const container = this.getContainer();
     const containerSvg = this.getContainerSvg();
+    isometricSvgElem.init({ container, containerSvg });
     isometricSelectBox.init({ container, containerSvg });
     isometricPdfToSvg.init({ container, containerSvg });
     isometricSheets.init({ container, containerSvg });
@@ -299,7 +300,6 @@ export class IsometricSvgManager {
         isometricSvgLine.deleteToolPoint();
         this.cleareMode();
       } else {
-        console.log(444);
         isometricSvgLine.addLine(event);
         isometricSvgLine.deleteToolPoint();
         this.mode.type = 'nextLine';
@@ -444,6 +444,7 @@ export class IsometricSvgManager {
 
         if (isometricSvgObjs.selectedObj.el && isometricSvgListObjs.isObjBySvg(svg)) {
           if (isometricSvgObjs.selectedObj.el === svg) {
+            if (event && event.button === 0) isometricSvgObjs.addObjUR();
             if (event && event.button === 2) isometricSvgObjs.deleteAddObj();
             isometricSvgObjs.actElem(svg, false);
           }

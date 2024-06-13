@@ -1,6 +1,14 @@
 import * as THREE from 'three';
 
 export class IsometricSvgElem {
+  container = null;
+  containerSvg = null;
+
+  init({ container, containerSvg }) {
+    this.container = container;
+    this.containerSvg = containerSvg;
+  }
+
   // получаем svg, где находтся все элементы изометрии
   getSvgXmlns({ container }) {
     const svgXmlns = container.children[0];
@@ -36,6 +44,21 @@ export class IsometricSvgElem {
     });
 
     return group ? group : svgXmlns;
+  }
+
+  // получаем объект из группы
+  getSvgByGroupById({ tag = 'objs', id }) {
+    const elems = this.getSvgGroup({ container: this.containerSvg, tag });
+
+    let svgElem = null;
+
+    elems.childNodes.forEach((svg) => {
+      if (svg['userData'] && svg['userData'].id && svg['userData'].id === id) {
+        svgElem = svg;
+      }
+    });
+
+    return svgElem;
   }
 
   // получаем значения viewBox

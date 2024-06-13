@@ -16,7 +16,7 @@ export class IsometricSvgUndoRedo {
   ind = -1;
   lastKeyCode = '';
 
-  writeBd({ svg, lastAdd = false, checkNewSvg = true }) {
+  writeBd({ svg, event = 'move', lastAdd = false, checkNewSvg = true }) {
     const data = this.getStructureData(svg);
     if (!data) return;
 
@@ -25,11 +25,11 @@ export class IsometricSvgUndoRedo {
     if (checkNewSvg && !lastAdd) this.checkAddNewSvg({ svg: data.params.svg });
 
     if (lastAdd) {
-      this.bd[this.ind + 1] = { ind: this.ind + 1, ...data, lastAdd: true };
+      this.bd[this.ind + 1] = { ind: this.ind + 1, event, ...data, lastAdd: true };
     } else {
       this.lastKeyCode = '';
       this.ind++;
-      this.bd[this.ind] = { ind: this.ind, ...data };
+      this.bd[this.ind] = { ind: this.ind, event, ...data };
     }
 
     console.log(lastAdd, this.ind, this.bd);
@@ -107,7 +107,9 @@ export class IsometricSvgUndoRedo {
     if (this.ind !== this.bd.length - 1) return;
 
     const bd = this.getCurrentItemBd();
-    if (bd && !bd.lastAdd) this.writeBd({ svg: bd.params.svg, lastAdd: true });
+    if (bd && !bd.lastAdd && bd.event === 'move') {
+      this.writeBd({ svg: bd.params.svg, lastAdd: true });
+    }
   }
 
   getStructureData(svg) {

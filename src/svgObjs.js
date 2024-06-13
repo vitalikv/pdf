@@ -31,6 +31,15 @@ export class IsometricSvgObjs {
     }
   }
 
+  // undo/redo при добавлении нового объекта
+  addObjUR() {
+    if (!this.selectedObj.el) return;
+    if (this.selectedObj.mode !== 'add') return;
+
+    isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el, event: 'delZ' });
+    isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el, event: 'addR' });
+  }
+
   addObj2({ event, type }) {
     const pos = event ? this.getCoord(event) : new THREE.Vector2(-99999, -99999);
 
@@ -112,7 +121,7 @@ export class IsometricSvgObjs {
       this.isMove = true;
       isometricSvgListObjs.deActPointsScale();
 
-      if (this.selectedObj.el) {
+      if (this.selectedObj.mode !== 'add' && this.selectedObj.el) {
         isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el });
       }
     }
@@ -430,8 +439,6 @@ export class IsometricSvgObjs {
   actElem(svg, act = false) {
     isometricSvgListObjs.setColorElem(svg, act);
 
-    console.log(svg, act);
-
     if (act) {
       this.selectedObj.el = svg;
     } else {
@@ -479,6 +486,9 @@ export class IsometricSvgObjs {
       elems = isometricSvgListObjs.getStructureObj(svg);
     } else {
       elems = this.getSelectedObj();
+
+      isometricSvgUndoRedo.writeBd({ svg: elems.point, event: 'addZ' });
+      isometricSvgUndoRedo.writeBd({ svg: elems.point, event: 'delR' });
     }
 
     if (!elems) return;
