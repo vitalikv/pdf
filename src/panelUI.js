@@ -49,10 +49,16 @@ export class PanelUI {
     this.btns$[18] = this.crBtn({ txt: 'РО' });
     this.btns$[19] = this.crBtn({ txt: 'Разделитель' });
     this.btns$[20] = this.crBtn({ txt: 'Текст' });
-    this.btns$[21] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[22] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[23] = this.crListSheets();
-    this.btns$[24] = this.crBtn({ txt: 'из 3D в 2D' });
+
+    this.btns$[21] = this.crBtn({ txt: 'Стрелка' });
+    this.btns$[22] = this.crBtn({ txt: 'Прямоугольник' });
+    this.btns$[23] = this.crBtn({ txt: 'Круг' });
+    this.btns$[24] = this.crBtn({ txt: 'Треугольник' });
+
+    this.btns$[25] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[26] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[27] = this.crListSheets();
+    this.btns$[28] = this.crBtn({ txt: 'из 3D в 2D' });
 
     this.initEvent();
   }
@@ -155,24 +161,40 @@ export class PanelUI {
     };
 
     this.btns$[21].onmousedown = (e) => {
-      isometricSvgSave.save();
+      this.activateType({ type: 'shapeArrow', e });
     };
 
     this.btns$[22].onmousedown = (e) => {
-      isometricSvgLoad.load();
+      this.activateType({ type: 'shapeRectangle', e });
     };
 
-    this.btns$[23].onchange = (e) => {
-      isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
+    this.btns$[23].onmousedown = (e) => {
+      this.activateType({ type: 'shapeEllipse', e });
     };
 
     this.btns$[24].onmousedown = (e) => {
+      this.activateType({ type: 'shapeTriangle', e });
+    };
+
+    this.btns$[25].onmousedown = (e) => {
+      isometricSvgSave.save();
+    };
+
+    this.btns$[26].onmousedown = (e) => {
+      isometricSvgLoad.load();
+    };
+
+    this.btns$[27].onchange = (e) => {
+      isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
+    };
+
+    this.btns$[28].onmousedown = (e) => {
       initModel();
     };
   }
 
   crPanel() {
-    const css = `position: absolute; top: 0; right: 0; width: 248px; height: 1200px; background: #F0F0F0; border: 1px solid #D1D1D1; border-radius: 4px; font-family: arial,sans-serif; z-index: 4;`;
+    const css = `position: absolute; top: 0; right: 0; bottom: 0; width: 248px; background: #F0F0F0; border: 1px solid #D1D1D1; border-radius: 4px; font-family: arial,sans-serif; z-index: 4;`;
 
     const html = `
     <div style="${css}">
@@ -272,6 +294,10 @@ export class PanelUI {
     else if (type === 'objBox') isometricSvgManager.setMode({ type });
     else if (type === 'objSplitter') isometricSvgManager.setMode({ type });
     else if (type === 'addText') isometricSvgManager.setMode({ type });
+    else if (type === 'shapeArrow') isometricSvgManager.setMode({ type });
+    else if (type === 'shapeRectangle') isometricSvgManager.setMode({ type });
+    else if (type === 'shapeEllipse') isometricSvgManager.setMode({ type });
+    else if (type === 'shapeTriangle') isometricSvgManager.setMode({ type });
     else actBtn = false;
 
     this.actType = actBtn ? type : '';

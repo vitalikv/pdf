@@ -14,6 +14,7 @@ import {
   isometricNoteSvg2,
   isometricSvgRuler,
   isometricNoteText,
+  isometricSvgBasicElements,
   isometricStampLogo,
   isometricCanvasPaint,
   isometricCutBox,
@@ -79,6 +80,7 @@ export class IsometricSvgManager {
     isometricNoteSvg2.init({ container, containerSvg });
     isometricSvgRuler.init({ container, containerSvg });
     isometricNoteText.init({ container, containerSvg });
+    isometricSvgBasicElements.init({ container, containerSvg });
     isometricStampLogo.init({ container, containerSvg });
     isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
@@ -122,6 +124,7 @@ export class IsometricSvgManager {
     <g nameid="objs" clip-path="url(#cut-off-bottom)"></g>
     <g nameid="rulers" clip-path="url(#cut-off-bottom)"></g>
     <g nameid="notes" clip-path="url(#cut-off-bottom)"></g>
+    <g nameid="basicElems" clip-path="url(#cut-off-bottom)"></g>
     <g nameid="sheetText" clip-path="url(#cut-off-bottom)"></g>
     </svg>`;
     div.innerHTML += `<div nameId="notesText" style="position: absolute; top: 0; left: 0;"></div>`;
@@ -259,6 +262,7 @@ export class IsometricSvgManager {
     isometricNoteSvg.onmousemove(event);
     isometricNoteSvg2.onmousemove(event);
     isometricSvgRuler.onmousemove(event);
+    isometricSvgBasicElements.onmousemove(event);
     isometricCanvasPaint.onmousemove(event);
   };
 
@@ -274,6 +278,7 @@ export class IsometricSvgManager {
     isometricNoteSvg.onmouseup(event);
     isometricNoteSvg2.onmouseup(event);
     isometricSvgRuler.onmouseup(event);
+    isometricSvgBasicElements.onmouseup(event);
     isometricCanvasPaint.onmouseup(event);
 
     this.isDown = false;
@@ -380,6 +385,23 @@ export class IsometricSvgManager {
       this.cleareMode();
     }
 
+    if (this.mode.type === 'shapeArrow') {
+      isometricSvgBasicElements.addShape({ event, type: this.mode.type });
+      this.cleareMode();
+    }
+    if (this.mode.type === 'shapeRectangle') {
+      isometricSvgBasicElements.addShape({ event, type: this.mode.type });
+      this.cleareMode();
+    }
+    if (this.mode.type === 'shapeEllipse') {
+      isometricSvgBasicElements.addShape({ event, type: this.mode.type });
+      this.cleareMode();
+    }
+    if (this.mode.type === 'shapeTriangle') {
+      isometricSvgBasicElements.addShape({ event, type: this.mode.type });
+      this.cleareMode();
+    }
+
     if (this.mode.type === 'brush') {
       isometricCanvasPaint.onmousedown(event);
     }
@@ -422,6 +444,12 @@ export class IsometricSvgManager {
 
         if (svg['userData'].ruler) {
           result = isometricSvgRuler.onmousedown(event);
+        }
+
+        if (svg['userData'].handlePoint) {
+          isometricSvgBasicElements.onmousedown(event);
+        } else if (svg['userData'].objBasic) {
+          result = isometricSvgBasicElements.onmousedown(event);
         }
       }
     });
@@ -466,6 +494,10 @@ export class IsometricSvgManager {
           }
         }
       }
+
+      if (isometricSvgBasicElements.selectedObj.el === svg) {
+        isometricSvgBasicElements.actElem(svg, false);
+      }
     });
   }
 
@@ -476,5 +508,6 @@ export class IsometricSvgManager {
     isometricNoteSvg2.deleteNote();
     isometricSvgRuler.deleteNote({});
     isometricNoteText.deleteNote();
+    isometricSvgBasicElements.deleteObj();
   }
 }

@@ -56,44 +56,45 @@ export class IsometricSvgUndoRedo {
     const bd = this.getCurrentItemBd();
     if (!bd) return;
     if (bd.params.svg === svg) return;
+    if (bd.event !== 'move') return;
 
     this.writeBd({ svg: bd.params.svg, checkNewSvg: false });
   }
 
   getCurrentItemBd() {
-    return this.ind > -1 ? this.bd[this.ind] : null;
+    let itemBd = null;
+    if (this.ind > -1 && this.ind < this.bd.length) itemBd = this.bd[this.ind];
+
+    return itemBd;
   }
 
   getItemBd({ number }) {
-    let bd = null;
-    bd = this.getCurrentItemBd();
+    let itemBd = this.getCurrentItemBd();
 
+    let itemBd2 = null;
     const ind = this.ind + number;
-    let bd2 = null;
-    if (bd && ind > 0 && ind < this.bd.length) bd2 = this.bd[ind];
+    if (itemBd && ind > -1 && ind < this.bd.length) itemBd2 = this.bd[ind];
 
-    if (bd && bd2) {
-      if (bd.params.svg !== bd2.params.svg) {
+    if (itemBd && itemBd2) {
+      if (itemBd.params.svg !== itemBd2.params.svg) {
         number > 0 ? this.ind-- : this.ind++;
-        bd = this.getCurrentItemBd();
+        itemBd = this.getCurrentItemBd();
       }
     }
 
-    return bd;
+    return itemBd;
   }
 
   // уменьшить индекс
   decreaseIndex() {
-    this.lastKeyCode = 'Z';
     this.ind--;
     if (this.ind < -1) this.ind = -1;
   }
 
   // увеличить индекс
   increaseIndex() {
-    this.lastKeyCode = 'Y';
     this.ind++;
-    if (this.ind > this.bd.length - 1) this.ind = this.bd.length - 1;
+    if (this.ind > this.bd.length - 1) this.ind = this.bd.length;
   }
 
   checkIndex({ keyCode }) {
@@ -101,6 +102,8 @@ export class IsometricSvgUndoRedo {
 
     if (keyCode === 'Z' && this.lastKeyCode === 'Y') this.ind--;
     if (keyCode === 'Y' && this.lastKeyCode === 'Z') this.ind++;
+
+    this.lastKeyCode = keyCode;
   }
 
   addLastItemBd() {

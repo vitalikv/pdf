@@ -118,6 +118,24 @@ export class IsometricSvgElem {
     return svg;
   }
 
+  createSvgEllipse({ ind = 0, x, y, rx = '10', ry = '10', stroke = '#000000', fill = '#000000', display = '' }) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+
+    svg.setAttribute('cx', x);
+    svg.setAttribute('cy', y);
+    svg.setAttribute('rx', rx);
+    svg.setAttribute('ry', ry);
+    svg.setAttribute('stroke-width', '2px');
+    svg.setAttribute('stroke', stroke);
+    svg.setAttribute('transform-origin', 'center');
+    svg.setAttribute('fill', fill);
+    svg.setAttribute('ind', ind);
+    //svg.setAttributeNS(null, 'style', 'transform: translateX(0) translateY(0);');
+    svg.setAttribute('display', display);
+
+    return svg;
+  }
+
   createPolygon({ x, y, points, fill = 'rgb(0, 0, 0)', stroke = 'rgb(0, 0, 0)' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
@@ -221,6 +239,13 @@ export class IsometricSvgElem {
 
   // смещение точки
   setOffsetCircle(svg, offsetX, offsetY) {
+    const pos = this.getPosCircle(svg);
+
+    svg.setAttribute('cx', pos.x + offsetX);
+    svg.setAttribute('cy', pos.y + offsetY);
+  }
+
+  setOffsetEllipse(svg, offsetX, offsetY) {
     const pos = this.getPosCircle(svg);
 
     svg.setAttribute('cx', pos.x + offsetX);

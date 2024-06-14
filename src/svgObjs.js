@@ -486,7 +486,7 @@ export class IsometricSvgObjs {
       elems = isometricSvgListObjs.getStructureObj(svg);
     } else {
       elems = this.getSelectedObj();
-
+      if (!elems) return;
       isometricSvgUndoRedo.writeBd({ svg: elems.point, event: 'addZ' });
       isometricSvgUndoRedo.writeBd({ svg: elems.point, event: 'delR' });
     }
