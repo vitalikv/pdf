@@ -9,6 +9,7 @@ export class IsometricSheets {
   actInput = null;
   elInputs = [];
   formatSheet = '';
+  lastKeyCode = '';
 
   init({ container, containerSvg }) {
     this.container = container;
@@ -161,45 +162,65 @@ export class IsometricSheets {
       e.stopPropagation();
 
       const elem2 = document.createElement('input');
-      const pos = isometricSvgElem.getPosText1(svgText);
+      const rect = svgRect.getBoundingClientRect();
       const bound = this.containerSvg.getBoundingClientRect();
-      const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
-      const ratio = size.x / bound.width;
 
       elem2.style.position = 'absolute';
-      elem2.style.top = pos.y / ratio + 'px';
-      elem2.style.left = pos.x / ratio + 'px';
-      elem2.style.transform = 'translateX(-50%) translateY(-50%)';
+
+      elem2.style.top = rect.top - 1 - bound.top + 'px';
+      elem2.style.left = rect.left - 2 - bound.left + 'px';
+
       elem2.style.zIndex = '4';
 
       elem2.value = svgText.textContent;
-      elem2.style.background = 'rgb(255, 255, 255)';
-      elem2.style.border = '1px solid rgb(204, 204, 204)';
-      elem2.style.width = '100px';
+      //elem2.style.background = 'rgb(255, 255, 255)';
+      elem2.style.border = 'none';
+      elem2.style.outline = 'none';
+      elem2.style.width = rect.width - 2 + 'px';
+      elem2.style.height = rect.height - 2 + 'px';
       elem2.style.textAlign = 'center';
-      elem2.style.fontSize = '20px';
+      elem2.style.fontSize = svgText.getAttribute('font-size');
       elem2.style.fontFamily = 'Gostcadkk';
-      elem2.style.borderRadius = '4px';
-      elem2.style.padding = '10px';
+      elem2.style.boxSizing = 'border-box';
 
       this.containerSvg.append(elem2);
 
       elem2.focus();
 
       elem2.onkeydown = (e2) => {
-        if (e2.code === 'Enter') {
+        this.fontSizeAutoAdjustToFit({ input: elem2 });
+
+        if (e2.code === 'Enter' && this.lastKeyCode !== 'ShiftLeft') {
           this.deleteInput();
+          return;
         }
+        this.lastKeyCode = e2.code;
       };
 
       elem2.onblur = (e2) => {
         this.deleteInput();
+        this.lastKeyCode = '';
       };
 
       this.actInput = { svgText, elem2 };
 
       svgText.style.display = 'none';
     };
+  }
+
+  fontSizeAutoAdjustToFit({ input }) {
+    let fontSize = 30;
+
+    do {
+      console.log(fontSize, input.scrollWidth, input.clientWidth, input.scrollWidth > input.clientWidth);
+      input.style.fontSize = fontSize + 'px';
+      fontSize = fontSize - 1;
+    } while (input.scrollWidth > input.clientWidth && fontSize > 3);
+
+    do {
+      input.style.fontSize = fontSize + 'px';
+      fontSize = fontSize - 1;
+    } while (input.scrollHeight > input.clientHeight && fontSize > 3);
   }
 
   deleteInput(target = null) {
@@ -209,6 +230,7 @@ export class IsometricSheets {
     if (target === elem2) return;
 
     const txt = elem2.value;
+    svgText.setAttribute('font-size', elem2.style.fontSize);
     svgText.textContent = txt;
     svgText.style.display = '';
 

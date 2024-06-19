@@ -118,14 +118,14 @@ export class IsometricSvgElem {
     return svg;
   }
 
-  createSvgEllipse({ ind = 0, x, y, rx = '10', ry = '10', stroke = '#000000', fill = '#000000', display = '' }) {
+  createSvgEllipse({ ind = 0, x, y, rx = '10', ry = '10', strokeWidth = '2px', stroke = '#000000', fill = '#000000', display = '' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
 
     svg.setAttribute('cx', x);
     svg.setAttribute('cy', y);
     svg.setAttribute('rx', rx);
     svg.setAttribute('ry', ry);
-    svg.setAttribute('stroke-width', '2px');
+    svg.setAttribute('stroke-width', strokeWidth);
     svg.setAttribute('stroke', stroke);
     svg.setAttribute('transform-origin', 'center');
     svg.setAttribute('fill', fill);

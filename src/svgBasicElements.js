@@ -75,7 +75,7 @@ export class IsometricSvgBasicElements {
   }
 
   createEllipse({ pos }) {
-    const svg1 = isometricSvgElem.createSvgEllipse({ x: pos.x, y: pos.y, rx: '50', ry: '50', fill: 'none' });
+    const svg1 = isometricSvgElem.createSvgEllipse({ x: pos.x, y: pos.y, rx: '50', ry: '50', strokeWidth: '2.5px', fill: 'none' });
     svg1['userData'] = { objBasic: true, tagObj: 'ellipse', elems: [svg1] };
 
     this.groupBasicElems.append(svg1);
@@ -203,7 +203,11 @@ export class IsometricSvgBasicElements {
       isometricSvgElem.setOffsetLine2(svg, offsetX, offsetY, true);
     }
     if (type === 'circle') {
-      isometricSvgElem.setOffsetCircle(svg, offsetX, offsetY);
+      if (svg['userData'].svgObj['userData'].tagObj === 'triangle' && svg['userData'].id === 1) {
+        isometricSvgElem.setOffsetCircle(svg, 0, offsetY);
+      } else {
+        isometricSvgElem.setOffsetCircle(svg, offsetX, offsetY);
+      }
     }
     if (type === 'ellipse') {
       isometricSvgElem.setOffsetEllipse(svg, offsetX, offsetY);
@@ -246,11 +250,67 @@ export class IsometricSvgBasicElements {
       }
     }
 
-    if (svg['userData'].tagObj === 'rectangle' || svg['userData'].tagObj === 'triangle') {
-      const elems = [svg['userData'].elems[svg['userData'].elems.length - 1], ...svg['userData'].elems];
-      for (let i = 0; i < elems.length - 1; i++) {
-        const elem1 = elems[i];
-        const elem2 = elems[i + 1];
+    if (svg['userData'].tagObj === 'rectangle') {
+      const ind = svgPoint['userData'].id;
+      const elems = this.handlePoints;
+
+      const pos = isometricSvgElem.getPosCircle(svgPoint);
+
+      if (ind === 0) {
+        elems[1].setAttribute('cx', pos.x);
+        elems[3].setAttribute('cy', pos.y);
+      }
+
+      if (ind === 1) {
+        elems[0].setAttribute('cx', pos.x);
+        elems[2].setAttribute('cy', pos.y);
+      }
+
+      if (ind === 2) {
+        elems[1].setAttribute('cy', pos.y);
+        elems[3].setAttribute('cx', pos.x);
+      }
+
+      if (ind === 3) {
+        elems[2].setAttribute('cx', pos.x);
+        elems[0].setAttribute('cy', pos.y);
+      }
+
+      const lines = [svg['userData'].elems[svg['userData'].elems.length - 1], ...svg['userData'].elems];
+      for (let i = 0; i < lines.length - 1; i++) {
+        const elem1 = lines[i];
+        const elem2 = lines[i + 1];
+        const svgPoint = this.handlePoints[i];
+
+        const pos = isometricSvgElem.getPosCircle(svgPoint);
+
+        isometricSvgElem.setPosLine2({ svg: elem1, x2: pos.x, y2: pos.y });
+        isometricSvgElem.setPosLine2({ svg: elem2, x1: pos.x, y1: pos.y });
+      }
+    }
+
+    if (svg['userData'].tagObj === 'triangle') {
+      const ind = svgPoint['userData'].id;
+      const elems = this.handlePoints;
+
+      const pos = isometricSvgElem.getPosCircle(svgPoint);
+
+      if (ind === 0) {
+        const x1 = (pos.x - elems[2].getAttribute('cx')) / 2;
+        elems[1].setAttribute('cx', pos.x - x1);
+        elems[2].setAttribute('cy', pos.y);
+      }
+
+      if (ind === 2) {
+        const x1 = (pos.x - elems[0].getAttribute('cx')) / 2;
+        elems[1].setAttribute('cx', pos.x - x1);
+        elems[0].setAttribute('cy', pos.y);
+      }
+
+      const lines = [svg['userData'].elems[svg['userData'].elems.length - 1], ...svg['userData'].elems];
+      for (let i = 0; i < lines.length - 1; i++) {
+        const elem1 = lines[i];
+        const elem2 = lines[i + 1];
         const svgPoint = this.handlePoints[i];
 
         const pos = isometricSvgElem.getPosCircle(svgPoint);
