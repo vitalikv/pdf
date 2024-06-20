@@ -40,15 +40,11 @@ export class IsometricSvgBasicElements {
   }
 
   createArrow({ pos }) {
-    const x1 = pos.x;
-    const y1 = pos.y;
-    const x2 = x1;
-    const y2 = y1;
-    const svg1 = isometricSvgElem.createSvgLine({ x1, y1, x2, y2 });
-    const svg2 = isometricSvgElem.createPolygon({ x: x1, y: y1, points: '0,0 20,5 20,-5' });
+    const svg1 = isometricSvgElem.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
+    const svg2 = isometricSvgElem.createPolygon({ x: pos[0].x, y: pos[0].y, points: '0,0 20,5 20,-5' });
 
-    svg1['userData'] = { objBasic: true, tagObj: 'arrow', elems: [svg1, svg2] };
-    svg2['userData'] = { objBasic: true, tagObj: 'arrow', elems: [svg1, svg2] };
+    svg1['userData'] = { objBasic: true, tagObj: 'arrow', ind: 0, elems: [svg1, svg2] };
+    svg2['userData'] = { objBasic: true, tagObj: 'arrow', ind: 1, elems: [svg1, svg2] };
 
     this.groupBasicElems.append(svg1);
     this.groupBasicElems.append(svg2);
@@ -57,11 +53,15 @@ export class IsometricSvgBasicElements {
   }
 
   createRectangle({ pos }) {
+    const coords = [pos[pos.length - 1], ...pos];
+
     const arrSvg = [];
-    arrSvg[0] = isometricSvgElem.createSvgLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
-    arrSvg[1] = isometricSvgElem.createSvgLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
-    arrSvg[2] = isometricSvgElem.createSvgLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
-    arrSvg[3] = isometricSvgElem.createSvgLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
+    for (let i = 0; i < coords.length - 1; i++) {
+      const coord1 = coords[i];
+      const coord2 = coords[i + 1];
+
+      arrSvg[i] = isometricSvgElem.createSvgLine({ x1: coord1.x, y1: coord1.y, x2: coord2.x, y2: coord2.y });
+    }
 
     arrSvg.forEach((svg, ind) => {
       svg['userData'] = { objBasic: true, ind, tagObj: 'rectangle', elems: arrSvg };
@@ -74,9 +74,9 @@ export class IsometricSvgBasicElements {
     return arrSvg[0];
   }
 
-  createEllipse({ pos }) {
-    const svg1 = isometricSvgElem.createSvgEllipse({ x: pos.x, y: pos.y, rx: '0', ry: '0', strokeWidth: '2.5px', fill: 'none' });
-    svg1['userData'] = { objBasic: true, tagObj: 'ellipse', elems: [svg1] };
+  createEllipse({ pos, rx, ry }) {
+    const svg1 = isometricSvgElem.createSvgEllipse({ x: pos.x, y: pos.y, rx, ry, strokeWidth: '2.5px', fill: 'none' });
+    svg1['userData'] = { objBasic: true, ind: 0, tagObj: 'ellipse', elems: [svg1] };
 
     this.groupBasicElems.append(svg1);
 
@@ -84,10 +84,15 @@ export class IsometricSvgBasicElements {
   }
 
   createTriangle({ pos }) {
+    const coords = [pos[pos.length - 1], ...pos];
+
     const arrSvg = [];
-    arrSvg[0] = isometricSvgElem.createSvgLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
-    arrSvg[1] = isometricSvgElem.createSvgLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
-    arrSvg[2] = isometricSvgElem.createSvgLine({ x1: pos.x, y1: pos.y, x2: pos.x, y2: pos.y });
+    for (let i = 0; i < coords.length - 1; i++) {
+      const coord1 = coords[i];
+      const coord2 = coords[i + 1];
+
+      arrSvg[i] = isometricSvgElem.createSvgLine({ x1: coord1.x, y1: coord1.y, x2: coord2.x, y2: coord2.y });
+    }
 
     arrSvg.forEach((svg, ind) => {
       svg['userData'] = { objBasic: true, ind, tagObj: 'triangle', elems: arrSvg };
@@ -106,16 +111,33 @@ export class IsometricSvgBasicElements {
     return pos;
   }
 
-  addShape({ event = null, pos = null, type }) {
+  addShape({ type, event = null, pos = null, params = null }) {
     this.clearSelectedObj();
 
-    if (event) pos = this.getCoord(event);
+    if (event) {
+      const coord = this.getCoord(event);
+
+      if (type === 'shapeArrow') {
+        pos = [coord, coord];
+      }
+      if (type === 'shapeRectangle') {
+        pos = [coord, coord, coord, coord];
+      }
+      if (type === 'shapeEllipse') {
+        pos = [coord];
+      }
+      if (type === 'shapeTriangle') {
+        pos = [coord, coord, coord];
+      }
+    }
+
     if (!pos) return;
 
     let elem = null;
 
     if (type === 'shapeArrow') {
       elem = this.createArrow({ pos });
+      this.rotateArrow(elem);
     }
 
     if (type === 'shapeRectangle') {
@@ -123,7 +145,9 @@ export class IsometricSvgBasicElements {
     }
 
     if (type === 'shapeEllipse') {
-      elem = this.createEllipse({ pos });
+      const rx = params ? params.rx : '0';
+      const ry = params ? params.ry : '0';
+      elem = this.createEllipse({ pos: pos[0], rx, ry });
     }
 
     if (type === 'shapeTriangle') {
@@ -248,17 +272,7 @@ export class IsometricSvgBasicElements {
 
       isometricSvgElem.setPosLine2({ svg: elem, x1: pos1.x, y1: pos1.y, x2: pos2.x, y2: pos2.y });
 
-      const rotate = true;
-      if (rotate) {
-        const dir = pos2.sub(pos1);
-
-        const rotY = Math.atan2(dir.x, dir.y);
-        const rotY1 = THREE.MathUtils.radToDeg(rotY - Math.PI / 2) * -1;
-
-        const elem2 = svg['userData'].elems[1];
-        isometricSvgElem.setRotPolygon1(elem2, rotY1);
-        isometricSvgElem.setPosPolygon1(elem2, pos1.x, pos1.y);
-      }
+      this.rotateArrow(svg);
     }
 
     if (svg['userData'].tagObj === 'rectangle') {
@@ -393,6 +407,20 @@ export class IsometricSvgBasicElements {
       svg.setAttribute('cy', (arrPos[2].y - arrPos[3].y) / 2 + arrPos[3].y);
       //this.showHandlePoints(svg);
     }
+  }
+
+  // авто установка стрелки(треугольника) по направлению линии
+  rotateArrow(svg) {
+    const pos = isometricSvgElem.getPosLine2(svg);
+
+    const dir = pos[1].sub(pos[0]);
+
+    const rotY = Math.atan2(dir.x, dir.y);
+    const rotY1 = THREE.MathUtils.radToDeg(rotY - Math.PI / 2) * -1;
+
+    const elem2 = svg['userData'].elems[1];
+    isometricSvgElem.setRotPolygon1(elem2, rotY1);
+    isometricSvgElem.setPosPolygon1(elem2, pos[0].x, pos[0].y);
   }
 
   showHandlePoints(svg) {

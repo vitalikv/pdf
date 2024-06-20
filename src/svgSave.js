@@ -12,7 +12,19 @@ export class IsometricSvgSave {
   }
 
   save() {
-    const isometry = { bound: { w: 0, h: 0 }, lines: [], points: [], objs: [], rulers: [], notes: [], texts: [], stampslogo: [], camera: null, sheet: null };
+    const isometry = {
+      bound: { w: 0, h: 0 },
+      lines: [],
+      points: [],
+      objs: [],
+      rulers: [],
+      notes: [],
+      objsBasic: [],
+      texts: [],
+      stampslogo: [],
+      camera: null,
+      sheet: null,
+    };
 
     const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
     isometry.bound.w = size.x;
@@ -168,6 +180,40 @@ export class IsometricSvgSave {
       const cssText = div.style.cssText;
       const url = div['userData'].url;
       isometry.stampslogo.push({ cssText, url });
+    });
+
+    const groupBasicElems = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'basicElems' });
+    groupBasicElems.childNodes.forEach((svg) => {
+      if (svg['userData'].objBasic && svg['userData'].ind === 0) {
+        const data = { tag: '', pos: [] };
+        const tagObj = svg['userData'].tagObj;
+
+        if (tagObj === 'arrow') {
+          data.tag = 'shapeArrow';
+          const pos = isometricSvgElem.getPosLine2(svg);
+          data.pos.push(...pos);
+        }
+
+        if (tagObj === 'ellipse') {
+          data.tag = 'shapeEllipse';
+          const pos = isometricSvgElem.getPosCircle(svg);
+          data.pos.push(pos);
+          data['params'] = { rx: svg.getAttribute('rx'), ry: svg.getAttribute('ry') };
+        }
+
+        if (tagObj === 'rectangle' || tagObj === 'triangle') {
+          data.tag = tagObj === 'rectangle' ? 'shapeRectangle' : 'shapeTriangle';
+          const elems = svg['userData'].elems;
+
+          for (let i = 0; i < elems.length; i++) {
+            const line = elems[i];
+            const pos = isometricSvgElem.getPosLine2(line)[0];
+            data.pos.push(pos);
+          }
+        }
+
+        isometry.objsBasic.push(data);
+      }
     });
 
     isometry.sheet = { format: '', table1: [], table2: [] };

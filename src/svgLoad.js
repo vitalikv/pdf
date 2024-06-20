@@ -8,6 +8,7 @@ import {
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
+  isometricSvgBasicElements,
   isometricNoteText,
   isometricStampLogo,
   isometricSheets,
@@ -62,6 +63,7 @@ export class IsometricSvgLoad {
     const objs = data.objs;
     const notes = data.notes;
     const rulers = data.rulers;
+    const objsBasic = data.objsBasic;
     const texts = data.texts;
     const stampslogo = data.stampslogo;
     const sheet = data.sheet;
@@ -149,6 +151,7 @@ export class IsometricSvgLoad {
     if (objs && objs.length > 0) this.setObjs(objs);
 
     if (rulers) this.setRulers(rulers);
+    if (objsBasic) this.setObjsBasic(objsBasic);
     if (notes) this.setNotes(notes);
     if (texts) this.setText(texts);
     if (stampslogo) this.setStampslogo(stampslogo);
@@ -214,6 +217,14 @@ export class IsometricSvgLoad {
         const pos = obj.pos;
         isometricSvgListObjs.createObjUndefined({ pos });
       }
+    });
+  }
+
+  setObjsBasic(objs) {
+    objs.forEach((obj) => {
+      const params = obj.params ? obj.params : null;
+      isometricSvgBasicElements.addShape({ type: obj.tag, pos: obj.pos, params });
+      console.log(obj);
     });
   }
 
