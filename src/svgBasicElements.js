@@ -53,7 +53,7 @@ export class IsometricSvgBasicElements {
   }
 
   createRectangle({ pos }) {
-    const coords = [pos[pos.length - 1], ...pos];
+    const coords = [...pos, pos[0]];
 
     const arrSvg = [];
     for (let i = 0; i < coords.length - 1; i++) {
@@ -84,7 +84,7 @@ export class IsometricSvgBasicElements {
   }
 
   createTriangle({ pos }) {
-    const coords = [pos[pos.length - 1], ...pos];
+    const coords = [...pos, pos[0]];
 
     const arrSvg = [];
     for (let i = 0; i < coords.length - 1; i++) {
@@ -190,6 +190,13 @@ export class IsometricSvgBasicElements {
 
     if (!this.isMove) {
       this.isMove = true;
+
+      if (this.selectedObj.type !== 'create' && this.selectedObj.el) {
+        const svg = this.selectedObj.el;
+        const elem = svg['userData'].handlePoint ? svg['userData'].svgObj['userData'].elems[0] : svg['userData'].elems[0];
+
+        isometricSvgUndoRedo.writeBd({ svg: elem });
+      }
     }
 
     const svg = this.selectedObj.el;
@@ -238,7 +245,7 @@ export class IsometricSvgBasicElements {
       isometricSvgElem.setOffsetLine2(svg, offsetX, offsetY, true);
     }
     if (type === 'circle') {
-      if (svg['userData'].svgObj['userData'].tagObj === 'triangle' && svg['userData'].id === 1) {
+      if (this.selectedObj.type === 'movePoint' && svg['userData'].svgObj['userData'].tagObj === 'triangle' && svg['userData'].id === 1) {
         isometricSvgElem.setOffsetCircle(svg, 0, offsetY);
       } else {
         isometricSvgElem.setOffsetCircle(svg, offsetX, offsetY);
@@ -406,6 +413,48 @@ export class IsometricSvgBasicElements {
       svg.setAttribute('cx', (arrPos[0].x - arrPos[1].x) / 2 + arrPos[1].x);
       svg.setAttribute('cy', (arrPos[2].y - arrPos[3].y) / 2 + arrPos[3].y);
       //this.showHandlePoints(svg);
+    }
+  }
+
+  // изменение формы undo redo
+  upShapeUR({ svg, pos, params = null }) {
+    if (svg['userData'].tagObj === 'arrow') {
+      const elem = svg['userData'].elems[0];
+
+      isometricSvgElem.setPosLine2({ svg: elem, x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
+
+      this.rotateArrow(svg);
+    }
+
+    if (svg['userData'].tagObj === 'rectangle') {
+      const coords = [pos[pos.length - 1], ...pos];
+      const elems = svg['userData'].elems;
+
+      for (let i = 0; i < coords.length - 1; i++) {
+        const coord1 = coords[i];
+        const coord2 = coords[i + 1];
+
+        isometricSvgElem.setPosLine2({ svg: elems[i], x1: coord1.x, y1: coord1.y, x2: coord2.x, y2: coord2.y });
+      }
+    }
+
+    if (svg['userData'].tagObj === 'triangle') {
+      const coords = [pos[pos.length - 1], ...pos];
+      const elems = svg['userData'].elems;
+
+      for (let i = 0; i < coords.length - 1; i++) {
+        const coord1 = coords[i];
+        const coord2 = coords[i + 1];
+
+        isometricSvgElem.setPosLine2({ svg: elems[i], x1: coord1.x, y1: coord1.y, x2: coord2.x, y2: coord2.y });
+      }
+    }
+
+    if (svg['userData'].tagObj === 'ellipse') {
+      svg.setAttribute('rx', params.rx);
+      svg.setAttribute('ry', params.ry);
+      svg.setAttribute('cx', pos[0].x);
+      svg.setAttribute('cy', pos[0].y);
     }
   }
 

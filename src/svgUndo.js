@@ -8,6 +8,7 @@ import {
   isometricNoteSvg,
   isometricNoteSvg2,
   isometricSvgRuler,
+  isometricSvgBasicElements,
   isometricSvgUndoRedo,
 } from './index';
 
@@ -134,6 +135,12 @@ export class IsometricSvgUndo {
 
         isometricSvgRuler.addLink({ svgPoint: pd1, event: null, pos: new THREE.Vector2(params.p1line[1].x, params.p1line[1].y) });
         isometricSvgRuler.addLink({ svgPoint: pd2, event: null, pos: new THREE.Vector2(params.p2line[1].x, params.p2line[1].y) });
+      }
+
+      if (bd.typeData === 'objBasic') {
+        //const svgO = isometricSvgElem.getSvgByGroupById({ tag: 'objs', id: svg['userData'].id });
+
+        isometricSvgBasicElements.upShapeUR({ svg, pos: params.pos, params: params.params });
       }
     }
 

@@ -247,6 +247,38 @@ export class IsometricSvgUndoRedo {
       data = { typeData, params };
     }
 
+    if (svg['userData'].objBasic) {
+      const typeData = 'objBasic';
+      const params = { svg, tag: '', pos: [] };
+      const tagObj = svg['userData'].tagObj;
+
+      if (tagObj === 'arrow') {
+        params.tag = 'shapeArrow';
+        const pos = isometricSvgElem.getPosLine2(svg);
+        params.pos.push(...pos);
+      }
+
+      if (tagObj === 'ellipse') {
+        params.tag = 'shapeEllipse';
+        const pos = isometricSvgElem.getPosCircle(svg);
+        params.pos.push(pos);
+        params['params'] = { rx: svg.getAttribute('rx'), ry: svg.getAttribute('ry') };
+      }
+
+      if (tagObj === 'rectangle' || tagObj === 'triangle') {
+        params.tag = tagObj === 'rectangle' ? 'shapeRectangle' : 'shapeTriangle';
+        const elems = svg['userData'].elems;
+
+        for (let i = 0; i < elems.length; i++) {
+          const line = elems[i];
+          const pos = isometricSvgElem.getPosLine2(line)[0];
+          params.pos.push(pos);
+        }
+      }
+
+      data = { typeData, params };
+    }
+
     return data;
   }
 
