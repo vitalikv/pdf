@@ -312,6 +312,7 @@ export class IsometricSvgLine {
     svg['userData'].ld2 = null;
     svg['userData'].links = [];
     svg['userData'].segments = [];
+    svg['userData'].color = stroke;
 
     return svg;
   }
@@ -830,8 +831,34 @@ export class IsometricSvgLine {
     this.selectedObj.type = '';
   }
 
+  setColor({ color }) {
+    const svg = this.selectedObj.el;
+    if (!svg) return;
+
+    if (svg['userData'].tag === 'line') {
+      svg['userData'].color = color;
+      svg.setAttribute('stroke', svg['userData'].color);
+    }
+
+    if (svg['userData'].tag === 'dline' || svg['userData'].tag === 'dpoint') {
+      const elems = this.getElemsCorner(svg);
+      if (elems.ld1) {
+        elems.ld1['userData'].color = color;
+        elems.ld1.setAttribute('stroke', elems.ld1['userData'].color);
+      }
+      if (elems.ld2) {
+        elems.ld2['userData'].color = color;
+        elems.ld2.setAttribute('stroke', elems.ld2['userData'].color);
+      }
+    }
+  }
+
   actElem(svg, act = false) {
-    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+
+    if (!act && svg['userData'].color) {
+      stroke = svg['userData'].color;
+    }
 
     if (svg['userData'].tag === 'line') {
       svg.setAttribute('stroke', stroke);
@@ -856,7 +883,12 @@ export class IsometricSvgLine {
   }
 
   actCorner(svg, act = false) {
-    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    let stroke2 = stroke;
+
+    if (!act && svg['userData'].color) {
+      stroke2 = svg['userData'].color;
+    }
 
     const { ld1, ld2, pd1, pd2, pCenter } = this.getElemsCorner(svg);
 
@@ -877,10 +909,10 @@ export class IsometricSvgLine {
       pCenter.setAttribute('fill', stroke);
     }
     if (ld1) {
-      ld1.setAttribute('stroke', stroke);
+      ld1.setAttribute('stroke', stroke2);
     }
     if (ld2) {
-      ld2.setAttribute('stroke', stroke);
+      ld2.setAttribute('stroke', stroke2);
     }
   }
 

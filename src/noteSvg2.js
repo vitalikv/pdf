@@ -383,7 +383,10 @@ export class IsometricNoteSvg2 {
   setColorElem(svg, act = false) {
     const elems = { line: svg['userData'].line, point: svg['userData'].point, label: svg['userData'].label };
 
-    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    if (!act && svg['userData'].color) {
+      stroke = svg['userData'].color;
+    }
 
     elems.line.setAttribute('stroke', stroke);
     elems.point.setAttribute('stroke', stroke);
@@ -726,6 +729,23 @@ export class IsometricNoteSvg2 {
     if (svg['userData'].label) {
       const svgLabel = svg['userData'].label;
       this.moveSvgLabel({ svg: svgLabel, offset, moveLine: false });
+    }
+  }
+
+  setColor({ color }) {
+    const svg = this.selectedObj.el;
+    if (!svg) return;
+
+    const elems = {
+      line: svg['userData'].line,
+      point: svg['userData'].point,
+      label: svg['userData'].label,
+      svgLine: svg['userData'].label['userData'].svgLine,
+    };
+
+    for (let elem in elems) {
+      svg['userData'].color = color;
+      elems[elem].setAttribute('stroke', svg['userData'].color);
     }
   }
 }

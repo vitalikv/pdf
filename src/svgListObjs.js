@@ -509,7 +509,7 @@ export class IsometricSvgListObjs {
   setColorElem(svg, act = false) {
     const elems = this.getStructureObj(svg);
 
-    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
     const display = act ? '' : 'none';
 
     let stroke2 = stroke;
@@ -519,6 +519,11 @@ export class IsometricSvgListObjs {
     } else {
       for (let elem in elems) {
         if (elem === 'point') continue;
+
+        stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+        if (!act && svg['userData'].color) {
+          stroke = svg['userData'].color;
+        }
 
         const type = isometricSvgElem.getSvgType(elems[elem]);
         if (type === 'circle') elems[elem].setAttribute('fill', stroke);
@@ -669,5 +674,19 @@ export class IsometricSvgListObjs {
 
   moveSvgObj({ svg, offset }) {
     isometricSvgElem.setOffsetCircle(svg, offset.x, offset.y);
+  }
+
+  setColor({ svg, color }) {
+    const elems = this.getStructureObj(svg);
+
+    for (let elem in elems) {
+      if (elem === 'point') continue;
+
+      const type = isometricSvgElem.getSvgType(elems[elem]);
+      if (type === 'circle') continue;
+
+      svg['userData'].color = color;
+      elems[elem].setAttribute('stroke', svg['userData'].color);
+    }
   }
 }

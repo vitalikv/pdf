@@ -55,10 +55,12 @@ export class PanelUI {
     this.btns$[23] = this.crBtn({ txt: 'Круг' });
     this.btns$[24] = this.crBtn({ txt: 'Треугольник' });
 
-    this.btns$[25] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[26] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[27] = this.crListSheets();
-    this.btns$[28] = this.crBtn({ txt: 'из 3D в 2D' });
+    this.btns$[25] = this.crBtn({ txt: 'Цвет' });
+
+    this.btns$[26] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[27] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[28] = this.crListSheets();
+    this.btns$[29] = this.crBtn({ txt: 'из 3D в 2D' });
 
     this.initEvent();
   }
@@ -177,18 +179,22 @@ export class PanelUI {
     };
 
     this.btns$[25].onmousedown = (e) => {
-      isometricSvgSave.save();
+      isometricSvgManager.setColor({ color: '#0000ff' });
     };
 
     this.btns$[26].onmousedown = (e) => {
+      isometricSvgSave.save();
+    };
+
+    this.btns$[27].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
 
-    this.btns$[27].onchange = (e) => {
+    this.btns$[28].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
     };
 
-    this.btns$[28].onmousedown = (e) => {
+    this.btns$[29].onmousedown = (e) => {
       initModel();
     };
   }
