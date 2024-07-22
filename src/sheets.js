@@ -187,8 +187,10 @@ export class IsometricSheets {
 
       elem2.focus();
 
+      this.fontHtmlSizeAutoAdjustToFit({ input: elem2 });
+
       elem2.onkeydown = (e2) => {
-        this.fontSizeAutoAdjustToFit({ input: elem2 });
+        this.fontHtmlSizeAutoAdjustToFit({ input: elem2 });
 
         if (e2.code === 'Enter' && this.lastKeyCode !== 'ShiftLeft') {
           this.deleteInput();
@@ -202,30 +204,15 @@ export class IsometricSheets {
         this.lastKeyCode = '';
       };
 
-      this.actInput = { svgText, elem2 };
+      this.actInput = { svgText, svgRect, elem2 };
 
       svgText.style.display = 'none';
     };
   }
 
-  fontSizeAutoAdjustToFit({ input }) {
-    let fontSize = 30;
-
-    do {
-      console.log(fontSize, input.scrollWidth, input.clientWidth, input.scrollWidth > input.clientWidth);
-      input.style.fontSize = fontSize + 'px';
-      fontSize = fontSize - 1;
-    } while (input.scrollWidth > input.clientWidth && fontSize > 3);
-
-    do {
-      input.style.fontSize = fontSize + 'px';
-      fontSize = fontSize - 1;
-    } while (input.scrollHeight > input.clientHeight && fontSize > 3);
-  }
-
   deleteInput(target = null) {
     if (!this.actInput) return;
-    const { svgText, elem2 } = this.actInput;
+    const { svgText, svgRect, elem2 } = this.actInput;
 
     if (target === elem2) return;
 
@@ -234,9 +221,47 @@ export class IsometricSheets {
     svgText.textContent = txt;
     svgText.style.display = '';
 
+    this.fontSvgSizeAutoAdjustToFit({ svgRect, svgText });
+
     elem2.onblur = null;
     elem2.remove();
     this.actInput = null;
+  }
+
+  // авто размер текста в input
+  fontHtmlSizeAutoAdjustToFit({ input }) {
+    let fontSize = 30;
+
+    do {
+      fontSize = fontSize - 1;
+      input.style.fontSize = fontSize + 'px';
+    } while (input.scrollWidth > input.clientWidth && fontSize > 3);
+
+    do {
+      fontSize = fontSize - 1;
+      input.style.fontSize = fontSize + 'px';
+    } while (input.scrollHeight > input.clientHeight && fontSize > 3);
+  }
+
+  // авто размер текста в svgRect
+  fontSvgSizeAutoAdjustToFit({ svgRect, svgText }) {
+    let fontSize = 30;
+
+    svgText.setAttribute('font-size', fontSize + 'px');
+    const rectBox = svgRect.getBoundingClientRect();
+    let rectText = svgText.getBoundingClientRect();
+
+    do {
+      rectText = svgText.getBoundingClientRect();
+      fontSize = fontSize - 1;
+      svgText.setAttribute('font-size', fontSize + 'px');
+    } while (rectText.width > rectBox.width && fontSize > 3);
+
+    do {
+      rectText = svgText.getBoundingClientRect();
+      fontSize = fontSize - 1;
+      svgText.setAttribute('font-size', fontSize + 'px');
+    } while (rectText.height > rectBox.height && fontSize > 3);
   }
 
   xhrImg_1(url) {
