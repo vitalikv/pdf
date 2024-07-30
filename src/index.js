@@ -76,7 +76,6 @@ export let isometricModeService,
 
 init();
 initServ();
-//initModel();
 render();
 
 function init() {
@@ -194,7 +193,8 @@ function initServ() {
   isometricSvgRedo = new IsometricSvgRedo();
 
   isometricSvgManager.init();
-  isometricSvgLoad.load();
+  //isometricSvgLoad.load();
+  initModel();
 }
 
 export async function initModel() {

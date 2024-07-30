@@ -12,7 +12,7 @@ export class Isometric3dto2d {
     const svgXmlns = isometricSvgElem.getSvgXmlns({ container });
     const bound = svgXmlns.getBoundingClientRect();
     this.offsetSvg = new THREE.Vector2(-bound.x, -bound.y);
-
+    console.log('data', data);
     this.modelsContainerInit.control = scene;
     this.mapControlInit.control = mapControlInit.control;
 
@@ -245,7 +245,9 @@ export class Isometric3dto2d {
         new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
       ];
 
-      arrData.objs.push({ tag: 'objUndefined', joints: { pos, ids } });
+      arrData.line.push({ pos, ids });
+
+      arrData.objs.push({ tag: 'objFlap', joints: { pos, ids } });
     }
 
     for (let i = 0; i < objs.tees.length; i++) {
@@ -262,6 +264,8 @@ export class Isometric3dto2d {
         new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
         new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
       ];
+
+      arrData.line.push({ pos: [pos[0].clone(), pos[1].clone()], ids });
 
       const p4 = pos[1].clone().sub(pos[0]).divideScalar(2).add(pos[0]);
       pos.push(new THREE.Vector3(p3.x, p3.y, p3.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld));
@@ -306,11 +310,15 @@ export class Isometric3dto2d {
       const points = arrData.objs[i].joints.pos;
       const arrPos = [];
 
-      for (let i2 = 0; i2 < points.length; i2++) {
-        const pos = this.getPosSvg(camera, domElement, points[i2]);
-        arrPos.push(pos);
-      }
-      objs.push({ tag: arrData.objs[i].tag, pos: arrPos });
+      // for (let i2 = 0; i2 < points.length; i2++) {
+      //   const pos = this.getPosSvg(camera, domElement, points[i2]);
+      //   arrPos.push(pos);
+      // }
+
+      let pos = points[1].clone().sub(points[0]).divideScalar(2).add(points[0]);
+      pos = this.getPosSvg(camera, domElement, pos);
+
+      objs.push({ tag: arrData.objs[i].tag, pos });
     }
 
     const table = this.setTable();

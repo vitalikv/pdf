@@ -74,7 +74,7 @@ export class IsometricSvgScale {
       this.groupLines.childNodes.forEach((svg) => {
         if (svg['userData']) {
           if (svg['userData'].lineI && svg['userData'].tag === 'line') {
-            isometricSvgLine.upLineSegments({ line: svg });
+            //isometricSvgLine.upLineSegments({ line: svg });
           }
         }
       });
