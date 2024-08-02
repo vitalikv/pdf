@@ -10,6 +10,7 @@ import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
 import { IsometricSvgManager } from './svgManager';
+import { IsometricSvgCalc } from './isometricSvgCalc';
 import { IsometricSvgElem } from './svgElem';
 import { IsometricSelectBox } from './selectBox';
 import { IsometricSheets } from './sheets';
@@ -38,8 +39,6 @@ import { IsometricSvgUndoRedo } from './svgUndoRedo';
 import { IsometricSvgUndo } from './svgUndo';
 import { IsometricSvgRedo } from './svgRedo';
 
-import { ShowJointsAndLines } from './helper/showJointsAndLines';
-
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
 export let listMeshes = [];
@@ -47,6 +46,7 @@ export let isometricModeService,
   isometricPdfToSvg,
   isometricExportPdf,
   isometricSvgManager,
+  isometricSvgCalc,
   isometricSvgElem,
   isometricSelectBox,
   isometricSheets,
@@ -165,6 +165,7 @@ function initServ() {
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
   isometricSvgManager = new IsometricSvgManager();
+  isometricSvgCalc = new IsometricSvgCalc();
   isometricSvgElem = new IsometricSvgElem();
   isometricSelectBox = new IsometricSelectBox();
   isometricSheets = new IsometricSheets();
@@ -203,13 +204,11 @@ export async function initModel() {
   listMeshes = meshes;
   //fitCamera(meshes);
 
-  //isometricPdfToSvg.containerPdf.style.display = 'none';
+  isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
   const data = calcIsometrixSvg.getType({ meshes, scene, mapControlInit });
 
-  const showJointsAndLines = new ShowJointsAndLines();
-  showJointsAndLines.init({ scene, mapControlInit, data });
   const isometrix = isometric3dto2d.init({ scene, mapControlInit, data });
 
   isometricSvgLoad.setIsometry(isometrix);

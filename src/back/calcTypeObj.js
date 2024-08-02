@@ -11,6 +11,13 @@ export class CalcTypeObj {
     for (let i = 0; i < meshObjs.length; i++) {
       const result = this.getTypeObj({ obj: meshObjs[i], joints });
 
+      // for (let i2 = 0; i2 < joints.length; i2++) {
+      //   const ind = joints[i2].ifc_joint_id.findIndex((id) => id === '1979829493504');
+      //   if (ind > -1) {
+      //     console.log(1979829493504, result);
+      //   }
+      // }
+
       if (result.type === 'line') arrL.push(result);
       if (result.type === 'curved') arrC.push(result);
       if (result.type === 'undefined') arr.push(result);
@@ -23,7 +30,6 @@ export class CalcTypeObj {
       for (let i2 = 0; i2 < p1.length; i2++) {
         for (let i3 = 0; i3 < arrC.length; i3++) {
           const p2 = arrC[i3].joints;
-          if (!p2[2]) console.log(p2);
           if (!p2[2]) continue;
 
           const ind = [p2[0], p2[2]].findIndex((p) => p.pos.x === p1[i2].pos.x && p.pos.y === p1[i2].pos.y && p.pos.z === p1[i2].pos.z);
@@ -169,7 +175,7 @@ export class CalcTypeObj {
 
     const dpnqnDet = pnDet.clone().sub(qnDet).length();
 
-    const cross = Number(dpnqnDet.toFixed(10)) < 0.0001 ? true : false;
+    const cross = Number(dpnqnDet.toFixed(10)) < 0.001 ? true : false;
 
     return { cross, pos: qnDet };
   }

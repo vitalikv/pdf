@@ -95,7 +95,7 @@ export class IsometricSvgLine {
     let pos2 = new THREE.Vector2();
 
     if (line1) {
-      const pos = isometricSvgElem.getPosLine1(line1);
+      const pos = isometricSvgElem.getPosLine2(line1);
       const dist1 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[0].x, pos[0].y));
       const dist2 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[1].x, pos[1].y));
 
@@ -103,7 +103,8 @@ export class IsometricSvgLine {
     }
 
     if (line2) {
-      const pos = isometricSvgElem.getPosLine1(line2);
+      //console.log(222, line2['userData']);
+      const pos = isometricSvgElem.getPosLine2(line2);
       const dist1 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[0].x, pos[0].y));
       const dist2 = new THREE.Vector2(posC.x, posC.y).distanceTo(new THREE.Vector2(pos[1].x, pos[1].y));
 
@@ -133,7 +134,7 @@ export class IsometricSvgLine {
 
   // координаты создаваемой точки/стыка на линии (перед углом)
   getCoordPointOnLine({ line, ind = 0, pCenter = null }) {
-    const pos = isometricSvgElem.getPosLine1(line);
+    const pos = isometricSvgElem.getPosLine2(line);
 
     let pos1 = pos[0];
     let pos2 = pos[1];

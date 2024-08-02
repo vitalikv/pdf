@@ -9,6 +9,10 @@ export class IsometricSvgElem {
     this.containerSvg = containerSvg;
   }
 
+  getContainerSvg() {
+    return this.containerSvg;
+  }
+
   // получаем svg, где находтся все элементы изометрии
   getSvgXmlns({ container }) {
     const svgXmlns = container.children[0];

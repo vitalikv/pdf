@@ -23,11 +23,11 @@ export class CalcJointsForType {
     }
 
     for (let i = 0; i < list.length; i++) {
-      if (list[i].id2 === -1) continue;
+      //if (list[i].id2 === -1) continue;
       if (list[i].clone) continue;
 
       const ifc_joint_id = [...list[i].guids];
-      if (list[i].id2 !== 999999) ifc_joint_id.push(...list[list[i].id2].guids);
+      if (list[i].id2 > -1 && list[i].id2 !== 999999) ifc_joint_id.push(...list[list[i].id2].guids);
 
       const result = this.crPol({
         path: list[i].path,
