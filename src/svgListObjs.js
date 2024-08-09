@@ -168,13 +168,14 @@ export class IsometricSvgListObjs {
     return { svg1, svg2, svg3 };
   }
 
-  createObjTee({ id = undefined, x, y }) {
-    const svg1 = this.createSvgLine({ x1: x - 20, y1: y, x2: x + 20, y2: y });
-    const svg2 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y + 20 });
+  createObjTee({ id = undefined, x, y, scale = 1 }) {
+    const size = 20 * scale;
+    const svg1 = this.createSvgLine({ x1: x - size, y1: y, x2: x + size, y2: y });
+    const svg2 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y + size });
     const svg3 = this.createSvgCircle({ x: x, y: y });
-    const svg4 = this.createSvgCircle({ x: x - 20, y: y, r: '3.2', fill: '#000000', display: '' });
-    const svg5 = this.createSvgCircle({ x: x + 20, y: y, r: '3.2', fill: '#000000', display: '' });
-    const svg6 = this.createSvgCircle({ x: x, y: y + 20, r: '3.2', fill: '#000000', display: '' });
+    const svg4 = this.createSvgCircle({ x: x - size, y: y, r: '3.2', fill: '#000000', display: '' });
+    const svg5 = this.createSvgCircle({ x: x + size, y: y, r: '3.2', fill: '#000000', display: '' });
+    const svg6 = this.createSvgCircle({ x: x, y: y + size, r: '3.2', fill: '#000000', display: '' });
 
     const arr = [svg1, svg2, svg3, svg4, svg5, svg6];
 

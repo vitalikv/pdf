@@ -124,19 +124,36 @@ export class CalcTypeObj {
     }
 
     // тройник
-    else if (arrJ.length === 3) {
+    else if (arrJ.length === 4) {
       type = 'tee';
 
-      const dirA = arrJ[0].dir;
-      const dirB = arrJ[1].dir;
+      // сортируем стыки по дистанции
+      // у 4-ого внутрненнего стыка будет самая близкая дистанция (он лишний)
+      const arrDist = [];
+      for (let i = 0; i < arrJ.length; i++) {
+        for (let i2 = 0; i2 < arrJ.length; i2++) {
+          if (i === i2) continue;
+          arrDist.push({ dist: arrJ[i].pos.distanceTo(arrJ[i2].pos), ind: i });
+        }
+      }
+
+      arrDist.sort((a, b) => b.dist - a.dist);
+
+      const arrJ1 = [];
+      for (let i = 0; i < arrDist.length - 1; i++) {
+        arrJ1.push(arrJ[arrDist[i].ind]);
+      }
+
+      const dirA = arrJ1[0].dir;
+      const dirB = arrJ1[1].dir;
       const dot = Math.abs(dirA.dot(dirB));
 
       let arrJ2 = [];
 
       if (dot > 0.98) {
-        arrJ2 = [{ ...arrJ[0] }, { ...arrJ[1] }, { ...arrJ[2] }];
+        arrJ2 = [{ ...arrJ1[0] }, { ...arrJ1[1] }, { ...arrJ1[2] }];
       } else {
-        arrJ2 = [{ ...arrJ[0] }, { ...arrJ[2] }, { ...arrJ[1] }];
+        arrJ2 = [{ ...arrJ1[0] }, { ...arrJ1[2] }, { ...arrJ1[1] }];
       }
 
       arrJ = arrJ2;

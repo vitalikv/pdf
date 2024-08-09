@@ -122,11 +122,13 @@ export class IsometricSvgCalc {
 
     this.modelsContainerInit.control.updateWorldMatrix(true, false);
 
-    const bdPoints = [];
+    const listPoints = [];
 
     for (let i = 0; i < lines.length; i++) {
       const joints = lines[i];
       if (joints.length === 0) continue;
+
+      listPoints.push(...joints);
 
       for (let i2 = 0; i2 < joints.length - 1; i2++) {
         const p1 = joints[i2].pos;
@@ -141,25 +143,13 @@ export class IsometricSvgCalc {
 
         arrData.line.push({ pos, ids });
       }
-
-      for (let i2 = 0; i2 < joints.length; i2++) {
-        const p1 = joints[i2].pos;
-        const ids = [...joints[i2].id];
-
-        const ind = bdPoints.findIndex((p) => p.x === p1.x && p.y === p1.y && p.z === p1.z);
-        if (ind > -1) continue;
-
-        bdPoints.push(p1);
-
-        const pos = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
-
-        arrData.circle.push({ pos, ids });
-      }
     }
 
     for (let i = 0; i < objs.undefinedes.length; i++) {
       const joints = objs.undefinedes[i];
       if (joints.length === 0) continue;
+
+      listPoints.push(...joints);
 
       const p1 = joints[0].pos;
       const p2 = joints[1].pos;
@@ -173,7 +163,7 @@ export class IsometricSvgCalc {
 
       arrData.line.push({ pos, ids });
 
-      arrData.objs.push({ tag: 'objValve', joints: { pos, ids } });
+      arrData.objs.push({ tag: 'objFlap', joints: { pos, ids } });
     }
 
     for (let i = 0; i < objs.tees.length; i++) {
@@ -200,7 +190,21 @@ export class IsometricSvgCalc {
       arrData.objs.push({ tag: 'objTee', joints: { pos, ids } });
     }
 
-    console.log(arrData.line, arrData.circle);
+    const bdPoints = [];
+
+    for (let i2 = 0; i2 < listPoints.length; i2++) {
+      const p1 = listPoints[i2].pos;
+      const ids = [...listPoints[i2].id];
+
+      const ind = bdPoints.findIndex((p) => p.x === p1.x && p.y === p1.y && p.z === p1.z);
+      if (ind > -1) continue;
+
+      bdPoints.push(p1);
+
+      const pos = new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld);
+
+      arrData.circle.push({ pos, ids });
+    }
 
     const camera = this.mapControlInit.control.object;
     const domElement = this.mapControlInit.control.domElement;
@@ -229,10 +233,12 @@ export class IsometricSvgCalc {
       }
       lines.push({ pos: arrPos, ids: arrData.line[i].ids });
     }
+
     for (let i = 0; i < arrData.circle.length; i++) {
       const pos = this.getPosSvg(camera, domElement, arrData.circle[i].pos);
       points.push({ pos, ids: arrData.circle[i].ids });
     }
+
     for (let i = 0; i < arrData.objs.length; i++) {
       const points = arrData.objs[i].joints.pos;
 

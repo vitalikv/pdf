@@ -204,13 +204,13 @@ export async function initModel() {
   listMeshes = meshes;
   //fitCamera(meshes);
 
-  isometricPdfToSvg.containerPdf.style.display = 'none';
+  //isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
   const data = calcIsometrixSvg.getType({ meshes, scene, mapControlInit });
 
   const isometrix = isometric3dto2d.init({ scene, mapControlInit, data });
-
+  console.log('isometrix', isometrix);
   isometricSvgLoad.setIsometry(isometrix);
 
   //isometricSetCalcNotes.setNotes();

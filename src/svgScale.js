@@ -291,6 +291,29 @@ export class IsometricSvgScale {
 
     svgArr.forEach((svg) => {
       this.svgScale({ svg, centerPos, offsetY });
+
+      const elems = isometricSvgListObjs.getStructureObj(svg);
+      const profile = elems.point['userData'].profile;
+      if (!profile) return;
+
+      const kof = 3.2;
+      profile.scale -= offsetY / 3;
+
+      let points = profile.svg1.points;
+      for (let i = 0; i < points.length; i++) {
+        const p = elems.line1.points[i];
+        p.x -= (p.x * offsetY) / kof;
+        p.y -= (p.y * offsetY) / kof;
+      }
+
+      points = profile.svg2.points;
+      for (let i = 0; i < points.length; i++) {
+        const p = elems.line2.points[i];
+        p.x -= (p.x * offsetY) / kof;
+        p.y -= (p.y * offsetY) / kof;
+      }
+
+      //console.log(elems.line2.points);
     });
   }
 

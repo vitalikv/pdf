@@ -346,9 +346,11 @@ export class IsometricSvgObjs {
       if (svg['userData'].objTee) {
         elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
         //elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: rotY1, offsetX: -20 });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: rotY1, offsetX: 20 });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: rotY1, offsetY: -20 });
+        const pos = isometricSvgElem.getPosLine2(elems.line1);
+        const dist = pos[0].distanceTo(pos[1]) / 2;
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: rotY1, offsetX: -dist });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: rotY1, offsetX: dist });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: rotY1, offsetY: -dist });
 
         let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
         isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
@@ -386,9 +388,12 @@ export class IsometricSvgObjs {
         elems.line1.setAttribute('transform', 'rotate(0)');
         elems.line2.setAttribute('transform', 'rotate(0)');
         const pos2 = isometricSvgElem.getPosCircle(elems.point);
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: 0, offsetX: -20 });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: 0, offsetX: 20 });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: 0, offsetY: -20 });
+        const pos = isometricSvgElem.getPosLine2(elems.line1);
+        const dist = pos[0].distanceTo(pos[1]) / 2;
+
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: 0, offsetX: -dist });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: 0, offsetX: dist });
+        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: 0, offsetY: -dist });
 
         let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
         isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });

@@ -177,7 +177,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objTee') {
         const pos = obj.pos;
-        const { svg3 } = isometricSvgListObjs.createObjTee({ x: pos.x, y: pos.y });
+        const scale = obj.scale ? obj.scale : 1;
+        const { svg3 } = isometricSvgListObjs.createObjTee({ x: pos.x, y: pos.y, scale });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg3 });
       }
