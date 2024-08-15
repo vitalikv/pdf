@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { scene } from '../index';
 
 // расчитываем стыки из модели
 export class CalcJointsForType {
@@ -7,6 +8,8 @@ export class CalcJointsForType {
     const list = [];
 
     for (let i = 0; i < meshes.length; i++) {
+      console.log('obj.userData', meshes[i].userData);
+      meshes[i].userData.geoGuids = [meshes[i].userData.name];
       const result = this.calculation(meshes[i]);
       list.push(...result);
     }
@@ -93,8 +96,9 @@ export class CalcJointsForType {
   calculation(obj) {
     obj.updateMatrixWorld();
     obj.updateMatrix();
-
+    //obj.material.wireframe = true;
     let geometry = obj.geometry.clone();
+    geometry.computeVertexNormals();
     geometry = geometry.toNonIndexed();
 
     const position = geometry.getAttribute('position');
@@ -103,7 +107,7 @@ export class CalcJointsForType {
     const arrP = this.getDataPoints({ position, normal, obj });
 
     const arrP2 = this.getDataPolygons({ arr: arrP });
-
+    console.log('normal', arrP2);
     const arr = this.getCap({ arr: arrP2, obj, list: [] });
 
     return arr;
@@ -116,6 +120,8 @@ export class CalcJointsForType {
       let dir = new THREE.Vector3(normal.array[i + 0], normal.array[i + 1], normal.array[i + 2]);
       let origin = new THREE.Vector3(position.array[i + 0], position.array[i + 1], position.array[i + 2]);
       origin = origin.applyMatrix4(obj.matrixWorld);
+
+      //this.helperArrow({ dir: dir, pos: origin, length: 1, color: 0x00ff00 });
 
       let ind = -1;
       for (let i2 = 0; i2 < arrP.length; i2++) {
@@ -156,8 +162,9 @@ export class CalcJointsForType {
         dir.add(data.dir[i2]);
       }
       dir.normalize();
-
-      if (data.point.length === 3) {
+      this.helperArrow({ dir, pos: data.pos, length: 1, color: 0xff0000 });
+      console.log('getDataPolygons', data);
+      if (data.point.length === 5) {
         list.push({ id: ind, pos: data.pos });
       }
       if (data.dir.length === 3) {
@@ -274,5 +281,10 @@ export class CalcJointsForType {
       ifc_joint_id,
       dir,
     };
+  }
+
+  helperArrow({ dir, pos, length = 1, color = 0x0000ff }) {
+    const helper = new THREE.ArrowHelper(dir, pos, length, color);
+    scene.add(helper);
   }
 }

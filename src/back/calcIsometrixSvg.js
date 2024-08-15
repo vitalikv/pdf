@@ -21,7 +21,7 @@ export class CalcIsometrixSvg {
     if (guids.length > 0) {
       meshes = this.getSelectedMeshes({ meshes, guids });
     }
-
+    console.log(99999999, meshes);
     const calcJointsForType = new CalcJointsForType();
     const joints = calcJointsForType.getJoints(meshes);
 

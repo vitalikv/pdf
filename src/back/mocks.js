@@ -625,6 +625,6 @@ export class MocksIsometry {
     //   '1979836981040',
     // ];
 
-    return list;
+    return [];
   }
 }

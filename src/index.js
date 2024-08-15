@@ -204,7 +204,7 @@ export async function initModel() {
   listMeshes = meshes;
   //fitCamera(meshes);
 
-  //isometricPdfToSvg.containerPdf.style.display = 'none';
+  isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
   const data = calcIsometrixSvg.getType({ meshes, scene, mapControlInit });

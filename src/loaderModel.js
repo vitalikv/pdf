@@ -13,11 +13,12 @@ export class LoaderModel {
     this.loader = new THREE.ObjectLoader();
   }
 
-  loaderObj(name) {
+  loaderObj2(name) {
     return new Promise((resolve, reject) => {
       console.log(11111, name);
       this.loader.load(
-        'img/models/' + name + '.json',
+        'img/models/1.json',
+        //'img/models/' + name + '.json',
 
         (obj) => {
           if (this.offset.length() === 0) {
@@ -57,9 +58,102 @@ export class LoaderModel {
             });
           } else {
             this.meshes.push(obj);
+            obj.userData.geoGuids = ['33333'];
           }
 
           //Main.setMeshes({ arr: this.meshes });
+
+          this.scene.add(obj);
+
+          resolve(this.meshes);
+        }
+      );
+    });
+  }
+
+  loaderObj(name) {
+    return new Promise((resolve, reject) => {
+      console.log(11111, name);
+      this.loader.load(
+        'img/models/1_1.json',
+        //'img/models/' + name + '.json',
+
+        (obj) => {
+          if (this.offset.length() === 0) {
+            this.offset = this.getBoundObject_1({ obj });
+          }
+
+          obj.position.add(this.offset);
+          obj.updateMatrixWorld(true);
+          this.meshes.push(obj);
+
+          this.scene.add(obj);
+        }
+      );
+
+      this.loader.load(
+        'img/models/1_2.json',
+        //'img/models/' + name + '.json',
+
+        (obj) => {
+          if (this.offset.length() === 0) {
+            this.offset = this.getBoundObject_1({ obj });
+          }
+
+          obj.position.add(this.offset);
+          obj.updateMatrixWorld(true);
+          this.meshes.push(obj);
+
+          this.scene.add(obj);
+        }
+      );
+
+      this.loader.load(
+        'img/models/1_3.json',
+        //'img/models/' + name + '.json',
+
+        (obj) => {
+          if (this.offset.length() === 0) {
+            this.offset = this.getBoundObject_1({ obj });
+          }
+
+          obj.position.add(this.offset);
+          obj.updateMatrixWorld(true);
+          this.meshes.push(obj);
+
+          this.scene.add(obj);
+        }
+      );
+
+      this.loader.load(
+        'img/models/1_4.json',
+        //'img/models/' + name + '.json',
+
+        (obj) => {
+          if (this.offset.length() === 0) {
+            this.offset = this.getBoundObject_1({ obj });
+          }
+
+          obj.position.add(this.offset);
+          obj.updateMatrixWorld(true);
+          this.meshes.push(obj);
+
+          this.scene.add(obj);
+        }
+      );
+
+      this.loader.load(
+        'img/models/1_5.json',
+        //'img/models/' + name + '.json',
+
+        (obj) => {
+          if (this.offset.length() === 0) {
+            this.offset = this.getBoundObject_1({ obj });
+          }
+
+          obj.position.add(this.offset);
+          obj.updateMatrixWorld(true);
+          this.meshes.push(obj);
 
           this.scene.add(obj);
 
