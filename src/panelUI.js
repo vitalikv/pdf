@@ -11,6 +11,7 @@ import {
   isometricNoteText,
   isometricCanvasPaint,
   isometricCutBox,
+  isometricSvgListObjs,
   isometricStampLogo,
   isometricSvgSave,
   isometricSvgLoad,
@@ -136,6 +137,7 @@ export class PanelUI {
 
     this.btns$[14].onmousedown = (e) => {
       this.activateType({ type: 'objValve', e });
+      isometricSvgListObjs.createSvgObj({ data: null });
     };
 
     this.btns$[15].onmousedown = (e) => {

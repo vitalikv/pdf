@@ -55,6 +55,118 @@ export class IsometricSvgListObjs {
     return svg;
   }
 
+  createSvgObj({ data }) {
+    data = {
+      tag: 'objValve',
+      elements: [
+        {
+          id: 0,
+          typeSvg: 'line',
+          pos: [
+            [0, 0],
+            [0, -20],
+          ],
+        },
+        {
+          id: 1,
+          typeSvg: 'line',
+          pos: [
+            [-10, -20],
+            [10, -20],
+          ],
+        },
+        {
+          id: 2,
+          tag: 'point',
+          typeSvg: 'circle',
+          pos: [[0, 0]],
+        },
+        {
+          id: 3,
+          typeSvg: 'polygon',
+          pos: [
+            [0, 0],
+            [20, 15],
+            [20, -15],
+          ],
+          fill: 'rgb(255, 255, 255)',
+        },
+        {
+          id: 4,
+          typeSvg: 'polygon',
+          pos: [
+            [0, 0],
+            [-20, 15],
+            [-20, -15],
+          ],
+          fill: 'rgb(255, 255, 255)',
+        },
+      ],
+      params: {},
+    };
+
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g['userData'] = { tag: data.tag, objValve: true, elems: [] };
+
+    let offset = { x: 300, y: 300 };
+
+    for (let i = 0; i < data.elements.length; i++) {
+      const element = data.elements[i];
+
+      let svg = null;
+
+      if (element.typeSvg === 'circle') {
+        const x = element.pos[0][0] + offset.x;
+        const y = element.pos[0][1] + offset.y;
+        const r = '4.2';
+        const fill = '#fff';
+
+        svg = isometricSvgElem.createSvgCircle({ x, y, r, fill });
+      }
+      if (element.typeSvg === 'line') {
+        const x1 = element.pos[0][0] + offset.x;
+        const y1 = element.pos[0][1] + offset.y;
+        const x2 = element.pos[1][0] + offset.x;
+        const y2 = element.pos[1][1] + offset.y;
+
+        svg = isometricSvgElem.createSvgLine({ x1, y1, x2, y2 });
+      }
+      if (element.typeSvg === 'polygon') {
+        let points = '';
+
+        for (let i2 = 0; i2 < element.pos.length; i2++) {
+          points += element.pos[i2][0] + ',' + element.pos[i2][1] + ' ';
+        }
+
+        svg = isometricSvgElem.createPolygon({ x: offset.x, y: offset.y, points, fill: element.fill });
+      }
+
+      if (svg) {
+        svg['userData'] = {};
+        if (element.tag) svg['userData'].tag = element.tag;
+
+        g.append(svg);
+      }
+    }
+
+    for (let i = 0; i < g.childNodes.length; i++) {
+      const svg = g.childNodes[i];
+      const type = isometricSvgElem.getSvgType(svg);
+      if (type !== 'circle') continue;
+
+      g.append(svg);
+    }
+
+    const elems = [];
+    for (let i = 0; i < g.childNodes.length; i++) {
+      const svg = g.childNodes[i];
+      elems.push(svg);
+    }
+    g['userData'].elems = elems;
+
+    this.groupObjs.append(g);
+  }
+
   createObjBracket({ id = undefined, x, y }) {
     const svg1 = this.createSvgLine({ x1: x - 10, y1: y + 10, x2: x + 10, y2: y + 10 });
     const svg2 = this.createSvgLine({ x1: x - 10, y1: y - 10, x2: x + 10, y2: y - 10 });
@@ -279,7 +391,7 @@ export class IsometricSvgListObjs {
       this.idSvg++;
     }
 
-    svg1['userData'] = { objSplitter: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3, svg4] };
+    svg1['userData'] = { objSplitter: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3, svg4], act: false };
     svg2['userData'] = { id, objSplitter: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3, svg4], crossOffset: false, link: null };
     svg3['userData'] = { objSplitter: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3, svg4] };
     svg4['userData'] = { objSplitter: true, tag: 'line3', lock: false, elems: [svg1, svg2, svg3, svg4] };
@@ -508,46 +620,31 @@ export class IsometricSvgListObjs {
   }
 
   setColorElem(svg, act = false) {
-    const elems = this.getStructureObj(svg);
+    const elems = svg['userData'].elems;
 
     let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
     const display = act ? '' : 'none';
 
-    let stroke2 = stroke;
-    if (svg['userData'].objSplitter) {
-      stroke2 = 'rgb(255, 255, 255)';
-      elems.line1.setAttribute('stroke', stroke2);
-    } else {
-      for (let elem in elems) {
-        if (elem === 'point') continue;
+    for (let elem in elems) {
+      if (elems[elem]['userData'].tag === 'point') elems[elem].setAttribute('display', display);
 
-        stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
-        if (!act && svg['userData'].color) {
-          stroke = svg['userData'].color;
-        }
+      if (elems[elem]['userData'].tag === 'point') continue;
+      if (elems[elem]['userData'].act !== undefined && elems[elem]['userData'].act === false) continue;
 
-        const type = isometricSvgElem.getSvgType(elems[elem]);
-        if (type === 'circle') elems[elem].setAttribute('fill', stroke);
-
-        elems[elem].setAttribute('stroke', stroke);
+      stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+      if (!act && svg['userData'].color) {
+        stroke = svg['userData'].color;
       }
-    }
 
-    if (elems.point) elems.point.setAttribute('display', display);
+      const type = isometricSvgElem.getSvgType(elems[elem]);
+      if (type === 'circle') elems[elem].setAttribute('fill', stroke);
+
+      elems[elem].setAttribute('stroke', stroke);
+    }
   }
 
   isObjBySvg(svg) {
-    const isObj =
-      svg['userData'].objBracket ||
-      svg['userData'].objValve ||
-      svg['userData'].objUndefined ||
-      svg['userData'].objTee ||
-      svg['userData'].objFlap ||
-      svg['userData'].objAdapter ||
-      svg['userData'].objBox ||
-      svg['userData'].objSplitter
-        ? true
-        : false;
+    const isObj = svg['userData'].objBracket || svg['userData'].objValve || svg['userData'].objUndefined || svg['userData'].objTee || svg['userData'].objFlap || svg['userData'].objAdapter || svg['userData'].objBox || svg['userData'].objSplitter ? true : false;
 
     return isObj;
   }

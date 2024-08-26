@@ -233,6 +233,20 @@ export class IsometricSvgElem {
     this.setPosCircle(svg, centerPos.x + cx, centerPos.y + cy);
   }
 
+  // поворот точки относительно другой точки
+  setRotCircle_2({ point, centerPoint, deg = 0 }) {
+    const pos1 = this.getPosCircle(centerPoint);
+    const pos2 = this.getPosCircle(point);
+
+    const offset = pos1.clone().sub(pos2);
+
+    const rad = THREE.MathUtils.degToRad(deg - 90);
+    const cx = offset.y * Math.cos(rad) - offset.x * Math.sin(rad);
+    const cy = offset.y * Math.sin(rad) + offset.x * Math.cos(rad);
+
+    this.setPosCircle(point, pos1.x + cx, pos1.y + cy);
+  }
+
   // поворот полигона
   setRotPolygon1(svg, rot) {
     const x = svg.transform.baseVal[0].matrix.e;

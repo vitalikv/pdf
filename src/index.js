@@ -194,10 +194,11 @@ function initServ() {
   isometricSvgRedo = new IsometricSvgRedo();
 
   isometricSvgManager.init();
-  //isometricSvgLoad.load();
-  initModel();
+  isometricSvgLoad.load();
+  //initModel();
 }
 
+// построение изометрии из 3д модели
 export async function initModel() {
   const loaderModel = new LoaderModel({ scene });
   const meshes = await loaderModel.loaderObj('0019.005-TH_02.osf');
@@ -242,11 +243,7 @@ function fitCamera(meshes) {
     }
   }
 
-  const center = new THREE.Vector3(
-    (bound.max.x - bound.min.x) / 2 + bound.min.x,
-    (bound.max.y - bound.min.y) / 2 + bound.min.y,
-    (bound.max.z - bound.min.z) / 2 + bound.min.z
-  );
+  const center = new THREE.Vector3((bound.max.x - bound.min.x) / 2 + bound.min.x, (bound.max.y - bound.min.y) / 2 + bound.min.y, (bound.max.z - bound.min.z) / 2 + bound.min.z);
 
   const points = [];
   points.push(new THREE.Vector2(bound.min.x, bound.min.z));

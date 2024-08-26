@@ -96,7 +96,7 @@ export class IsometricSvgObjs {
     this.isMove = false;
 
     this.groupObjs.childNodes.forEach((svg, ind) => {
-      if (svg['userData'] && isometricSvgListObjs.isObjBySvg(svg) && svg.contains(event.target)) {
+      if (svg.contains(event.target)) {
         isometricSvgListObjs.scaleObj(svg);
         this.actElem(svg, true);
 
@@ -122,7 +122,7 @@ export class IsometricSvgObjs {
       isometricSvgListObjs.deActPointsScale();
 
       if (this.selectedObj.mode !== 'add' && this.selectedObj.el) {
-        isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el });
+        //isometricSvgUndoRedo.writeBd({ svg: this.selectedObj.el });
       }
     }
 
@@ -150,10 +150,8 @@ export class IsometricSvgObjs {
     const offset = pos.sub(this.offset);
 
     this.moveSvgObj({ svg, offset });
-    const elems = isometricSvgListObjs.getStructureObj(svg);
-    if (elems.point) this.addLink({ svgPoint: elems.point, event });
-
-    if (elems.point) this.setRotObj({ svg: elems.point });
+    this.addLink({ svgPoint: svg, event });
+    this.setRotObj({ svg });
 
     this.offset = this.getCoord(event);
   };
@@ -165,62 +163,37 @@ export class IsometricSvgObjs {
   };
 
   moveSvgObj({ svg, offset }) {
-    const elems = isometricSvgListObjs.getStructureObj(svg);
+    const elems = svg['userData'].elems;
 
-    if (svg['userData'].objBracket) {
-      isometricSvgElem.setOffsetLine2(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetLine2(elems.line2, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
-    }
+    for (let item in elems) {
+      const type = isometricSvgElem.getSvgType(elems[item]);
 
-    if (svg['userData'].objValve) {
-      isometricSvgElem.setOffsetPolygon1(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetPolygon1(elems.line2, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
-      isometricSvgElem.setOffsetLine2(elems.line3, offset.x, offset.y);
-      isometricSvgElem.setOffsetLine2(elems.line4, offset.x, offset.y);
-    }
-
-    if (svg['userData'].objTee) {
-      isometricSvgElem.setOffsetLine2(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetLine2(elems.line2, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.joint1, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.joint2, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.joint3, offset.x, offset.y);
-    }
-
-    if (svg['userData'].objUndefined) {
-      isometricSvgElem.setOffsetLine2(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetPolygon1(elems.line2, offset.x, offset.y);
-    }
-
-    if (svg['userData'].objFlap) {
-      isometricSvgElem.setOffsetPolygon1(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetPolygon1(elems.line2, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
-    }
-
-    if (svg['userData'].objAdapter) {
-      isometricSvgElem.setOffsetPolygon1(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
-    }
-
-    if (svg['userData'].objBox) {
-      isometricSvgElem.setOffsetPolygon1(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
-    }
-
-    if (svg['userData'].objSplitter) {
-      isometricSvgElem.setOffsetPolygon1(elems.line1, offset.x, offset.y);
-      isometricSvgElem.setOffsetCircle(elems.point, offset.x, offset.y);
-      isometricSvgElem.setOffsetLine2(elems.line2, offset.x, offset.y);
-      isometricSvgElem.setOffsetLine2(elems.line3, offset.x, offset.y);
+      if (type === 'circle') {
+        isometricSvgElem.setOffsetCircle(elems[item], offset.x, offset.y);
+      }
+      if (type === 'line') {
+        isometricSvgElem.setOffsetLine2(elems[item], offset.x, offset.y);
+      }
+      if (type === 'ellipse') {
+        isometricSvgElem.setOffsetEllipse(elems[item], offset.x, offset.y);
+      }
+      if (type === 'polygon') {
+        isometricSvgElem.setOffsetPolygon1(elems[item], offset.x, offset.y);
+      }
     }
   }
 
   // привязка/отвязка объекта к трубе
   addLink({ svgPoint, event, pos = null }) {
+    const svg = svgPoint;
+
+    for (let item in svg['userData'].elems) {
+      if (svg['userData'].elems[item]['userData'].tag === 'point') {
+        svgPoint = svg['userData'].elems[item];
+        break;
+      }
+    }
+
     const arrLines = [];
 
     this.groupLines.childNodes.forEach((svg, ind) => {
@@ -258,11 +231,13 @@ export class IsometricSvgObjs {
         const posC = isometricSvgElem.getPosCircle(svgPoint);
         const offset = new THREE.Vector2(result.pos.x - posC.x, result.pos.y - posC.y);
 
-        this.moveSvgObj({ svg: svgPoint, offset });
+        this.moveSvgObj({ svg, offset });
 
         this.addLinkUp({ svgPoint, result });
 
         svgPoint['userData'].crossOffset = true;
+
+        console.log(44444, svg);
 
         resultCross = true;
       } else {
@@ -271,7 +246,7 @@ export class IsometricSvgObjs {
           const posC = isometricSvgElem.getPosCircle(svgPoint);
           const offset = new THREE.Vector2(pos.x - posC.x, pos.y - posC.y);
 
-          this.moveSvgObj({ svg: svgPoint, offset });
+          this.moveSvgObj({ svg, offset });
         }
 
         this.unLink(svgPoint);
@@ -319,106 +294,101 @@ export class IsometricSvgObjs {
   }
 
   setRotObj({ svg }) {
-    const elems = isometricSvgListObjs.getStructureObj(svg);
+    let point = null;
 
-    if (elems.point['userData'].link) {
-      const link = elems.point['userData'].link;
+    for (let item in svg['userData'].elems) {
+      if (svg['userData'].elems[item]['userData'].tag === 'point') {
+        point = svg['userData'].elems[item];
+        break;
+      }
+    }
+
+    if (point['userData'].link) {
+      const elems = svg['userData'].elems;
+      const link = point['userData'].link;
 
       const pos = isometricSvgElem.getPosLine2(link.obj);
-
       const dir = pos[1].sub(pos[0]);
-
       const rotY = Math.atan2(dir.x, dir.y);
       const rotY1 = THREE.MathUtils.radToDeg(rotY - Math.PI / 2) * -1;
+      const pos2 = isometricSvgElem.getPosCircle(point);
 
-      const pos2 = isometricSvgElem.getPosCircle(elems.point);
+      for (let item in elems) {
+        if (elems[item]['userData'].tag === 'point') {
+          continue;
+        }
 
-      if (svg['userData'].objBracket) {
-        elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-        elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-      }
-      if (svg['userData'].objValve) {
-        isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
-        isometricSvgElem.setRotPolygon1(elems.line2, rotY1);
-        elems.line3.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-        elems.line4.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-      }
-      if (svg['userData'].objTee) {
-        elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-        //elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-        const pos = isometricSvgElem.getPosLine2(elems.line1);
-        const dist = pos[0].distanceTo(pos[1]) / 2;
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: rotY1, offsetX: -dist });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: rotY1, offsetX: dist });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: rotY1, offsetY: -dist });
+        const type = isometricSvgElem.getSvgType(elems[item]);
 
-        let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
-        isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
+        if (type === 'circle') {
+          isometricSvgElem.setRotCircle_2({ point: elems[item], centerPoint: point, deg: 0 });
+          isometricSvgElem.setRotCircle_2({ point: elems[item], centerPoint: point, deg: rotY1 - point['userData'].rotY1 });
+        }
+        if (type === 'line') {
+          elems[item].setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+        }
+        if (type === 'ellipse') {
+          //isometricSvgElem.setOffsetEllipse(elems[item], offset.x, offset.y);
+        }
+        if (type === 'polygon') {
+          isometricSvgElem.setRotPolygon1(elems[item], rotY1);
+        }
       }
-      if (svg['userData'].objFlap) {
-        isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
-        isometricSvgElem.setRotPolygon1(elems.line2, rotY1);
-      }
-      if (svg['userData'].objAdapter) {
-        isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
-      }
-      if (svg['userData'].objBox) {
-        isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
-      }
-      if (svg['userData'].objSplitter) {
-        isometricSvgElem.setRotPolygon1(elems.line1, rotY1);
-        elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-        elems.line3.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
-      }
-      elems.point['userData'].rotY1 = rotY1;
+
+      point['userData'].rotY1 = rotY1;
+
+      // if (svg['userData'].objTee) {
+      //   elems.line1.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+      //   //elems.line2.setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+      //   const pos = isometricSvgElem.getPosLine2(elems.line1);
+      //   const dist = pos[0].distanceTo(pos[1]) / 2;
+      //   isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: rotY1, offsetX: -dist });
+      //   isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: rotY1, offsetX: dist });
+      //   isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: rotY1, offsetY: -dist });
+
+      //   let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
+      //   isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
+      // }
     } else {
-      if (svg['userData'].objBracket) {
-        elems.line1.setAttribute('transform', 'rotate(0)');
-        elems.line2.setAttribute('transform', 'rotate(0)');
+      const elems = svg['userData'].elems;
+
+      for (let item in elems) {
+        if (elems[item]['userData'].tag === 'point') {
+          continue;
+        }
+
+        const type = isometricSvgElem.getSvgType(elems[item]);
+
+        if (type === 'circle') {
+          isometricSvgElem.setRotCircle_2({ point: elems[item], centerPoint: point, deg: point['userData'].rotY1 });
+        }
+        if (type === 'line') {
+          elems[item].setAttribute('transform', 'rotate(0)');
+        }
+        if (type === 'ellipse') {
+          //isometricSvgElem.setOffsetEllipse(elems[item], offset.x, offset.y);
+        }
+        if (type === 'polygon') {
+          isometricSvgElem.setRotPolygon1(elems[item], 0);
+        }
       }
 
-      if (svg['userData'].objValve) {
-        isometricSvgElem.setRotPolygon1(elems.line1, 0);
-        isometricSvgElem.setRotPolygon1(elems.line2, 0);
-        elems.line3.setAttribute('transform', 'rotate(0)');
-        elems.line4.setAttribute('transform', 'rotate(0)');
-      }
+      point['userData'].rotY1 = 0;
 
-      if (svg['userData'].objTee) {
-        elems.line1.setAttribute('transform', 'rotate(0)');
-        elems.line2.setAttribute('transform', 'rotate(0)');
-        const pos2 = isometricSvgElem.getPosCircle(elems.point);
-        const pos = isometricSvgElem.getPosLine2(elems.line1);
-        const dist = pos[0].distanceTo(pos[1]) / 2;
+      // if (svg['userData'].objTee) {
+      //   elems.line1.setAttribute('transform', 'rotate(0)');
+      //   elems.line2.setAttribute('transform', 'rotate(0)');
+      //   const pos2 = isometricSvgElem.getPosCircle(elems.point);
+      //   const pos = isometricSvgElem.getPosLine2(elems.line1);
+      //   const dist = pos[0].distanceTo(pos[1]) / 2;
 
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: 0, offsetX: -dist });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: 0, offsetX: dist });
-        isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: 0, offsetY: -dist });
+      //   isometricSvgElem.setRotCircle_1({ svg: elems.joint1, centerPos: pos2, deg: 0, offsetX: -dist });
+      //   isometricSvgElem.setRotCircle_1({ svg: elems.joint2, centerPos: pos2, deg: 0, offsetX: dist });
+      //   isometricSvgElem.setRotCircle_1({ svg: elems.joint3, centerPos: pos2, deg: 0, offsetY: -dist });
 
-        let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
-        isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
-      }
-
-      if (svg['userData'].objFlap) {
-        isometricSvgElem.setRotPolygon1(elems.line1, 0);
-        isometricSvgElem.setRotPolygon1(elems.line2, 0);
-      }
-
-      if (svg['userData'].objAdapter) {
-        isometricSvgElem.setRotPolygon1(elems.line1, 0);
-      }
-
-      if (svg['userData'].objBox) {
-        isometricSvgElem.setRotPolygon1(elems.line1, 0);
-      }
-
-      if (svg['userData'].objSplitter) {
-        isometricSvgElem.setRotPolygon1(elems.line1, 0);
-        elems.line2.setAttribute('transform', 'rotate(0)');
-        elems.line3.setAttribute('transform', 'rotate(0)');
-      }
-
-      elems.point['userData'].rotY1 = 0;
+      //   let pos1 = isometricSvgElem.getPosCircle(elems.joint3);
+      //   isometricSvgElem.setPosLine2({ svg: elems.line2, x2: pos1.x, y2: pos1.y });
+      // }
     }
   }
 
