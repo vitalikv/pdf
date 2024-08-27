@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 
 import {
+  isometricPanelUI,
   mapControlInit,
   isometricSvgElem,
   isometricSelectBox,
@@ -15,6 +16,7 @@ import {
   isometricSvgRuler,
   isometricNoteText,
   isometricSvgBasicElements,
+  isometricSvgFreeForm,
   isometricStampLogo,
   isometricCanvasPaint,
   isometricCutBox,
@@ -81,6 +83,7 @@ export class IsometricSvgManager {
     isometricSvgRuler.init({ container, containerSvg });
     isometricNoteText.init({ container, containerSvg });
     isometricSvgBasicElements.init({ container, containerSvg });
+    isometricSvgFreeForm.init({ containerSvg });
     isometricStampLogo.init({ container, containerSvg });
     isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
@@ -137,6 +140,7 @@ export class IsometricSvgManager {
     console.log(this.svgXmlns);
   }
 
+  // нажали на кнопку в панели (вкл/выкл выбранный режим + если нужно для крусора создаем инструмент)
   setMode({ type = '', data = null }) {
     const disabledType = this.cleareMode();
 
@@ -162,6 +166,14 @@ export class IsometricSvgManager {
     if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       if (this.mode.type !== disabledType) {
         isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
+      } else {
+        this.mode.type = '';
+      }
+    }
+
+    if (this.mode.type === 'shapeLine') {
+      if (this.mode.type !== disabledType) {
+        isometricSvgFreeForm.createToolPoint();
       } else {
         this.mode.type = '';
       }
@@ -263,6 +275,7 @@ export class IsometricSvgManager {
     isometricNoteSvg2.onmousemove(event);
     isometricSvgRuler.onmousemove(event);
     isometricSvgBasicElements.onmousemove(event);
+    isometricSvgFreeForm.onmousemove(event);
     isometricCanvasPaint.onmousemove(event);
   };
 
@@ -286,6 +299,7 @@ export class IsometricSvgManager {
     mapControlInit.control.enabled = true;
   };
 
+  // когда кликнули на сцену и если активирован какой то режим (например добавление линии, объекта), то выполняем действие
   checkMode(event) {
     if (this.mode.type === '') return false;
 
@@ -311,14 +325,12 @@ export class IsometricSvgManager {
       }
     } else if (this.mode.type === 'nextLine') {
       if (event.button === 2) {
-        console.log(111);
         isometricSvgLine.stopLine();
         isometricSvgLine.createToolPoint(event);
         this.mode.type = 'line';
       } else {
         const result = isometricSvgLine.addNextLine(event);
         if (result) {
-          console.log(222);
           this.mode.type = 'line';
           isometricSvgLine.createToolPoint(event);
         } else {
@@ -383,6 +395,15 @@ export class IsometricSvgManager {
     if (this.mode.type === 'addText') {
       isometricNoteText.addText(event);
       this.cleareMode();
+    }
+
+    if (this.mode.type === 'shapeLine') {
+      const result = isometricSvgFreeForm.onmousedown({ event });
+
+      if (!result) {
+        isometricPanelUI.deActivateType();
+        this.cleareMode();
+      }
     }
 
     if (this.mode.type === 'shapeArrow') {

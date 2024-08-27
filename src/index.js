@@ -5,7 +5,7 @@ import { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { CSG } from 'three-csg-ts';
 
 import { LoaderModel } from './loaderModel';
-import { PanelUI } from './panelUI';
+import { IsometricPanelUI } from './panelUI';
 import { IsometricModeService } from './select-obj';
 import { IsometricPdfToSvg } from './pdfToSvg';
 import { IsometricExportPdf } from './exportPdf';
@@ -23,6 +23,7 @@ import { IsometricNoteSvg2 } from './noteSvg2';
 import { IsometricSvgRuler } from './svgRuler';
 import { IsometricNoteText } from './noteText';
 import { IsometricSvgBasicElements } from './svgBasicElements';
+import { IsometricSvgFreeForm } from './svgFreeForm';
 import { IsometricStampLogo } from './stampLogo';
 import { IsometricCanvasPaint } from './canvasPaint';
 import { IsometricCutBox } from './cutBox';
@@ -42,7 +43,8 @@ import { IsometricSvgRedo } from './svgRedo';
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
 export let listMeshes = [];
-export let isometricModeService,
+export let isometricPanelUI,
+  isometricModeService,
   isometricPdfToSvg,
   isometricExportPdf,
   isometricSvgManager,
@@ -59,6 +61,7 @@ export let isometricModeService,
   isometricSvgRuler,
   isometricNoteText,
   isometricSvgBasicElements,
+  isometricSvgFreeForm,
   isometricStampLogo,
   isometricCanvasPaint,
   isometricCutBox,
@@ -159,8 +162,8 @@ function init() {
 }
 
 function initServ() {
-  const panelUI = new PanelUI();
-  panelUI.init();
+  isometricPanelUI = new IsometricPanelUI();
+  isometricPanelUI.init();
   isometricModeService = new IsometricModeService();
   isometricPdfToSvg = new IsometricPdfToSvg();
   isometricExportPdf = new IsometricExportPdf();
@@ -178,6 +181,7 @@ function initServ() {
   isometricSvgRuler = new IsometricSvgRuler();
   isometricNoteText = new IsometricNoteText();
   isometricSvgBasicElements = new IsometricSvgBasicElements();
+  isometricSvgFreeForm = new IsometricSvgFreeForm();
   isometricStampLogo = new IsometricStampLogo();
   isometricCanvasPaint = new IsometricCanvasPaint();
   isometricCutBox = new IsometricCutBox();

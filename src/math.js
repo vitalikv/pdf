@@ -20,11 +20,7 @@ export class IsometricMath {
     let result = false;
     let j = p.length - 1;
     for (let i = 0; i < p.length; i++) {
-      if (
-        ((p[i].y < point.y && p[j].y >= point.y) || (p[j].y < point.y && p[i].y >= point.y)) &&
-        p[i].x + ((point.y - p[i].y) / (p[j].y - p[i].y)) * (p[j].x - p[i].x) < point.x
-      )
-        result = !result;
+      if (((p[i].y < point.y && p[j].y >= point.y) || (p[j].y < point.y && p[i].y >= point.y)) && p[i].x + ((point.y - p[i].y) / (p[j].y - p[i].y)) * (p[j].x - p[i].x) < point.x) result = !result;
       j = i;
     }
 
@@ -33,12 +29,7 @@ export class IsometricMath {
 
   // Проверка двух отрезков на пересечение (ориентированная площадь треугольника)
   crossLine(a, b, c, d) {
-    return (
-      this.intersect_1(a.x, b.x, c.x, d.x) &&
-      this.intersect_1(a.y, b.y, c.y, d.y) &&
-      this.area_1(a, b, c) * this.area_1(a, b, d) <= 0 &&
-      this.area_1(c, d, a) * this.area_1(c, d, b) <= 0
-    );
+    return this.intersect_1(a.x, b.x, c.x, d.x) && this.intersect_1(a.y, b.y, c.y, d.y) && this.area_1(a, b, c) * this.area_1(a, b, d) <= 0 && this.area_1(c, d, a) * this.area_1(c, d, b) <= 0;
   }
 
   // (нужно для ф-ции crossLine)
@@ -103,5 +94,25 @@ export class IsometricMath {
     const cross = r1 < 0 || r2 < 0 ? false : true; // если true , то точка D находится на отрезке AB
 
     return cross;
+  }
+
+  // проекция точки(С) на прямую (A,B) (2D) используется Vector3
+  mathProjectPointOnLine2D({ A, B, C }) {
+    const x1 = A.x;
+    const y1 = A.z;
+    const x2 = B.x;
+    const y2 = B.z;
+    const x3 = C.x;
+    const y3 = C.z;
+
+    const px = x2 - x1;
+    const py = y2 - y1;
+    const dAB = px * px + py * py;
+
+    const u = ((x3 - x1) * px + (y3 - y1) * py) / dAB;
+    const x = x1 + u * px;
+    const z = y1 + u * py;
+
+    return new THREE.Vector3(x, 0, z);
   }
 }

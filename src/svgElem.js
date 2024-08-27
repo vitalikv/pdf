@@ -75,7 +75,7 @@ export class IsometricSvgElem {
   }
 
   // получаем координаты курсора
-  getCoordMouse({ event, container }) {
+  getCoordMouse({ event, container = this.containerSvg }) {
     const bound = container.getBoundingClientRect();
     const x = -bound.x + event.clientX;
     const y = -bound.y + event.clientY;

@@ -237,8 +237,6 @@ export class IsometricSvgObjs {
 
         svgPoint['userData'].crossOffset = true;
 
-        console.log(44444, svg);
-
         resultCross = true;
       } else {
         if (svgPoint['userData'].crossOffset) {

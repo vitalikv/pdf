@@ -18,12 +18,13 @@ import {
   initModel,
 } from './index';
 
-export class PanelUI {
+export class IsometricPanelUI {
   container$;
   elemBtnView;
   input;
   btns$ = [];
   actType = '';
+  actBtn = null;
 
   init() {
     this.crPanel();
@@ -41,7 +42,7 @@ export class PanelUI {
     this.btns$[9] = this.crBtn({ txt: 'Обрезать' });
     this.btns$[10] = this.crBtn({ txt: 'Штамп' });
     this.btns$[11] = this.crBtn({ txt: 'Стык' });
-    this.btns$[12] = this.crBtn({ txt: 'Линия' });
+    this.btns$[12] = this.crBtn({ txt: 'Труба' });
     this.btns$[13] = this.crBtn({ txt: 'Опора' });
     this.btns$[14] = this.crBtn({ txt: 'Вентиль' });
     this.btns$[15] = this.crBtn({ txt: 'Тройник' });
@@ -51,17 +52,18 @@ export class PanelUI {
     this.btns$[19] = this.crBtn({ txt: 'Разделитель' });
     this.btns$[20] = this.crBtn({ txt: 'Текст' });
 
-    this.btns$[21] = this.crBtn({ txt: 'Стрелка' });
-    this.btns$[22] = this.crBtn({ txt: 'Прямоугольник' });
-    this.btns$[23] = this.crBtn({ txt: 'Круг' });
-    this.btns$[24] = this.crBtn({ txt: 'Треугольник' });
+    this.btns$[21] = this.crBtn({ txt: 'Линия' });
+    this.btns$[22] = this.crBtn({ txt: 'Стрелка' });
+    this.btns$[23] = this.crBtn({ txt: 'Прямоугольник' });
+    this.btns$[24] = this.crBtn({ txt: 'Круг' });
+    this.btns$[25] = this.crBtn({ txt: 'Треугольник' });
 
-    this.btns$[25] = this.crBtn({ txt: 'Цвет' });
+    this.btns$[26] = this.crBtn({ txt: 'Цвет' });
 
-    this.btns$[26] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[27] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[28] = this.crListSheets();
-    this.btns$[29] = this.crBtn({ txt: 'из 3D в 2D' });
+    this.btns$[27] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[28] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[29] = this.crListSheets();
+    this.btns$[30] = this.crBtn({ txt: 'из 3D в 2D' });
 
     this.initEvent();
   }
@@ -165,38 +167,42 @@ export class PanelUI {
     };
 
     this.btns$[21].onmousedown = (e) => {
-      this.activateType({ type: 'shapeArrow', e });
+      this.activateType({ type: 'shapeLine', e });
     };
 
     this.btns$[22].onmousedown = (e) => {
-      this.activateType({ type: 'shapeRectangle', e });
+      this.activateType({ type: 'shapeArrow', e });
     };
 
     this.btns$[23].onmousedown = (e) => {
-      this.activateType({ type: 'shapeEllipse', e });
+      this.activateType({ type: 'shapeRectangle', e });
     };
 
     this.btns$[24].onmousedown = (e) => {
-      this.activateType({ type: 'shapeTriangle', e });
+      this.activateType({ type: 'shapeEllipse', e });
     };
 
     this.btns$[25].onmousedown = (e) => {
-      isometricSvgManager.setColor({ color: '#0000ff' });
+      this.activateType({ type: 'shapeTriangle', e });
     };
 
     this.btns$[26].onmousedown = (e) => {
-      isometricSvgSave.save();
+      isometricSvgManager.setColor({ color: '#0000ff' });
     };
 
     this.btns$[27].onmousedown = (e) => {
+      isometricSvgSave.save();
+    };
+
+    this.btns$[28].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
 
-    this.btns$[28].onchange = (e) => {
+    this.btns$[29].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
     };
 
-    this.btns$[29].onmousedown = (e) => {
+    this.btns$[30].onmousedown = (e) => {
       initModel();
     };
   }
@@ -216,7 +222,7 @@ export class PanelUI {
   }
 
   crBtn({ txt }) {
-    const css = `width: 100%; height: 30px; margin-top: 15px; font-size: 16px; text-align: center; color: #666; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; user-select: none;`;
+    const css = `width: 100%; height: 20px; margin-top: 10px; font-size: 14px; text-align: center; color: #666; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; user-select: none;`;
 
     const html = `
     <div style="${css}">
@@ -281,16 +287,18 @@ export class PanelUI {
     return div;
   }
 
-  upColorBtn({ btn, actBtn }) {
-    const color = actBtn ? '#87ea89' : '#fff';
+  upColorBtn({ btn, act }) {
+    const color = act ? '#87ea89' : '#fff';
     btn.style.background = color;
+
+    this.actBtn = act ? btn : null;
   }
 
   activateType({ type, e }) {
     const btn = e.target;
-    let actBtn = true;
+    let act = true;
 
-    if (this.actType === type) actBtn = false;
+    if (this.actType === type) act = false;
 
     if (type === 'joint') isometricSvgManager.setMode({ type });
     else if (type === 'line') isometricSvgManager.setMode({ type });
@@ -302,16 +310,23 @@ export class PanelUI {
     else if (type === 'objBox') isometricSvgManager.setMode({ type });
     else if (type === 'objSplitter') isometricSvgManager.setMode({ type });
     else if (type === 'addText') isometricSvgManager.setMode({ type });
+    else if (type === 'shapeLine') isometricSvgManager.setMode({ type });
     else if (type === 'shapeArrow') isometricSvgManager.setMode({ type });
     else if (type === 'shapeRectangle') isometricSvgManager.setMode({ type });
     else if (type === 'shapeEllipse') isometricSvgManager.setMode({ type });
     else if (type === 'shapeTriangle') isometricSvgManager.setMode({ type });
-    else actBtn = false;
+    else act = false;
 
-    this.actType = actBtn ? type : '';
+    this.actType = act ? type : '';
 
-    this.upColorBtn({ btn, actBtn });
+    this.upColorBtn({ btn, act });
   }
 
-  deActivateType() {}
+  deActivateType() {
+    if (!this.actBtn) return;
+
+    this.actType = '';
+
+    this.upColorBtn({ btn: this.actBtn, act: false });
+  }
 }
