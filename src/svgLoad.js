@@ -9,6 +9,7 @@ import {
   isometricNoteSvg2,
   isometricSvgRuler,
   isometricSvgBasicElements,
+  isometricSvgFreeForm,
   isometricNoteText,
   isometricStampLogo,
   isometricSheets,
@@ -64,6 +65,7 @@ export class IsometricSvgLoad {
     const notes = data.notes;
     const rulers = data.rulers;
     const objsBasic = data.objsBasic;
+    const scheme = data.scheme;
     const texts = data.texts;
     const stampslogo = data.stampslogo;
     const sheet = data.sheet;
@@ -152,6 +154,7 @@ export class IsometricSvgLoad {
 
     if (rulers) this.setRulers(rulers);
     if (objsBasic) this.setObjsBasic(objsBasic);
+    if (scheme) this.setScheme(scheme);
     if (notes) this.setNotes(notes);
     if (texts) this.setText(texts);
     if (stampslogo) this.setStampslogo(stampslogo);
@@ -226,6 +229,22 @@ export class IsometricSvgLoad {
       const params = obj.params ? obj.params : null;
       isometricSvgBasicElements.addShape({ type: obj.tag, pos: obj.pos, params });
       console.log(obj);
+    });
+  }
+
+  setScheme(scheme) {
+    scheme.forEach((itemGroup) => {
+      const group = isometricSvgFreeForm.createGroup();
+
+      itemGroup.elems.forEach((elem) => {
+        if (elem.type === 'line') {
+          isometricSvgFreeForm.createLine({ pos: elem.pos, group });
+        }
+        if (elem.type === 'polygon') {
+          const data = { pos: new THREE.Vector2(), points: elem.points };
+          isometricSvgFreeForm.createPolygon({ data, group });
+        }
+      });
     });
   }
 

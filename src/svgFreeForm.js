@@ -14,27 +14,40 @@ export class IsometricSvgFreeForm {
     this.groupObjs = isometricSvgElem.getSvgGroup({ container: containerSvg, tag: 'objs' });
   }
 
-  createToolPoint(event = null) {
+  createToolPoint() {
     let x = -999999;
     let y = -999999;
-
-    if (event) {
-      const pos = this.getCoord(event);
-      x = pos.x;
-      y = pos.y;
-    }
 
     this.toolPoint = isometricSvgElem.createSvgCircle({ x, y, stroke: '#ff0000' });
     this.groupObjs.append(this.toolPoint);
   }
 
+  createGroup() {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g['userData'] = { freeForm: true, elems: [] };
+
+    return g;
+  }
+
   createLine({ pos, group = null }) {
     const svg = isometricSvgElem.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
 
-    if (!group) {
-      group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-      group['userData'] = { freeForm: true, elems: [] };
-    }
+    if (!group) group = this.createGroup();
+
+    group.append(svg);
+
+    this.groupObjs.append(group);
+
+    return svg;
+  }
+
+  createPolygon({ data, group = null }) {
+    const pos = data.pos;
+    const points = data.points;
+
+    const svg = isometricSvgElem.createPolygon({ x: pos.x, y: pos.y, points, fill: 'none' });
+
+    if (!group) group = this.createGroup();
 
     group.append(svg);
 
@@ -51,14 +64,41 @@ export class IsometricSvgFreeForm {
       return false;
     }
 
+    // создаем новую линию или продолжаем ее создавать
     if (mode === 'clickLeft') {
       this.deleteToolPoint();
       const group = this.selectedObj.el ? this.selectedObj.el.parentElement : null;
       let coord = isometricSvgElem.getCoordMouse({ event });
 
+      // одна или несколько линий уже созданы, продолжаем создавать
       if (this.selectedObj.el && this.selectedObj.mode === 'createLineMove') {
         const pos = isometricSvgElem.getPosLine2(this.selectedObj.el);
         coord = pos[1];
+      }
+
+      // если уже созданно больше 2-х линий, проверяем пересечение перетаскиваемой точки с первой точкой первой линии
+      if (group && group.childNodes.length > 2) {
+        const linePos = isometricSvgElem.getPosLine2(group.childNodes[0]);
+
+        const joint = coord.distanceTo(linePos[0]) < 6 ? true : false;
+
+        if (joint) {
+          const points = this.getPointsFromLines({ group, format: 'v2' });
+
+          this.deleteElemsFromGroup({ group });
+
+          let strPoints = '';
+          for (let i = 0; i < points.length - 1; i++) {
+            strPoints += ' ' + points[i].x + ',' + points[i].y;
+          }
+
+          const data = { pos: new THREE.Vector2(), points: strPoints };
+
+          this.createPolygon({ data, group });
+
+          this.clickFinishForm();
+          return false;
+        }
       }
 
       this.selectedObj.el = this.createLine({ pos: [coord, coord], group });
@@ -104,14 +144,9 @@ export class IsometricSvgFreeForm {
       const svg = this.selectedObj.el;
       isometricSvgElem.setPosLine2({ svg, x2: pos.x, y2: pos.y });
 
-      const parent = this.selectedObj.el.parentElement;
+      const group = this.selectedObj.el.parentElement;
 
-      const points = [];
-      parent.childNodes.forEach((child) => {
-        const pos = isometricSvgElem.getPosLine2(child);
-        points.push(new THREE.Vector3(pos[0].x, 0, pos[0].y));
-      });
-      points.push(new THREE.Vector3(pos.x, 0, pos.y));
+      const points = this.getPointsFromLines({ group, format: 'v3' });
 
       const newPos = this.pointAligning({ point: points[points.length - 1], points });
       isometricSvgElem.setPosLine2({ svg, x2: newPos.x, y2: newPos.y });
@@ -167,6 +202,32 @@ export class IsometricSvgFreeForm {
     return mode;
   }
 
+  // получем массив координат точек у линий принадлежащие одной group
+  getPointsFromLines({ group, format = 'v2' }) {
+    const points = [];
+
+    group.childNodes.forEach((child) => {
+      const pos = isometricSvgElem.getPosLine2(child);
+
+      if (format === 'v2') {
+        points.push(pos[0]);
+      } else {
+        points.push(new THREE.Vector3(pos[0].x, 0, pos[0].y));
+      }
+    });
+
+    const svgLine = group.childNodes[group.childNodes.length - 1];
+    const pos = isometricSvgElem.getPosLine2(svgLine);
+
+    if (format === 'v2') {
+      points.push(pos[1]);
+    } else {
+      points.push(new THREE.Vector3(pos[1].x, 0, pos[1].y));
+    }
+
+    return points;
+  }
+
   // выравнивание точки к направляющим X/Z
   pointAligning({ point, points }) {
     let pos = point.clone();
@@ -218,9 +279,13 @@ export class IsometricSvgFreeForm {
     return new THREE.Vector2(pos.x, pos.z);
   }
 
+  clickFinishForm() {
+    this.cleareMouse();
+    this.cleareSelectedObj();
+  }
+
   clickRightButton() {
-    this.isDown = false;
-    this.isMove = false;
+    this.cleareMouse();
     this.deleteToolPoint();
 
     if (this.selectedObj.el) {
@@ -241,6 +306,18 @@ export class IsometricSvgFreeForm {
 
     this.toolPoint.remove();
     this.toolPoint = null;
+  }
+
+  // удялем group из все элементы
+  deleteElemsFromGroup({ group }) {
+    for (let i = group.childNodes.length - 1; i >= 0; i--) {
+      group.childNodes[i].remove();
+    }
+  }
+
+  cleareMouse() {
+    this.isDown = false;
+    this.isMove = false;
   }
 
   cleareSelectedObj() {

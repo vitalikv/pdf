@@ -323,4 +323,36 @@ export class IsometricSvgElem {
 
     this.setPosLine1(svg, pos[0].x, pos[0].y, pos[1].x, pos[1].y);
   }
+
+  // парсер svg (вытаскиваем все элементы в группе и строим дерево)
+  parserSvg({ svg, data = [] }) {
+    const type = this.getSvgType(svg);
+
+    if (type === 'line') {
+      const pos = this.getPosLine2(svg);
+      data.push({ type, pos });
+    }
+    if (type === 'circle') {
+      data.push({ type });
+    }
+    if (type === 'ellipse') {
+      data.push({ type });
+    }
+    if (type === 'polygon') {
+      const points = svg.getAttribute('points');
+      data.push({ type, points });
+    }
+    if (type === 'text') {
+      data.push({ type });
+    }
+    if (type === 'g') {
+      data.push({ type, elems: [] });
+
+      svg.childNodes.forEach((svgChild) => {
+        this.parserSvg({ svg: svgChild, data: data[data.length - 1].elems });
+      });
+    }
+
+    return data;
+  }
 }

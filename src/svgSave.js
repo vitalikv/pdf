@@ -20,6 +20,7 @@ export class IsometricSvgSave {
       rulers: [],
       notes: [],
       objsBasic: [],
+      scheme: [],
       texts: [],
       stampslogo: [],
       camera: null,
@@ -213,6 +214,14 @@ export class IsometricSvgSave {
         }
 
         isometry.objsBasic.push(data);
+      }
+    });
+
+    const groupObjs = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'objs' });
+    groupObjs.childNodes.forEach((svg) => {
+      if (svg['userData'].freeForm) {
+        const data = isometricSvgElem.parserSvg({ svg });
+        isometry.scheme.push(data[0]);
       }
     });
 
