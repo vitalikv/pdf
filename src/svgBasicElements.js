@@ -566,7 +566,7 @@ export class IsometricSvgBasicElements {
 
     if (svg) {
       elems = svg['userData'].elems;
-    } else {
+    } else if (this.selectedObj.el) {
       if (this.selectedObj.el['userData'].handlePoint) {
         svg = this.selectedObj.el['userData'].svgObj;
       } else {

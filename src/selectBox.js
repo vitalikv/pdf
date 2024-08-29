@@ -1,15 +1,6 @@
 import * as THREE from 'three';
 
-import {
-  isometricSvgElem,
-  isometricMath,
-  isometricSvgLine,
-  isometricSvgObjs,
-  isometricSvgListObjs,
-  isometricNoteSvg,
-  isometricNoteSvg2,
-  isometricSvgRuler,
-} from './index';
+import { isometricSvgElem, isometricMath, isometricSvgLine, isometricSvgObjs, isometricSvgListObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgFreeForm } from './index';
 
 export class IsometricSelectBox {
   activated = false;
@@ -25,6 +16,8 @@ export class IsometricSelectBox {
   startPos = new THREE.Vector2();
   endPos = new THREE.Vector2();
 
+  arrFreeForm = [];
+
   init({ container, containerSvg }) {
     this.container = container;
     this.containerSvg = containerSvg;
@@ -33,8 +26,7 @@ export class IsometricSelectBox {
 
   createElemSelectBox() {
     const div = document.createElement('div');
-    div.style.cssText =
-      'position: absolute; width: 0; height: 0; line-height: 0; z-index: 100; visibility: hidden; border: 2px dashed #ff0000; box-sizing: border-box;';
+    div.style.cssText = 'position: absolute; width: 0; height: 0; line-height: 0; z-index: 100; visibility: hidden; border: 2px dashed #ff0000; box-sizing: border-box;';
     this.container.prepend(div);
 
     return div;
@@ -47,6 +39,10 @@ export class IsometricSelectBox {
 
     if (event.code === 'Delete') {
       this.deleteSelected();
+    }
+
+    if (event.code === 'KeyG') {
+      this.appendGroup();
     }
   };
 
@@ -219,6 +215,7 @@ export class IsometricSelectBox {
     const arrDLines = [];
     const arrDPoints = [];
     const arrRulerLine = [];
+    this.arrFreeForm = [];
 
     const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
 
@@ -242,6 +239,10 @@ export class IsometricSelectBox {
           if (svg['userData'].tag === 'point') {
             arrPoints.push(svg);
           }
+        }
+
+        if (svg['userData'].freeForm) {
+          this.arrFreeForm.push(svg);
         }
 
         if (svg['userData'].note1 || svg['userData'].note2) {
@@ -298,6 +299,10 @@ export class IsometricSelectBox {
 
     this.selectedArr.objs.forEach((svg) => {
       this.actElem(svg, true);
+    });
+
+    this.arrFreeForm.forEach((svg) => {
+      isometricSvgFreeForm.setColorElem(svg, true);
     });
   }
 
@@ -386,6 +391,11 @@ export class IsometricSelectBox {
       this.actElem(svg, false);
     });
 
+    this.arrFreeForm.forEach((svg) => {
+      isometricSvgFreeForm.setColorElem(svg, false);
+    });
+    this.arrFreeForm = [];
+
     this.selectedArr.objs = [];
 
     this.setBoxVisibility('hidden');
@@ -453,6 +463,14 @@ export class IsometricSelectBox {
     arrPoints.forEach((p) => {
       p['userData'].move = false;
     });
+  }
+
+  // обединить objs freeForm в одну группу
+  appendGroup() {
+    if (this.arrFreeForm.length === 0) return;
+    isometricSvgFreeForm.appendGroup(this.arrFreeForm);
+
+    this.clearSelected();
   }
 
   deleteSelected() {

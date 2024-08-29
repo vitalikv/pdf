@@ -292,6 +292,7 @@ export class IsometricSvgManager {
     isometricNoteSvg2.onmouseup(event);
     isometricSvgRuler.onmouseup(event);
     isometricSvgBasicElements.onmouseup(event);
+    isometricSvgFreeForm.onmouseup(event);
     isometricCanvasPaint.onmouseup(event);
 
     this.isDown = false;
@@ -434,6 +435,7 @@ export class IsometricSvgManager {
     return true;
   }
 
+  // проверяем кликнули на какой то объект или нет
   checkClick(event) {
     let result = null;
 
@@ -453,6 +455,9 @@ export class IsometricSvgManager {
           isometricSvgListObjs.onmousedown(event);
         } else if (isometricSvgListObjs.isObjBySvg(svg)) {
           result = isometricSvgObjs.onmousedown(event);
+        } else if (svg['userData'].freeForm) {
+          isometricSvgFreeForm.onmousedown({ event, svg });
+          result = true;
         }
 
         if (svg['userData'].note1) {
@@ -478,6 +483,7 @@ export class IsometricSvgManager {
     return result;
   }
 
+  // снимаем выделение с объекта (если он выдилен)
   unselectAllNotes(event = null) {
     if (event) isometricSvgRuler.deleteInput(event.target);
 
@@ -496,6 +502,10 @@ export class IsometricSvgManager {
             if (event && event.button === 0) isometricSvgObjs.addObjUR();
             if (event && event.button === 2) isometricSvgObjs.deleteAddObj();
             isometricSvgObjs.actElem(svg, false);
+          }
+        } else if (isometricSvgFreeForm.selectedObj.el && svg['userData'].freeForm) {
+          if (isometricSvgFreeForm.selectedObj.el === svg) {
+            isometricSvgFreeForm.actElem(svg, false);
           }
         }
 
@@ -566,5 +576,6 @@ export class IsometricSvgManager {
     isometricSvgRuler.deleteNote({});
     isometricNoteText.deleteNote();
     isometricSvgBasicElements.deleteObj();
+    isometricSvgFreeForm.deleteObj();
   }
 }
