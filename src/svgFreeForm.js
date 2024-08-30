@@ -22,9 +22,9 @@ export class IsometricSvgFreeForm {
     this.groupObjs.append(this.toolPoint);
   }
 
-  createGroup() {
+  createGroup({ guid = 0 }) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g['userData'] = { freeForm: true, elems: [] };
+    g['userData'] = { freeForm: true, guid };
 
     return g;
   }
@@ -32,7 +32,7 @@ export class IsometricSvgFreeForm {
   createLine({ pos, group = null }) {
     const svg = isometricSvgElem.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
 
-    if (!group) group = this.createGroup();
+    if (!group) group = this.createGroup({});
 
     group.append(svg);
 
@@ -47,7 +47,7 @@ export class IsometricSvgFreeForm {
 
     const svg = isometricSvgElem.createPolygon({ x: pos.x, y: pos.y, points, fill: 'none' });
 
-    if (!group) group = this.createGroup();
+    if (!group) group = this.createGroup({});
 
     group.append(svg);
 
@@ -397,7 +397,7 @@ export class IsometricSvgFreeForm {
       });
     });
 
-    const g = this.createGroup();
+    const g = this.createGroup({});
     this.groupObjs.append(g);
 
     elems.forEach((elem) => {

@@ -35,7 +35,7 @@ export class IsometricSvgElem {
   }
 
   // получаем группу
-  getSvgGroup({ container, tag }) {
+  getSvgGroup({ container = this.containerSvg, tag }) {
     let group = null;
 
     const svgXmlns = this.getSvgXmlns({ container });

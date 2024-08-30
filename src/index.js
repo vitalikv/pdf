@@ -39,6 +39,7 @@ import { IsometricSetCalcNotes } from './setCalcNotes';
 import { IsometricSvgUndoRedo } from './svgUndoRedo';
 import { IsometricSvgUndo } from './svgUndo';
 import { IsometricSvgRedo } from './svgRedo';
+import { IsometricSvgActivateElem } from './svgActivateElem';
 
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
@@ -75,7 +76,8 @@ export let isometricPanelUI,
   isometricSetCalcNotes,
   isometricSvgUndoRedo,
   isometricSvgUndo,
-  isometricSvgRedo;
+  isometricSvgRedo,
+  isometricSvgActivateElem;
 
 init();
 initServ();
@@ -196,6 +198,7 @@ function initServ() {
   isometricSvgUndoRedo = new IsometricSvgUndoRedo();
   isometricSvgUndo = new IsometricSvgUndo();
   isometricSvgRedo = new IsometricSvgRedo();
+  isometricSvgActivateElem = new IsometricSvgActivateElem();
 
   isometricSvgManager.init();
   isometricSvgLoad.load();
