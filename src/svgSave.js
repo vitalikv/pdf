@@ -221,7 +221,7 @@ export class IsometricSvgSave {
     groupObjs.childNodes.forEach((svg) => {
       if (svg['userData'].freeForm) {
         const data = isometricSvgElem.parserSvg({ svg });
-        isometry.scheme.push({ ...data[0], guid: svg['userData'].guid });
+        isometry.scheme.push({ tag: svg['userData'].tag, ...data[0], guid: svg['userData'].guid });
       }
     });
 

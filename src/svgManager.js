@@ -506,6 +506,7 @@ export class IsometricSvgManager {
         } else if (isometricSvgFreeForm.selectedObj.el && svg['userData'].freeForm) {
           if (isometricSvgFreeForm.selectedObj.el === svg) {
             isometricSvgFreeForm.actElem(svg, false);
+            isometricSvgFreeForm.deleteModalDiv();
           }
         }
 

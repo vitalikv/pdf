@@ -234,8 +234,9 @@ export class IsometricSvgLoad {
 
   setScheme(scheme) {
     scheme.forEach((itemGroup) => {
+      const tag = itemGroup.tag ? itemGroup.tag : '';
       const guid = itemGroup.guid ? itemGroup.guid : 0;
-      const group = isometricSvgFreeForm.createGroup({ guid });
+      const group = isometricSvgFreeForm.createGroup({ tag, guid });
 
       itemGroup.elems.forEach((elem) => {
         if (elem.type === 'line') {

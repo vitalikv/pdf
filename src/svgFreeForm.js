@@ -9,6 +9,7 @@ export class IsometricSvgFreeForm {
   isMove = false;
   offset = new THREE.Vector2();
   selectedObj = { el: null, mode: '' };
+  divModal = null;
 
   init({ containerSvg }) {
     this.groupObjs = isometricSvgElem.getSvgGroup({ container: containerSvg, tag: 'objs' });
@@ -22,9 +23,9 @@ export class IsometricSvgFreeForm {
     this.groupObjs.append(this.toolPoint);
   }
 
-  createGroup({ guid = 0 }) {
+  createGroup({ tag = '', guid = 0 }) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g['userData'] = { freeForm: true, guid };
+    g['userData'] = { freeForm: true, tag, guid };
 
     return g;
   }
@@ -57,9 +58,9 @@ export class IsometricSvgFreeForm {
   }
 
   onmousedown = ({ event = null, svg = null }) => {
-    if (!svg) {
-      const mode = this.detectModeDown({ event });
+    const mode = this.detectModeDown({ event });
 
+    if (!svg) {
       if (mode === 'clickRight') {
         this.clickRightButton();
         return false;
@@ -112,6 +113,11 @@ export class IsometricSvgFreeForm {
     if (svg) {
       if (this.selectedObj.el) this.actElem(this.selectedObj.el, false);
       this.actElem(svg, true);
+
+      if (mode === 'clickRight') {
+        this.divModal = this.createModalDiv({ event, svg });
+        return false;
+      }
 
       this.isDown = true;
       this.isMove = false;
@@ -183,6 +189,68 @@ export class IsometricSvgFreeForm {
     }
 
     return mode;
+  }
+
+  // создание меню, при клики правой кнопкой
+  createModalDiv({ event, svg }) {
+    const containerSvg = isometricSvgElem.getContainerSvg();
+    const bound = containerSvg.getBoundingClientRect();
+    const x = -bound.x + event.clientX;
+    const y = -bound.y + event.clientY;
+
+    let div = document.createElement('div');
+    div.innerHTML = `
+    <div style="position: absolute; left: 30px; font-family: Gostcadkk; font-size: 18px; z-index: 5; box-sizing: border-box; background: #F0F0F0; border: 1px solid #D1D1D1;">
+      <div nameId="content" style="display: flex; flex-direction: column;">
+        <div style="margin: 10px auto;">Свойства</div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px;">
+          <div style="margin-right: 10px;">Tag</div>
+          <input type="text" nameId="inputTag" style="width: 100px; height: 25px; border: 1px solid #D1D1D1; outline: none;">
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin: 10px;">
+          <div style="margin-right: 10px;">Guid</div>
+          <input type="text" nameId="inputGuid" style="width: 100px; height: 25px; border: 1px solid #D1D1D1; outline: none;">
+        </div>
+        
+        <div nameId="btnSave" style="display: flex; justify-content: center; align-items: center; padding: 5px 0; margin: 10px; font-size: 18px; color: #666; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; user-select: none;">
+          <div>сохранить</div>
+        </div>
+      </div>
+    </div>`;
+
+    let divModal = div.children[0];
+
+    const containerTexts = containerSvg.querySelector('[nameId="notesText"]');
+    containerTexts.append(divModal);
+
+    const inputTag = divModal.querySelector('[nameId="inputTag"]');
+    const inputGuid = divModal.querySelector('[nameId="inputGuid"]');
+    const btnSave = divModal.querySelector('[nameId="btnSave"]');
+
+    const bound2 = divModal.getBoundingClientRect();
+    divModal['style'].left = x + 'px';
+    divModal['style'].top = y + 'px';
+
+    inputTag['value'] = svg['userData'].tag;
+    inputGuid['value'] = svg['userData'].guid;
+
+    btnSave['onmousedown'] = (e) => {
+      svg['userData'].tag = inputTag['value'];
+      svg['userData'].guid = inputGuid['value'];
+      this.deleteModalDiv();
+    };
+
+    divModal['onmousedown'] = (e) => {
+      e.stopPropagation();
+    };
+
+    return divModal;
+  }
+
+  deleteModalDiv() {
+    if (!this.divModal) return;
+
+    this.divModal.remove();
   }
 
   // получем массив координат точек у линий принадлежащие одной group
@@ -292,6 +360,12 @@ export class IsometricSvgFreeForm {
         this.svgOffset({ svg: svgChild, offsetX, offsetY });
       });
     }
+  }
+
+  getSelectedSvg() {
+    if (!this.selectedObj.el) return null;
+
+    return this.selectedObj.el;
   }
 
   // получаем все объекты в group
