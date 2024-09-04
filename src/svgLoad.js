@@ -58,6 +58,8 @@ export class IsometricSvgLoad {
   }
 
   setIsometry(data) {
+    this.clearIsometric();
+
     const bound = data.bound;
     const lines = data.lines;
     const points = data.points;
@@ -372,5 +374,26 @@ export class IsometricSvgLoad {
 
       isometricSheets.showHideSheet(sheet.format, table1, table2);
     }
+  }
+
+  clearIsometric() {
+    const groupLines = isometricSvgElem.getSvgGroup({ tag: 'lines' });
+    const groupObjs = isometricSvgElem.getSvgGroup({ tag: 'objs' });
+    const groupRulers = isometricSvgElem.getSvgGroup({ tag: 'rulers' });
+    const groupNotes = isometricSvgElem.getSvgGroup({ tag: 'notes' });
+    const groupBasicElems = isometricSvgElem.getSvgGroup({ tag: 'basicElems' });
+    const groupSheetText = isometricSvgElem.getSvgGroup({ tag: 'sheetText' });
+
+    const stampsLogo = this.containerSvg.querySelector('[nameId="stampsLogo"]');
+    const containerTexts = this.containerSvg.querySelector('[nameId="notesText"]');
+
+    const groups = [groupLines, groupObjs, groupRulers, groupNotes, groupBasicElems, groupSheetText, stampsLogo, containerTexts];
+
+    groups.forEach((group) => {
+      for (let i = group.childNodes.length - 1; i >= 0; i--) {
+        const child = group.childNodes[i];
+        child.remove();
+      }
+    });
   }
 }
