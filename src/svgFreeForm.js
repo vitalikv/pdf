@@ -129,6 +129,7 @@ export class IsometricSvgFreeForm {
   };
 
   onmousemove = (event) => {
+    // создаем новый элемент
     if (!this.isDown) {
       const mode = this.detectModeMove();
 
@@ -142,15 +143,17 @@ export class IsometricSvgFreeForm {
         const svg = this.selectedObj.el;
         isometricSvgElem.setPosLine2({ svg, x2: pos.x, y2: pos.y });
 
-        const group = this.selectedObj.el.parentElement;
+        // const group = this.selectedObj.el.parentElement;
+        // const points = this.getPointsFromLines({ group, format: 'v3' });
 
-        const points = this.getPointsFromLines({ group, format: 'v3' });
+        const points = this.getPointsFromAllGroups({ format: 'v3' });
 
         const newPos = this.pointAligning({ point: points[points.length - 1], points });
         isometricSvgElem.setPosLine2({ svg, x2: newPos.x, y2: newPos.y });
       }
     }
 
+    // перетаскиваем готовый элемент
     if (this.isDown) {
       const svg = this.selectedObj.el;
 
@@ -274,6 +277,45 @@ export class IsometricSvgFreeForm {
       points.push(pos[1]);
     } else {
       points.push(new THREE.Vector3(pos[1].x, 0, pos[1].y));
+    }
+
+    return points;
+  }
+
+  // получем массив всех точек (lineб polygon) из this.groupObjs
+  getPointsFromAllGroups({ format = 'v2' }) {
+    const points = [];
+
+    this.groupObjs.childNodes.forEach((child) => {
+      const type = isometricSvgElem.getSvgType(child);
+
+      if (type === 'g') {
+        child.childNodes.forEach((child) => {
+          const type = isometricSvgElem.getSvgType(child);
+
+          if (type === 'line') {
+            const pos = isometricSvgElem.getPosLine2(child);
+            points.push(...pos);
+          }
+          if (type === 'polygon') {
+            const str = child.getAttribute('points');
+            const strPos = str.split(' ');
+
+            strPos.forEach((item) => {
+              if (item !== '') {
+                const pos = item.split(',');
+                points.push(new THREE.Vector2(Number(pos[0]), Number(pos[1])));
+              }
+            });
+          }
+        });
+      }
+    });
+
+    if (format === 'v3') {
+      for (let i = 0; i < points.length; i++) {
+        points[i] = new THREE.Vector3(points[i].x, 0, points[i].y);
+      }
     }
 
     return points;
