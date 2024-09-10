@@ -15,6 +15,7 @@ import {
   isometricStampLogo,
   isometricSvgSave,
   isometricSvgLoad,
+  isometricSvgUploader,
   initModel,
 } from './index';
 
@@ -29,7 +30,7 @@ export class IsometricPanelUI {
   init() {
     this.crPanel();
 
-    this.btns$[0] = this.crBtn({ txt: 'pdf' });
+    this.btns$[0] = this.crBtn({ txt: 'загрузить pdf' });
     this.btns$[1] = this.crBtn({ txt: '-90' });
     this.btns$[2] = this.crBtn({ txt: '90' });
     this.btns$[3] = this.crBtn({ txt: 'Получить pdf' });
@@ -64,6 +65,7 @@ export class IsometricPanelUI {
     this.btns$[28] = this.crBtn({ txt: 'Загрузить' });
     this.btns$[29] = this.crListSheets();
     this.btns$[30] = this.crBtn({ txt: 'из 3D в 2D' });
+    this.btns$[31] = this.crBtn({ txt: 'загрузить svg' });
 
     this.initEvent();
   }
@@ -204,6 +206,10 @@ export class IsometricPanelUI {
 
     this.btns$[30].onmousedown = (e) => {
       initModel();
+    };
+
+    this.btns$[31].onmousedown = (e) => {
+      isometricSvgUploader.inputFile.click();
     };
   }
 

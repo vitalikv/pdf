@@ -394,6 +394,9 @@ export class IsometricSvgFreeForm {
     if (type === 'polygon') {
       isometricSvgElem.setOffsetPolygon1(svg, offsetX, offsetY);
     }
+    if (type === 'path') {
+      isometricSvgElem.setOffsetPolygon1(svg, offsetX, offsetY);
+    }
     if (type === 'text') {
       isometricSvgElem.setOffsetText1(svg, offsetX, offsetY);
     }
