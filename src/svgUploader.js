@@ -48,7 +48,6 @@ export class IsometricSvgUploader {
 
     elems.forEach((elem) => {
       g.append(elem);
-
       elem.setAttribute('transform', `translate(0, 0) rotate(0)`);
     });
 

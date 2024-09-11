@@ -460,6 +460,9 @@ export class IsometricSvgManager {
         } else if (svg['userData'].freeForm) {
           isometricSvgFreeForm.onmousedown({ event, svg });
           result = true;
+        } else if (svg['userData'].freeFormPoint) {
+          isometricSvgFreeForm.onmousedown({ event, svg });
+          result = true;
         }
 
         if (svg['userData'].note1) {
@@ -507,6 +510,7 @@ export class IsometricSvgManager {
           }
         } else if (isometricSvgFreeForm.selectedObj.el && svg['userData'].freeForm) {
           if (isometricSvgFreeForm.selectedObj.el === svg) {
+            if (event && event.target['userData'] && event.target['userData'].freeFormPoint) return;
             isometricSvgFreeForm.actElem(svg, false);
             isometricSvgFreeForm.deleteModalDiv();
           }
