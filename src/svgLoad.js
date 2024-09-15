@@ -245,7 +245,7 @@ export class IsometricSvgLoad {
           isometricSvgFreeForm.createLine({ pos: elem.pos, group });
         }
         if (elem.type === 'polygon') {
-          const data = { pos: new THREE.Vector2(), points: elem.points };
+          const data = { pos: elem.pos ? elem.pos : new THREE.Vector2(), points: elem.points };
           isometricSvgFreeForm.createPolygon({ data, group });
         }
       });

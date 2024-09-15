@@ -340,7 +340,9 @@ export class IsometricSvgElem {
     }
     if (type === 'polygon') {
       const points = svg.getAttribute('points');
-      data.push({ type, points });
+      const x = svg.transform.baseVal[0].matrix.e;
+      const y = svg.transform.baseVal[0].matrix.f;
+      data.push({ type, pos: new THREE.Vector2(x, y), points });
     }
     if (type === 'text') {
       data.push({ type });

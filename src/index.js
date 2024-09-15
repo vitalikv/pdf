@@ -204,7 +204,7 @@ function initServ() {
   isometricSvgUploader = new IsometricSvgUploader();
 
   isometricSvgManager.init();
-  //isometricSvgLoad.load();
+  isometricSvgLoad.load();
   //initModel();
 }
 

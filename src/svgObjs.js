@@ -232,7 +232,7 @@ export class IsometricSvgObjs {
         const offset = new THREE.Vector2(result.pos.x - posC.x, result.pos.y - posC.y);
 
         this.moveSvgObj({ svg, offset });
-
+        this.unLink(svgPoint);
         this.addLinkUp({ svgPoint, result });
 
         svgPoint['userData'].crossOffset = true;
@@ -284,11 +284,10 @@ export class IsometricSvgObjs {
 
       line['userData'].links.push(svgPoint);
       isometricSvgLineSegments.addLineSegments({ line });
-    } else if (svgPoint['userData'].link.dist !== dist) {
+    } else if (svgPoint['userData'].link && svgPoint['userData'].link.dist !== dist) {
       isometricSvgLineSegments.upLineSegments({ line });
+      svgPoint['userData'].link.dist = dist;
     }
-
-    svgPoint['userData'].link.dist = dist;
   }
 
   setRotObj({ svg }) {

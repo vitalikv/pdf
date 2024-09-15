@@ -114,6 +114,8 @@ export class IsometricSvgFreeForm {
     // кликнули на уже существующий
     if (svg) {
       if (svg['userData'].freeFormPoint) {
+        this.selectedObj.mode = 'clickPoint';
+        this.selectedObj.el = svg;
       } else {
         if (this.selectedObj.el) this.actElem(this.selectedObj.el, false);
         this.actElem(svg, true);
@@ -122,15 +124,17 @@ export class IsometricSvgFreeForm {
 
         if (mode === 'clickRight') {
           this.divModal = this.createModalDiv({ event, svg });
+          this.cleareMouse();
           return false;
         }
 
-        this.isDown = true;
-        this.isMove = false;
         this.selectedObj.mode = 'clickForm';
 
         this.offset = isometricSvgElem.getCoordMouse({ event });
       }
+
+      this.isDown = true;
+      this.isMove = false;
     }
 
     return this.isDown;
@@ -141,7 +145,7 @@ export class IsometricSvgFreeForm {
 
     if (this.isDown && !this.isMove) {
       this.isMove = true;
-      this.deleteHandlePoints();
+      if (this.selectedObj.mode !== 'clickPoint') this.deleteHandlePoints();
     }
 
     // создаем новый элемент
@@ -170,12 +174,17 @@ export class IsometricSvgFreeForm {
 
     // перетаскиваем готовый элемент
     if (this.isDown) {
-      const svg = this.selectedObj.el;
-
       const pos = isometricSvgElem.getCoordMouse({ event });
       const offset = pos.sub(this.offset);
 
-      this.moveSvgObj({ svg, offset });
+      if (this.selectedObj.mode === 'clickPoint') {
+        //this.moveSvgHandlePoint({ svg, offset });
+        const svg = this.selectedObj.el;
+        this.svgOffset({ svg, offsetX: offset.x, offsetY: offset.y });
+      } else {
+        const svg = this.selectedObj.el;
+        this.moveSvgObj({ svg, offset });
+      }
     }
 
     this.offset = isometricSvgElem.getCoordMouse({ event });
