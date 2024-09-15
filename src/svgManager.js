@@ -57,6 +57,18 @@ export class IsometricSvgManager {
       return;
     }
 
+    if (this.lastKeyCode === 'ControlLeft' && event.code === 'KeyC' && !event.repeat) {
+      isometricSvgFreeForm.cloneSave();
+      this.lastKeyCode = 'ControlLeft';
+      return;
+    }
+
+    if (this.lastKeyCode === 'ControlLeft' && event.code === 'KeyV' && !event.repeat) {
+      isometricSvgFreeForm.clonePaste();
+      this.lastKeyCode = 'ControlLeft';
+      return;
+    }
+
     isometricCutBox.onKeyDown(event);
     isometricSelectBox.onKeyDown(event);
     isometricSvgScale.onKeyDown(event);

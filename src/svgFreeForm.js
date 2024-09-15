@@ -10,6 +10,7 @@ export class IsometricSvgFreeForm {
   offset = new THREE.Vector2();
   selectedObj = { el: null, mode: '' };
   handlePoints = [];
+  cloneSvg = null;
   divModal = null;
 
   init({ containerSvg }) {
@@ -571,5 +572,22 @@ export class IsometricSvgFreeForm {
     arrFreeForm.forEach((group) => {
       group.remove();
     });
+  }
+
+  cloneSave() {
+    if (!this.selectedObj.el) return;
+    const svg = this.selectedObj.el;
+    if (!svg['userData'].freeForm) return;
+
+    this.cloneSvg = svg.cloneNode(true);
+  }
+
+  clonePaste() {
+    if (!this.cloneSvg) return;
+
+    this.groupObjs.append(this.cloneSvg);
+    this.cloneSvg['userData'] = { freeForm: true, tag: '', guid: 0 };
+
+    this.cloneSvg = null;
   }
 }
