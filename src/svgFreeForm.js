@@ -177,13 +177,13 @@ export class IsometricSvgFreeForm {
     if (this.isDown) {
       const pos = isometricSvgElem.getCoordMouse({ event });
       const offset = pos.sub(this.offset);
+      const svg = this.selectedObj.el;
 
+      // перетаскиваем точку
       if (this.selectedObj.mode === 'clickPoint') {
-        //this.moveSvgHandlePoint({ svg, offset });
-        const svg = this.selectedObj.el;
-        this.svgOffset({ svg, offsetX: offset.x, offsetY: offset.y });
+        this.moveSvgHandlePoint({ svg, offset });
       } else {
-        const svg = this.selectedObj.el;
+        // перетаскиваем объект
         this.moveSvgObj({ svg, offset });
       }
     }
@@ -342,6 +342,64 @@ export class IsometricSvgFreeForm {
     return points;
   }
 
+  // получем массив уникальных точек точек (line, polygon), с привязкой к объекту
+  getUniquePointsFromObj({ svg, points = [], uniquePos = true }) {
+    const type = isometricSvgElem.getSvgType(svg);
+
+    if (type === 'line') {
+      const pos = isometricSvgElem.getPosLine2(svg);
+      points.push({ data: { svg, id: 0 }, pos: pos[0] });
+      points.push({ data: { svg, id: 1 }, pos: pos[1] });
+    }
+    if (type === 'polygon') {
+      const str = svg.getAttribute('points');
+      const strPos = str.split(' ');
+
+      const x = svg.transform.baseVal[0].matrix.e;
+      const y = svg.transform.baseVal[0].matrix.f;
+
+      let num = 0;
+      strPos.forEach((item) => {
+        if (item !== '') {
+          const pos = item.split(',');
+          points.push({ data: { svg, id: num }, pos: new THREE.Vector2(Number(pos[0]) + x, Number(pos[1]) + y) });
+          num++;
+        }
+      });
+    }
+    if (type === 'g') {
+      svg.childNodes.forEach((svgChild) => {
+        this.getUniquePointsFromObj({ svg: svgChild, points, uniquePos: false });
+      });
+    }
+
+    if (uniquePos) {
+      let arr = [];
+
+      for (let i = 0; i < points.length; i++) {
+        let ind = -1;
+        const point = points[i];
+
+        for (let i2 = 0; i2 < arr.length; i2++) {
+          if (point.pos.length() === arr[i2].pos.length()) {
+            ind = i2;
+            break;
+          }
+        }
+
+        if (ind === -1) {
+          arr.push({ data: [point.data], pos: point.pos });
+        } else {
+          arr[ind].data.push(point.data);
+        }
+      }
+
+      points = arr;
+    }
+
+    return points;
+  }
+
   // выравнивание точки к направляющим X/Z
   pointAligning({ point, points }) {
     let pos = point.clone();
@@ -401,6 +459,45 @@ export class IsometricSvgFreeForm {
     });
   }
 
+  moveSvgHandlePoint({ svg, offset }) {
+    this.svgOffset({ svg, offsetX: offset.x, offsetY: offset.y });
+
+    const pos = isometricSvgElem.getPosCircle(svg);
+
+    // меняем форму элемента после смещение точки
+    svg['userData'].data.forEach((item) => {
+      const type = isometricSvgElem.getSvgType(item.svg);
+
+      if (type === 'line') {
+        if (item.id === 0) isometricSvgElem.setPosLine2({ svg: item.svg, x1: pos.x, y1: pos.y });
+        if (item.id === 1) isometricSvgElem.setPosLine2({ svg: item.svg, x2: pos.x, y2: pos.y });
+      }
+
+      if (type === 'polygon') {
+        const str = item.svg.getAttribute('points');
+        const strPos = str.split(' ');
+
+        const points = [];
+
+        strPos.forEach((item) => {
+          if (item !== '') {
+            const pos = item.split(',');
+            points.push(new THREE.Vector2(Number(pos[0]), Number(pos[1])));
+          }
+        });
+
+        let strPoints = '';
+        points[item.id] = pos;
+        for (let i = 0; i < points.length; i++) {
+          strPoints += points[i].x + ',' + points[i].y;
+          if (i < points.length - 1) strPoints += ' ';
+        }
+
+        item.svg.setAttribute('points', strPoints);
+      }
+    });
+  }
+
   svgOffset({ svg, offsetX, offsetY }) {
     const type = isometricSvgElem.getSvgType(svg);
     if (type === 'line') {
@@ -447,11 +544,11 @@ export class IsometricSvgFreeForm {
 
   // создание точек для редактирование формы
   createHandlePoints(svg) {
-    const points = this.getPointsFromAllGroups({ svg });
+    const points = this.getUniquePointsFromObj({ svg });
 
     for (let i = 0; i < points.length; i++) {
-      const svgP = isometricSvgElem.createSvgCircle({ x: points[i].x, y: points[i].y, r: '3.2', fill: '#ffffff', display: '' });
-      svgP['userData'] = { freeFormPoint: true, svgObj: null };
+      const svgP = isometricSvgElem.createSvgCircle({ x: points[i].pos.x, y: points[i].pos.y, r: '3.2', fill: '#ffffff', display: '' });
+      svgP['userData'] = { freeFormPoint: true, data: points[i].data };
 
       this.groupObjs.append(svgP);
 
@@ -574,6 +671,7 @@ export class IsometricSvgFreeForm {
     });
   }
 
+  // копирование в память элемента
   cloneSave() {
     if (!this.selectedObj.el) return;
     const svg = this.selectedObj.el;
@@ -582,6 +680,7 @@ export class IsometricSvgFreeForm {
     this.cloneSvg = svg.cloneNode(true);
   }
 
+  // вставка скопрированного элемента из памяти
   clonePaste() {
     if (!this.cloneSvg) return;
 
