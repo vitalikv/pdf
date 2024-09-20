@@ -40,6 +40,7 @@ import { IsometricSvgUndoRedo } from './svgUndoRedo';
 import { IsometricSvgUndo } from './svgUndo';
 import { IsometricSvgRedo } from './svgRedo';
 import { IsometricSvgActivateElem } from './svgActivateElem';
+import { IsometricActiveElement } from './koActivateElem';
 import { IsometricSvgUploader } from './svgUploader';
 
 let renderer, camera, labelRenderer, controls;
@@ -79,6 +80,7 @@ export let isometricPanelUI,
   isometricSvgUndo,
   isometricSvgRedo,
   isometricSvgActivateElem,
+  isometricActiveElement,
   isometricSvgUploader;
 
 init();
@@ -201,6 +203,7 @@ function initServ() {
   isometricSvgUndo = new IsometricSvgUndo();
   isometricSvgRedo = new IsometricSvgRedo();
   isometricSvgActivateElem = new IsometricSvgActivateElem();
+  isometricActiveElement = new IsometricActiveElement();
   isometricSvgUploader = new IsometricSvgUploader();
 
   isometricSvgManager.init();

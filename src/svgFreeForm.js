@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath } from './index';
+import { isometricSvgElem, isometricMath, isometricActiveElement } from './index';
 
 export class IsometricSvgFreeForm {
   groupObjs;
@@ -27,7 +27,7 @@ export class IsometricSvgFreeForm {
 
   createGroup({ tag = '', guid = 0 }) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g['userData'] = { freeForm: true, tag, guid };
+    g['userData'] = { freeForm: true, tag, guid: '' + guid };
 
     return g;
   }
@@ -120,6 +120,9 @@ export class IsometricSvgFreeForm {
       } else {
         if (this.selectedObj.el) this.actElem(this.selectedObj.el, false);
         this.actElem(svg, true);
+
+        const guid = this.getGuidFromElement(svg);
+        isometricActiveElement.selectElementByGuid(guid);
 
         this.createHandlePoints(svg);
 
@@ -587,6 +590,18 @@ export class IsometricSvgFreeForm {
     elems.forEach((elem) => {
       elem.setAttribute('stroke', stroke);
     });
+  }
+
+  // получение guid по клику на объект
+  getGuidFromElement(svg) {
+    let guid = '';
+
+    const type = isometricSvgElem.getSvgType(svg);
+    if (type === 'g') {
+      guid = svg['userData'].guid;
+    }
+
+    return guid;
   }
 
   clickFinishForm() {
