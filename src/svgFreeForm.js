@@ -465,7 +465,14 @@ export class IsometricSvgFreeForm {
   moveSvgHandlePoint({ svg, offset }) {
     this.svgOffset({ svg, offsetX: offset.x, offsetY: offset.y });
 
-    const pos = isometricSvgElem.getPosCircle(svg);
+    let pos = isometricSvgElem.getPosCircle(svg);
+
+    // let points = this.getPointsFromAllGroups({ svg: this.groupObjs });
+    // for (let i = 0; i < points.length; i++) {
+    //   points[i] = new THREE.Vector3(points[i].x, 0, points[i].y);
+    // }
+    // pos = this.pointAligning({ point: new THREE.Vector3(pos.x, 0, pos.y), points });
+    // isometricSvgElem.setPosCircle(svg, pos.x, pos.y);
 
     // меняем форму элемента после смещение точки
     svg['userData'].data.forEach((item) => {
@@ -583,6 +590,11 @@ export class IsometricSvgFreeForm {
 
   // назначаем цвет svg
   setColorElem(svg, act = false) {
+    if (svg['userData'].freeFormPoint) {
+      if (svg['userData'].data.length > 0) {
+        svg = svg['userData'].data[0].svg.parentNode;
+      }
+    }
     const elems = this.getElemsFromGroup({ svg });
 
     const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';

@@ -30,7 +30,7 @@ export class IsometricPanelUI {
   init() {
     this.crPanel();
 
-    this.btns$[0] = this.crBtn({ txt: 'загрузить pdf' });
+    this.btns$[0] = this.crBtn({ txt: 'загрузить файл' });
     this.btns$[1] = this.crBtn({ txt: '-90' });
     this.btns$[2] = this.crBtn({ txt: '90' });
     this.btns$[3] = this.crBtn({ txt: 'Получить pdf' });
@@ -141,7 +141,7 @@ export class IsometricPanelUI {
 
     this.btns$[14].onmousedown = (e) => {
       this.activateType({ type: 'objValve', e });
-      isometricSvgListObjs.createSvgObj({ data: null });
+      //isometricSvgListObjs.createSvgObj({ data: null });
     };
 
     this.btns$[15].onmousedown = (e) => {
@@ -206,10 +206,6 @@ export class IsometricPanelUI {
 
     this.btns$[30].onmousedown = (e) => {
       initModel();
-    };
-
-    this.btns$[31].onmousedown = (e) => {
-      isometricSvgUploader.inputFile.click();
     };
   }
 

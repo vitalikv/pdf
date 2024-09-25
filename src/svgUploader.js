@@ -6,37 +6,9 @@ export class IsometricSvgUploader {
   containerSvg;
   groupObjs;
 
-  constructor() {
-    this.inputFile = this.createInputFile();
-  }
-
   init({ containerSvg }) {
     this.containerSvg = containerSvg;
     this.groupObjs = isometricSvgElem.getSvgGroup({ tag: 'objs' });
-  }
-
-  createInputFile() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.svg';
-    input.style.cssText = 'position: absolute; display: none;';
-
-    input.onchange = (e) => {
-      if (e.target.files.length > 0) {
-        if (e.target.files[0].type.indexOf('svg') === -1) return;
-
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.parseSvg({ file: reader.result });
-        };
-        //reader.readAsDataURL(e.target.files[0]);
-        reader.readAsText(e.target.files[0]);
-
-        input.value = '';
-      }
-    };
-
-    return input;
   }
 
   parseSvg({ file }) {

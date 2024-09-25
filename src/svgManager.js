@@ -526,6 +526,12 @@ export class IsometricSvgManager {
             isometricSvgFreeForm.actElem(svg, false);
             isometricSvgFreeForm.deleteModalDiv();
           }
+        } else if (isometricSvgFreeForm.selectedObj.el && svg['userData'].freeFormPoint) {
+          if (isometricSvgFreeForm.selectedObj.el === svg) {
+            if (event && event.target['userData'] && event.target['userData'].freeFormPoint) return;
+            isometricSvgFreeForm.actElem(svg, false);
+            isometricSvgFreeForm.deleteModalDiv();
+          }
         }
 
         if (isometricSvgListObjs.selectedObj && svg['userData'].pointScale) {

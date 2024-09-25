@@ -9,17 +9,7 @@ import * as pdfjsLib from 'pdfjs-dist/webpack';
 // npm install pdfjs-dist @types/pdfjs-dist  установка @types
 // https://github.com/mozilla/pdf.js/tree/master/examples/webpack  установка pdf.js для webpack (import * as pdfjsLib from 'pdfjs-dist/webpack';)
 
-import {
-  isometricSvgElem,
-  isometricSheets,
-  isometricSvgLine,
-  isometricNoteSvg,
-  isometricNoteSvg2,
-  isometricSvgRuler,
-  isometricNoteText,
-  isometricStampLogo,
-  isometricSvgScale,
-} from './index';
+import { isometricSvgElem, isometricSheets, isometricSvgLine, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricNoteText, isometricStampLogo, isometricSvgScale, isometricSvgUploader } from './index';
 
 // конвертация pdf в svg и добавление на страницу
 export class IsometricPdfToSvg {
@@ -44,8 +34,7 @@ export class IsometricPdfToSvg {
 
   addDefCanvas() {
     const div = document.createElement('div');
-    div.style.cssText =
-      'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
+    div.style.cssText = 'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
 
     this.containerPdf = div;
     this.container.prepend(div);
@@ -73,20 +62,28 @@ export class IsometricPdfToSvg {
   createInputFile() {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.pdf';
+    input.accept = '.pdf, .svg';
     input.style.cssText = 'position: absolute; display: none;';
 
     input.onchange = (e) => {
-      if (e.target.files.length > 0) {
-        if (e.target.files[0].type.indexOf('pdf') === -1) return;
+      if (e.target['files'].length > 0) {
+        if (e.target['files'][0].type.indexOf('pdf') > -1) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            this.parsePdf({ file: reader.result });
+          };
+          reader.readAsDataURL(e.target['files'][0]);
 
-        const reader = new FileReader();
-        reader.onload = () => {
-          this.parsePdf({ file: reader.result });
-        };
-        reader.readAsDataURL(e.target.files[0]);
+          input.value = '';
+        } else if (e.target['files'][0].type.indexOf('svg') > -1) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            isometricSvgUploader.parseSvg({ file: reader.result });
+          };
+          reader.readAsText(e.target['files'][0]);
 
-        input.value = '';
+          input.value = '';
+        }
       }
     };
 
@@ -132,8 +129,7 @@ export class IsometricPdfToSvg {
 
     if (!this.containerPdf) {
       const div = document.createElement('div');
-      div.style.cssText =
-        'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
+      div.style.cssText = 'display: flex; align-items: center; justify-content: center; position: absolute; top: 0; left: 0; right: 0; bottom: 0; transform-origin: center center; background: rgb(255, 255, 255); user-select: none; z-index: 2;';
 
       this.containerPdf = div;
       this.container.prepend(div);
