@@ -38,7 +38,8 @@ export class IsometricSvgSave {
         if (svg['userData'].lineI) {
           if (svg['userData'].tag === 'line') {
             const pos = isometricSvgElem.getPosLine1(svg);
-            isometry.lines.push({ pos });
+            const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+            isometry.lines.push({ pos, attributes });
           }
           if (svg['userData'].tag === 'point') {
             const data = {};
@@ -51,41 +52,48 @@ export class IsometricSvgSave {
 
         if (svg['userData'].objBracket && svg['userData'].tag === 'point') {
           const pos = isometricSvgElem.getPosCircle(svg);
-          isometry.objs.push({ tag: 'objBracket', pos });
+          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+          isometry.objs.push({ tag: 'objBracket', pos, attributes });
         }
 
         if (svg['userData'].objValve && svg['userData'].tag === 'point') {
           const pos = isometricSvgElem.getPosCircle(svg);
           const scale = svg['userData'].profile.scale;
-          isometry.objs.push({ tag: 'objValve', pos, scale });
+          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+          isometry.objs.push({ tag: 'objValve', pos, scale, attributes });
         }
 
         if (svg['userData'].objTee && svg['userData'].tag === 'point') {
           const pos = isometricSvgElem.getPosCircle(svg);
-          isometry.objs.push({ tag: 'objTee', pos });
+          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+          isometry.objs.push({ tag: 'objTee', pos, attributes });
         }
 
         if (svg['userData'].objFlap && svg['userData'].tag === 'point') {
           const pos = isometricSvgElem.getPosCircle(svg);
           const scale = svg['userData'].profile.scale;
-          isometry.objs.push({ tag: 'objFlap', pos, scale });
+          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+          isometry.objs.push({ tag: 'objFlap', pos, scale, attributes });
         }
 
         if (svg['userData'].objAdapter && svg['userData'].tag === 'point') {
           const pos = isometricSvgElem.getPosCircle(svg);
           const scale = svg['userData'].profile.scale;
-          isometry.objs.push({ tag: 'objAdapter', pos, scale });
+          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+          isometry.objs.push({ tag: 'objAdapter', pos, scale, attributes });
         }
 
         if (svg['userData'].objBox && svg['userData'].tag === 'point') {
           const pos = isometricSvgElem.getPosCircle(svg);
           const scale = svg['userData'].profile.scale;
-          isometry.objs.push({ tag: 'objBox', pos, scale });
+          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+          isometry.objs.push({ tag: 'objBox', pos, scale, attributes });
         }
 
         if (svg['userData'].objSplitter && svg['userData'].tag === 'point') {
           const pos = isometricSvgElem.getPosCircle(svg);
-          isometry.objs.push({ tag: 'objSplitter', pos });
+          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+          isometry.objs.push({ tag: 'objSplitter', pos, attributes });
         }
 
         if (svg['userData'].note1 && svg['userData'].tag === 'line') {
@@ -221,7 +229,8 @@ export class IsometricSvgSave {
     groupObjs.childNodes.forEach((svg) => {
       if (svg['userData'].freeForm) {
         const data = isometricSvgElem.parserSvg({ svg });
-        isometry.scheme.push({ tag: svg['userData'].tag, ...data[0], guid: svg['userData'].guid });
+        const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+        isometry.scheme.push({ ...data[0], attributes });
       }
     });
 

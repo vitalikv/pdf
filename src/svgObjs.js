@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath, isometricSvgLineSegments, isometricSvgListObjs, isometricSvgUndoRedo } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgLineSegments, isometricSvgListObjs, isometricSvgUndoRedo, isometricSvgElementAttributes } from './index';
 
 export class IsometricSvgObjs {
   container;
@@ -106,6 +106,11 @@ export class IsometricSvgObjs {
 
         if (svg['userData'].tag === 'point' && event.button !== 0) {
           this.setLockOnSvg(svg);
+        }
+
+        if (event.button === 2) {
+          const { svgPoint, attr } = this.getAttributes(svg);
+          isometricSvgElementAttributes.getAttributes({ event, svg: svgPoint, attr });
         }
       }
     });
@@ -435,6 +440,18 @@ export class IsometricSvgObjs {
     const fill = elems.point['userData'].lock ? '#000' : '#fff';
 
     elems.point.setAttribute('fill', fill);
+  }
+
+  // получение attr по клику на объект
+  getAttributes(svg) {
+    let attr = {};
+    const { point } = isometricSvgListObjs.getStructureObj(svg);
+
+    if (point['userData'].attributes) {
+      attr = point['userData'].attributes;
+    }
+
+    return { svgPoint: point, attr };
   }
 
   clearSelectedObj() {

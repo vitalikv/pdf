@@ -1,15 +1,6 @@
 import * as THREE from 'three';
 
-import {
-  isometricSvgLineSegments,
-  isometricSvgObjs,
-  isometricNoteSvg,
-  isometricNoteSvg2,
-  isometricSvgRuler,
-  isometricSvgElem,
-  isometricMath,
-  isometricSvgUndoRedo,
-} from './index';
+import { isometricSvgLineSegments, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath, isometricSvgUndoRedo, isometricSvgElementAttributes } from './index';
 
 export class IsometricSvgLine {
   container;
@@ -362,6 +353,11 @@ export class IsometricSvgLine {
       if (svg['userData'] && svg['userData'].lineI && svg.contains(event.target)) {
         this.isDown = true;
         this.actElem(svg, true);
+
+        if (event.button === 2 && svg['userData'].tag === 'line') {
+          const attr = this.getAttributes(svg);
+          isometricSvgElementAttributes.getAttributes({ event, svg, attr });
+        }
       }
     });
 
@@ -915,6 +911,17 @@ export class IsometricSvgLine {
     if (ld2) {
       ld2.setAttribute('stroke', stroke2);
     }
+  }
+
+  // получение attr по клику на объект
+  getAttributes(svg) {
+    let attr = {};
+
+    if (svg['userData'].attributes) {
+      attr = svg['userData'].attributes;
+    }
+
+    return attr;
   }
 
   // получаем элементы угла

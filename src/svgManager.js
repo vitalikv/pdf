@@ -511,6 +511,7 @@ export class IsometricSvgManager {
         if (isometricSvgLine.selectedObj.el && svg['userData'].lineI) {
           if (isometricSvgLine.selectedObj.el === svg) {
             isometricSvgLine.actElem(svg, false);
+            isometricSvgFreeForm.deleteModalDiv();
           }
         }
 
@@ -519,6 +520,7 @@ export class IsometricSvgManager {
             if (event && event.button === 0) isometricSvgObjs.addObjUR();
             if (event && event.button === 2) isometricSvgObjs.deleteAddObj();
             isometricSvgObjs.actElem(svg, false);
+            isometricSvgFreeForm.deleteModalDiv();
           }
         } else if (isometricSvgFreeForm.selectedObj.el && svg['userData'].freeForm) {
           if (isometricSvgFreeForm.selectedObj.el === svg) {

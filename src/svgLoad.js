@@ -96,6 +96,7 @@ export class IsometricSvgLoad {
       svg['userData'].ld2 = null;
       svg['userData'].links = [];
       svg['userData'].segments = [];
+      svg['userData'].attributes = line.attributes ? line.attributes : { guid: 0 };
 
       groupLines.append(svg);
 
@@ -165,9 +166,11 @@ export class IsometricSvgLoad {
 
   setObjs(objs) {
     objs.forEach((obj) => {
+      const attributes = obj.attributes ? obj.attributes : undefined;
+
       if (obj.tag === 'objBracket') {
         const pos = obj.pos;
-        const { svg3 } = isometricSvgListObjs.createObjBracket({ x: pos.x, y: pos.y });
+        const { svg3 } = isometricSvgListObjs.createObjBracket({ x: pos.x, y: pos.y, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg3 });
       }
@@ -175,7 +178,7 @@ export class IsometricSvgLoad {
       if (obj.tag === 'objValve') {
         const pos = obj.pos;
         const scale = obj.scale ? obj.scale : 1;
-        const { svg3 } = isometricSvgListObjs.createObjValve({ x: pos.x, y: pos.y, scale });
+        const { svg3 } = isometricSvgListObjs.createObjValve({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg3 });
       }
@@ -183,7 +186,7 @@ export class IsometricSvgLoad {
       if (obj.tag === 'objTee') {
         const pos = obj.pos;
         const scale = obj.scale ? obj.scale : 1;
-        const { svg3 } = isometricSvgListObjs.createObjTee({ x: pos.x, y: pos.y, scale });
+        const { svg3 } = isometricSvgListObjs.createObjTee({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg3 });
       }
@@ -191,7 +194,7 @@ export class IsometricSvgLoad {
       if (obj.tag === 'objFlap') {
         const pos = obj.pos;
         const scale = obj.scale ? obj.scale : 1;
-        const { svg3 } = isometricSvgListObjs.createObjFlap({ x: pos.x, y: pos.y, scale });
+        const { svg3 } = isometricSvgListObjs.createObjFlap({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg3 });
       }
@@ -199,7 +202,7 @@ export class IsometricSvgLoad {
       if (obj.tag === 'objAdapter') {
         const pos = obj.pos;
         const scale = obj.scale ? obj.scale : 1;
-        const { svg2 } = isometricSvgListObjs.createObjAdapter({ x: pos.x, y: pos.y, scale });
+        const { svg2 } = isometricSvgListObjs.createObjAdapter({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg2 });
       }
@@ -207,21 +210,21 @@ export class IsometricSvgLoad {
       if (obj.tag === 'objBox') {
         const pos = obj.pos;
         const scale = obj.scale ? obj.scale : 1;
-        const { svg2 } = isometricSvgListObjs.createObjBox({ x: pos.x, y: pos.y, scale });
+        const { svg2 } = isometricSvgListObjs.createObjBox({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg2 });
       }
 
       if (obj.tag === 'objSplitter') {
         const pos = obj.pos;
-        const { svg2 } = isometricSvgListObjs.createObjSplitter({ x: pos.x, y: pos.y });
+        const { svg2 } = isometricSvgListObjs.createObjSplitter({ x: pos.x, y: pos.y, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg2 });
       }
 
       if (obj.tag === 'objUndefined') {
         const pos = obj.pos;
-        isometricSvgListObjs.createObjUndefined({ pos });
+        isometricSvgListObjs.createObjUndefined({ pos, attributes });
       }
     });
   }
@@ -236,9 +239,8 @@ export class IsometricSvgLoad {
 
   setScheme(scheme) {
     scheme.forEach((itemGroup) => {
-      const tag = itemGroup.tag ? itemGroup.tag : '';
-      const guid = itemGroup.guid ? itemGroup.guid : 0;
-      const group = isometricSvgFreeForm.createGroup({ tag, guid });
+      const attributes = itemGroup.attributes ? itemGroup.attributes : undefined;
+      const group = isometricSvgFreeForm.createGroup({ attributes });
 
       itemGroup.elems.forEach((elem) => {
         if (elem.type === 'line') {

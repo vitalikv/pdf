@@ -167,7 +167,7 @@ export class IsometricSvgListObjs {
     this.groupObjs.append(g);
   }
 
-  createObjBracket({ id = undefined, x, y }) {
+  createObjBracket({ id = undefined, x, y, attributes = { guid: '0' } }) {
     const svg1 = this.createSvgLine({ x1: x - 10, y1: y + 10, x2: x + 10, y2: y + 10 });
     const svg2 = this.createSvgLine({ x1: x - 10, y1: y - 10, x2: x + 10, y2: y - 10 });
     const svg3 = this.createSvgCircle({ x, y });
@@ -183,12 +183,12 @@ export class IsometricSvgListObjs {
 
     svg1['userData'] = { objBracket: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3] };
     svg2['userData'] = { objBracket: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3] };
-    svg3['userData'] = { id, objBracket: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3], crossOffset: false, link: null };
+    svg3['userData'] = { id, objBracket: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3], crossOffset: false, link: null, attributes };
 
     return { svg1, svg2, svg3 };
   }
 
-  createObjValve({ id = undefined, x, y, scale = 1 }) {
+  createObjValve({ id = undefined, x, y, scale = 1, attributes = { guid: '0' } }) {
     const svg1 = isometricSvgElem.createPolygon({ x, y, points: '0,0 20,15 20,-15', fill: 'rgb(255, 255, 255)' });
     const svg2 = isometricSvgElem.createPolygon({ x, y, points: '0,0 -20,15 -20,-15', fill: 'rgb(255, 255, 255)' });
     const svg3 = this.createSvgCircle({ x, y });
@@ -229,7 +229,7 @@ export class IsometricSvgListObjs {
 
     svg1['userData'] = { objValve: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
     svg2['userData'] = { objValve: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
-    svg3['userData'] = { id, objValve: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3, svg4, svg5], crossOffset: false, link: null, profile };
+    svg3['userData'] = { id, objValve: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3, svg4, svg5], crossOffset: false, link: null, profile, attributes };
     svg4['userData'] = { objValve: true, tag: 'line3', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
     svg5['userData'] = { objValve: true, tag: 'line4', lock: false, elems: [svg1, svg2, svg3, svg4, svg5] };
 
@@ -238,7 +238,7 @@ export class IsometricSvgListObjs {
     return { svg1, svg2, svg3 };
   }
 
-  createObjFlap({ id = undefined, x, y, scale = 1 }) {
+  createObjFlap({ id = undefined, x, y, scale = 1, attributes = { guid: '0' } }) {
     const svg1 = isometricSvgElem.createPolygon({ x, y, points: '0,0 20,15 20,-15', fill: 'rgb(255, 255, 255)' });
     const svg2 = isometricSvgElem.createPolygon({ x, y, points: '0,0 -20,15 -20,-15', fill: 'rgb(0, 0, 0)' });
     const svg3 = this.createSvgCircle({ x, y });
@@ -273,14 +273,14 @@ export class IsometricSvgListObjs {
 
     svg1['userData'] = { objFlap: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3] };
     svg2['userData'] = { objFlap: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3] };
-    svg3['userData'] = { id, objFlap: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3], crossOffset: false, link: null, profile };
+    svg3['userData'] = { id, objFlap: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3], crossOffset: false, link: null, profile, attributes };
 
     if (scale !== 1) this.scaleObj(svg1, scale);
 
     return { svg1, svg2, svg3 };
   }
 
-  createObjTee({ id = undefined, x, y, scale = 1 }) {
+  createObjTee({ id = undefined, x, y, scale = 1, attributes = { guid: '0' } }) {
     const size = 20 * scale;
     const svg1 = this.createSvgLine({ x1: x - size, y1: y, x2: x + size, y2: y });
     const svg2 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y + size });
@@ -302,7 +302,7 @@ export class IsometricSvgListObjs {
 
     svg1['userData'] = { objTee: true, tag: 'line1', lock: false, elems: arr };
     svg2['userData'] = { objTee: true, tag: 'line2', lock: false, elems: arr };
-    svg3['userData'] = { id, objTee: true, tag: 'point', lock: false, elems: arr };
+    svg3['userData'] = { id, objTee: true, tag: 'point', lock: false, elems: arr, attributes };
     svg4['userData'] = { objTee: true, tag: 'joint1', lock: false, elems: arr };
     svg5['userData'] = { objTee: true, tag: 'joint2', lock: false, elems: arr };
     svg6['userData'] = { objTee: true, tag: 'joint3', lock: false, elems: arr };
@@ -310,7 +310,7 @@ export class IsometricSvgListObjs {
     return { svg1, svg2, svg3 };
   }
 
-  createObjAdapter({ id = undefined, x, y, scale = 1 }) {
+  createObjAdapter({ id = undefined, x, y, scale = 1, attributes = { guid: '0' } }) {
     const svg1 = isometricSvgElem.createPolygon({ x, y, points: '0,0 20,15 20,-15', fill: 'rgb(255, 255, 255)' });
     const svg2 = this.createSvgCircle({ x, y });
 
@@ -335,14 +335,14 @@ export class IsometricSvgListObjs {
     }
 
     svg1['userData'] = { objAdapter: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
-    svg2['userData'] = { id, objAdapter: true, tag: 'point', lock: false, elems: [svg1, svg2], crossOffset: false, link: null, profile };
+    svg2['userData'] = { id, objAdapter: true, tag: 'point', lock: false, elems: [svg1, svg2], crossOffset: false, link: null, profile, attributes };
 
     if (scale !== 1) this.scaleObj(svg1, scale);
 
     return { svg1, svg2 };
   }
 
-  createObjBox({ id = undefined, x, y, scale = 1 }) {
+  createObjBox({ id = undefined, x, y, scale = 1, attributes = { guid: '0' } }) {
     const svg1 = isometricSvgElem.createPolygon({ x, y, points: '-20,-20 -20,20 20,20 20,-20', fill: 'rgb(255, 255, 255)' });
     const svg2 = this.createSvgCircle({ x, y });
 
@@ -368,14 +368,14 @@ export class IsometricSvgListObjs {
     }
 
     svg1['userData'] = { objBox: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
-    svg2['userData'] = { id, objBox: true, tag: 'point', lock: false, elems: [svg1, svg2], crossOffset: false, link: null, profile };
+    svg2['userData'] = { id, objBox: true, tag: 'point', lock: false, elems: [svg1, svg2], crossOffset: false, link: null, profile, attributes };
 
     if (scale !== 1) this.scaleObj(svg1, scale);
 
     return { svg1, svg2 };
   }
 
-  createObjSplitter({ id = undefined, x, y }) {
+  createObjSplitter({ id = undefined, x, y, attributes = { guid: '0' } }) {
     const svg1 = isometricSvgElem.createPolygon({ x, y, points: '-5,-20 -5,20 5,20 5,-20', fill: 'rgb(255, 255, 255)', stroke: 'rgb(255, 255, 255)' });
     const svg2 = this.createSvgCircle({ x, y });
     const svg3 = this.createSvgLine({ x1: x - 5, y1: y - 20, x2: x - 5, y2: y + 20 });
@@ -392,14 +392,14 @@ export class IsometricSvgListObjs {
     }
 
     svg1['userData'] = { objSplitter: true, tag: 'line1', lock: false, elems: [svg1, svg2, svg3, svg4], act: false };
-    svg2['userData'] = { id, objSplitter: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3, svg4], crossOffset: false, link: null };
+    svg2['userData'] = { id, objSplitter: true, tag: 'point', lock: false, elems: [svg1, svg2, svg3, svg4], crossOffset: false, link: null, attributes };
     svg3['userData'] = { objSplitter: true, tag: 'line2', lock: false, elems: [svg1, svg2, svg3, svg4] };
     svg4['userData'] = { objSplitter: true, tag: 'line3', lock: false, elems: [svg1, svg2, svg3, svg4] };
 
     return { svg1, svg2 };
   }
 
-  createObjUndefined({ id = undefined, pos }) {
+  createObjUndefined({ id = undefined, pos, attributes = { guid: '0' } }) {
     const x = (pos[1].x - pos[0].x) / 2 + pos[0].x;
     const y = (pos[1].y - pos[0].y) / 2 + pos[0].y;
 
@@ -410,7 +410,7 @@ export class IsometricSvgListObjs {
     this.groupObjs.append(svg2);
 
     svg1['userData'] = { objUndefined: true, tag: 'line1', lock: false, elems: [svg1, svg2] };
-    svg2['userData'] = { objUndefined: true, tag: 'line2', lock: false, elems: [svg1, svg2] };
+    svg2['userData'] = { objUndefined: true, tag: 'line2', lock: false, elems: [svg1, svg2], attributes };
 
     const dir = pos[1].sub(pos[0]);
     const rotY = Math.atan2(dir.x, dir.y);
