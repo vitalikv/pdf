@@ -28,6 +28,7 @@ import {
   isometricSvgUndo,
   isometricSvgRedo,
   isometricSvgUploader,
+  isometricSvgJsonElement,
 } from './index';
 
 export class IsometricSvgManager {
@@ -97,6 +98,7 @@ export class IsometricSvgManager {
     isometricNoteText.init({ container, containerSvg });
     isometricSvgBasicElements.init({ container, containerSvg });
     isometricSvgFreeForm.init({ containerSvg });
+    isometricSvgJsonElement.init({ containerSvg });
     isometricStampLogo.init({ container, containerSvg });
     isometricCanvasPaint.init({ container });
     isometricCutBox.init({ container });
@@ -180,6 +182,14 @@ export class IsometricSvgManager {
     if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       if (this.mode.type !== disabledType) {
         isometricSvgObjs.addObj2({ event: null, type: this.mode.type });
+      } else {
+        this.mode.type = '';
+      }
+    }
+
+    if (this.mode.type === 'shapeJson') {
+      if (this.mode.type !== disabledType) {
+        isometricSvgJsonElement.createObj({ data: undefined });
       } else {
         this.mode.type = '';
       }
@@ -290,6 +300,7 @@ export class IsometricSvgManager {
     isometricSvgRuler.onmousemove(event);
     isometricSvgBasicElements.onmousemove(event);
     isometricSvgFreeForm.onmousemove(event);
+    isometricSvgJsonElement.onmousemove(event);
     isometricCanvasPaint.onmousemove(event);
   };
 
@@ -307,6 +318,7 @@ export class IsometricSvgManager {
     isometricSvgRuler.onmouseup(event);
     isometricSvgBasicElements.onmouseup(event);
     isometricSvgFreeForm.onmouseup(event);
+    isometricSvgJsonElement.onmouseup(event);
     isometricCanvasPaint.onmouseup(event);
 
     this.isDown = false;
@@ -357,6 +369,13 @@ export class IsometricSvgManager {
     if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       if (event.button === 0) isometricSvgObjs.addObj2({ event, type: this.mode.type });
       if (event.button === 2) this.cleareMode();
+    }
+
+    if (this.mode.type === 'shapeJson') {
+      isometricSvgJsonElement.onmousedown({ event });
+
+      isometricPanelUI.deActivateType();
+      this.cleareMode();
     }
 
     if (this.mode.type === 'addNote1') {

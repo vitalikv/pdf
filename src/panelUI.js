@@ -65,7 +65,7 @@ export class IsometricPanelUI {
     this.btns$[28] = this.crBtn({ txt: 'Загрузить' });
     this.btns$[29] = this.crListSheets();
     this.btns$[30] = this.crBtn({ txt: 'из 3D в 2D' });
-    this.btns$[31] = this.crBtn({ txt: 'загрузить svg' });
+    this.btns$[31] = this.crBtn({ txt: 'json svg' });
 
     this.initEvent();
   }
@@ -207,6 +207,10 @@ export class IsometricPanelUI {
     this.btns$[30].onmousedown = (e) => {
       initModel();
     };
+
+    this.btns$[31].onmousedown = (e) => {
+      this.activateType({ type: 'shapeJson', e });
+    };
   }
 
   crPanel() {
@@ -317,6 +321,7 @@ export class IsometricPanelUI {
     else if (type === 'shapeRectangle') isometricSvgManager.setMode({ type });
     else if (type === 'shapeEllipse') isometricSvgManager.setMode({ type });
     else if (type === 'shapeTriangle') isometricSvgManager.setMode({ type });
+    else if (type === 'shapeJson') isometricSvgManager.setMode({ type });
     else act = false;
 
     this.actType = act ? type : '';
