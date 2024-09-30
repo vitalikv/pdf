@@ -41,25 +41,25 @@ export class IsometricSvgJsonElement {
 
   createObj({ data = this.getJson() }) {
     const attributes = data['attributes'] ? data['attributes'] : undefined;
-    const group = this.createGroup({ attributes });
+    const svg = this.createGroup({ attributes });
 
     data.elems.forEach((elem) => {
       if (elem.type === 'line') {
-        this.createLine({ pos: elem.pos, group });
+        this.createLine({ pos: elem.pos, group: svg });
       }
       if (elem.type === 'polygon') {
         const data = { pos: elem.pos ? elem.pos : new THREE.Vector2(), points: elem.points };
-        this.createPolygon({ data, group });
+        this.createPolygon({ data, group: svg });
       }
     });
 
     this.isDown = true;
     this.isMove = false;
-    this.selectedObj.el = group;
-    this.setColorElem(group, true);
+    this.selectedObj.el = svg;
+    this.setColorElem(svg, true);
 
-    this.offset = this.getCenterSvg({ svg: group });
-    group.setAttribute('display', 'none');
+    this.offset = this.getCenterSvg({ svg });
+    svg.setAttribute('display', 'none');
   }
 
   getCenterSvg({ svg }) {
@@ -95,6 +95,16 @@ export class IsometricSvgJsonElement {
     return svg;
   }
 
+  // вставка скопрированного элемента
+  clonePaste({ svg }) {
+    const cloneSvg = svg.cloneNode(true);
+
+    this.groupObjs.append(cloneSvg);
+    cloneSvg['userData'] = svg['userData'];
+
+    return cloneSvg;
+  }
+
   onmousedown = ({ event = null }) => {
     if (event.button === 2) {
       this.clickRightButton();
@@ -103,8 +113,15 @@ export class IsometricSvgJsonElement {
     // заканчиваем перетаскивание созданного элемента и создаем новый
     if (event.button === 0) {
       this.setColorElem(this.selectedObj.el, false);
+
+      const svg = this.clonePaste({ svg: this.selectedObj.el });
       this.cleareMouse();
       this.cleareSelectedObj();
+
+      this.selectedObj.el = svg;
+      this.selectedObj.mode = 'cloneSvg';
+      this.offset = this.getCenterSvg({ svg });
+      this.setColorElem(svg, true);
     }
 
     this.isDown = true;
@@ -133,6 +150,7 @@ export class IsometricSvgJsonElement {
   };
 
   onmouseup = (event) => {
+    if (this.selectedObj.mode === 'cloneSvg') return;
     this.isDown = false;
     this.isMove = false;
   };

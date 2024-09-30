@@ -368,14 +368,19 @@ export class IsometricSvgManager {
 
     if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       if (event.button === 0) isometricSvgObjs.addObj2({ event, type: this.mode.type });
-      if (event.button === 2) this.cleareMode();
+      if (event.button === 2) {
+        isometricPanelUI.deActivateType();
+        this.cleareMode();
+      }
     }
 
     if (this.mode.type === 'shapeJson') {
       isometricSvgJsonElement.onmousedown({ event });
 
-      isometricPanelUI.deActivateType();
-      this.cleareMode();
+      if (event.button === 2) {
+        isometricPanelUI.deActivateType();
+        this.cleareMode();
+      }
     }
 
     if (this.mode.type === 'addNote1') {

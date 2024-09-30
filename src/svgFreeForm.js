@@ -667,6 +667,8 @@ export class IsometricSvgFreeForm {
     if (!svg['userData'].freeForm) return;
 
     this.cloneSvg = svg.cloneNode(true);
+
+    this.cloneSvg['userData'] = svg['userData'];
   }
 
   // вставка скопрированного элемента из памяти
@@ -674,7 +676,6 @@ export class IsometricSvgFreeForm {
     if (!this.cloneSvg) return;
 
     this.groupObjs.append(this.cloneSvg);
-    this.cloneSvg['userData'] = { freeForm: true, tag: '', guid: 0 };
 
     this.cloneSvg = null;
   }
