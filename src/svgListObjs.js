@@ -623,6 +623,13 @@ export class IsometricSvgListObjs {
     const elems = svg['userData'].elems;
 
     let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    if (!act) {
+      for (let elem in elems) {
+        if (elems[elem]['userData'].tag === 'point' && elems[elem]['userData'].color) {
+          stroke = elems[elem]['userData'].color;
+        }
+      }
+    }
     const display = act ? '' : 'none';
 
     for (let elem in elems) {
@@ -630,11 +637,6 @@ export class IsometricSvgListObjs {
 
       if (elems[elem]['userData'].tag === 'point') continue;
       if (elems[elem]['userData'].act !== undefined && elems[elem]['userData'].act === false) continue;
-
-      stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
-      if (!act && svg['userData'].color) {
-        stroke = svg['userData'].color;
-      }
 
       const type = isometricSvgElem.getSvgType(elems[elem]);
       if (type === 'circle') elems[elem].setAttribute('fill', stroke);
@@ -778,13 +780,15 @@ export class IsometricSvgListObjs {
     const elems = this.getStructureObj(svg);
 
     for (let elem in elems) {
-      if (elem === 'point') continue;
+      if (elems[elem]['userData'].tag === 'point') {
+        elems[elem]['userData'].color = color;
+        continue;
+      }
 
       const type = isometricSvgElem.getSvgType(elems[elem]);
       if (type === 'circle') continue;
 
-      svg['userData'].color = color;
-      elems[elem].setAttribute('stroke', svg['userData'].color);
+      elems[elem].setAttribute('stroke', color);
     }
   }
 }

@@ -713,7 +713,6 @@ export class IsometricNoteSvg {
     const elems = {
       line: svg['userData'].line,
       point: svg['userData'].point,
-      label: svg['userData'].label,
       svgCircle: svg['userData'].label['userData'].svgCircle,
       svgLine: svg['userData'].label['userData'].svgLine,
     };

@@ -1,4 +1,4 @@
-import { isometricSvgElem } from '../index';
+import { isometricSvgElem, isometricSvgElementColor } from '../index';
 
 // класс для получения и передачи атрибутов на фронт
 export class IsometricSvgElementAttributes {
@@ -28,6 +28,11 @@ export class IsometricSvgElementAttributes {
   
           <div nameId="btnSave" style="display: flex; justify-content: center; align-items: center; padding: 5px 0; margin: 10px; font-size: 18px; color: #666; background: #fff; border: 1px solid #ccc; border-radius: 4px; cursor: pointer; user-select: none;">
             <div>сохранить</div>
+          </div>
+
+          <div style="display: flex; margin: 20px auto;">
+            <div nameId="btnColor1" style="width: 20px; height: 20px; margin: 0px 20px; background: #00ff00; cursor: pointer;"></div>
+            <div nameId="btnColor2" style="width: 20px; height: 20px; margin: 0px 20px; background: #0000ff; cursor: pointer;"></div>
           </div>
         </div>
       </div>`;
@@ -83,6 +88,18 @@ export class IsometricSvgElementAttributes {
       this.setAttributes({ svg, attr });
 
       deleteModalDiv();
+    };
+
+    const btnColor1 = divModal.querySelector('[nameId="btnColor1"]');
+    const btnColor2 = divModal.querySelector('[nameId="btnColor2"]');
+
+    btnColor1.onmousedown = (e) => {
+      isometricSvgElementColor.setColor({ color: btnColor1.style.background });
+      console.log(btnColor1.style.background);
+    };
+    btnColor2.onmousedown = (e) => {
+      isometricSvgElementColor.setColor({ color: btnColor2.style.background });
+      console.log(btnColor2.style.background);
     };
 
     divModal['onmousedown'] = (e) => {

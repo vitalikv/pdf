@@ -446,7 +446,7 @@ export class IsometricSvgFreeForm {
         });
 
         let strPoints = '';
-        points[item.id] = pos;
+        points[item.id] = new THREE.Vector2(Number(points[item.id].x) + offset.x, Number(points[item.id].y) + offset.y);
         for (let i = 0; i < points.length; i++) {
           strPoints += points[i].x + ',' + points[i].y;
           if (i < points.length - 1) strPoints += ' ';
@@ -546,7 +546,10 @@ export class IsometricSvgFreeForm {
     }
     const elems = this.getElemsFromGroup({ svg });
 
-    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    if (!act && svg['userData'].color) {
+      stroke = svg['userData'].color;
+    }
 
     elems.forEach((elem) => {
       elem.setAttribute('stroke', stroke);
@@ -678,5 +681,15 @@ export class IsometricSvgFreeForm {
     this.groupObjs.append(this.cloneSvg);
 
     this.cloneSvg = null;
+  }
+
+  setColor({ svg, color }) {
+    const elems = this.getElemsFromGroup({ svg });
+
+    svg['userData'].color = color;
+
+    elems.forEach((elem) => {
+      elem.setAttribute('stroke', color);
+    });
   }
 }

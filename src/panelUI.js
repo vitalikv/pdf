@@ -16,6 +16,7 @@ import {
   isometricSvgSave,
   isometricSvgLoad,
   isometricSvgUploader,
+  isometricSvgElementColor,
   initModel,
 } from './index';
 
@@ -189,7 +190,7 @@ export class IsometricPanelUI {
     };
 
     this.btns$[26].onmousedown = (e) => {
-      isometricSvgManager.setColor({ color: '#0000ff' });
+      isometricSvgElementColor.setColor({ color: '#0000ff' });
     };
 
     this.btns$[27].onmousedown = (e) => {
