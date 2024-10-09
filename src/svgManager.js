@@ -29,6 +29,7 @@ import {
   isometricSvgRedo,
   isometricSvgUploader,
   isometricSvgJsonElement,
+  isometricSvgScaleBox,
 } from './index';
 
 export class IsometricSvgManager {
@@ -111,6 +112,7 @@ export class IsometricSvgManager {
     isometricSvgUndo.init({ isometricSvgManager: this });
     isometricSvgRedo.init({ isometricSvgManager: this });
     isometricSvgUploader.init({ containerSvg });
+    isometricSvgScaleBox.init({ containerSvg });
   }
 
   getContainer() {
@@ -302,6 +304,7 @@ export class IsometricSvgManager {
     isometricSvgFreeForm.onmousemove(event);
     isometricSvgJsonElement.onmousemove(event);
     isometricCanvasPaint.onmousemove(event);
+    isometricSvgScaleBox.onmousemove(event);
   };
 
   onmouseup = (event) => {
@@ -320,6 +323,7 @@ export class IsometricSvgManager {
     isometricSvgFreeForm.onmouseup(event);
     isometricSvgJsonElement.onmouseup(event);
     isometricCanvasPaint.onmouseup(event);
+    isometricSvgScaleBox.onmouseup(event);
 
     this.isDown = false;
     this.isMove = false;
@@ -517,6 +521,10 @@ export class IsometricSvgManager {
           isometricSvgBasicElements.onmousedown(event);
         } else if (svg['userData'].objBasic) {
           result = isometricSvgBasicElements.onmousedown(event);
+        }
+
+        if (svg['userData'].gScaleBox) {
+          result = isometricSvgScaleBox.onmousedown(event);
         }
       }
     });

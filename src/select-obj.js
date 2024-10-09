@@ -5,6 +5,9 @@ export class IsometricModeService {
   isMove = false;
 
   constructor() {
+    document.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+    });
     mapControlInit.control.domElement.addEventListener('mousedown', this.onmousedown);
     mapControlInit.control.domElement.addEventListener('mousemove', this.onmousemove);
     mapControlInit.control.domElement.addEventListener('mouseup', this.onmouseup);
