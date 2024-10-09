@@ -34,6 +34,7 @@ export class IsometricSvgScale {
   onKeyUp = (event) => {
     if (event.code === 'ShiftLeft') {
       this.activated = false;
+      this.deActivate();
     }
   };
 
@@ -94,7 +95,6 @@ export class IsometricSvgScale {
 
   onmouseup = (event) => {
     if (!this.isDown) return;
-
     this.deActivate();
   };
 
@@ -106,9 +106,7 @@ export class IsometricSvgScale {
 
   deActivate() {
     this.isDown = false;
-    this.activated = false;
     this.button = -1;
-
     this.endOffset();
     this.offset = new THREE.Vector2();
   }
@@ -140,6 +138,9 @@ export class IsometricSvgScale {
     this.groupObjs.setAttribute('transform', `translate(0,0)`);
     this.groupNotes.setAttribute('transform', `translate(0,0)`);
     this.groupRulers.setAttribute('transform', `translate(0,0)`);
+
+    this.sumOffset.x = 0;
+    this.sumOffset.y = 0;
   }
 
   svgOffset({ svg, offsetX, offsetY }) {

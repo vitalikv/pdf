@@ -91,7 +91,7 @@ export class IsometricSvgElem {
   }
 
   // создаем svg line елемент
-  createSvgLine({ x1, y1, x2, y2, stroke = '#000000' }) {
+  createSvgLine({ x1, y1, x2, y2, stroke = '#000000', dasharray = null }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
 
     svg.setAttribute('x1', x1);
@@ -100,6 +100,8 @@ export class IsometricSvgElem {
     svg.setAttribute('y2', y2);
     svg.setAttribute('stroke-width', '2.5px');
     svg.setAttribute('stroke', stroke);
+
+    if (dasharray) svg.setAttribute('stroke-dasharray', dasharray);
 
     return svg;
   }
