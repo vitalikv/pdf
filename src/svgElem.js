@@ -328,35 +328,80 @@ export class IsometricSvgElem {
 
   // парсер svg (вытаскиваем все элементы в группе и строим дерево)
   parserSvg({ svg, data = [] }) {
-    const type = this.getSvgType(svg);
+    const isSvg = this.isSvg({ elem: svg });
 
-    if (type === 'line') {
-      const pos = this.getPosLine2(svg);
-      data.push({ type, pos });
-    }
-    if (type === 'circle') {
-      data.push({ type });
-    }
-    if (type === 'ellipse') {
-      data.push({ type });
-    }
-    if (type === 'polygon') {
-      const points = svg.getAttribute('points');
-      const x = svg.transform.baseVal[0].matrix.e;
-      const y = svg.transform.baseVal[0].matrix.f;
-      data.push({ type, pos: new THREE.Vector2(x, y), points });
-    }
-    if (type === 'text') {
-      data.push({ type });
-    }
-    if (type === 'g') {
-      data.push({ type, elems: [] });
+    if (isSvg) {
+      const type = this.getSvgType(svg);
 
-      svg.childNodes.forEach((svgChild) => {
-        this.parserSvg({ svg: svgChild, data: data[data.length - 1].elems });
-      });
+      //console.log(svg, type);
+
+      const transform = svg.getAttribute('transform');
+
+      if (type === 'line') {
+        const pos = this.getPosLine2(svg);
+
+        data.push({ type, pos });
+      }
+      if (type === 'circle') {
+        data.push({ type });
+      }
+      if (type === 'ellipse') {
+        data.push({ type });
+      }
+      if (type === 'polygon') {
+        const points = svg.getAttribute('points');
+        const x = svg.transform.baseVal[0].matrix.e;
+        const y = svg.transform.baseVal[0].matrix.f;
+        data.push({ type, pos: new THREE.Vector2(x, y), points });
+      }
+      if (type === 'path') {
+        const d = svg.getAttribute('d');
+        const stroke = svg.getAttribute('stroke');
+        const strokeWidth = svg.getAttribute('stroke-width');
+        const strokeLinecap = svg.getAttribute('stroke-linecap');
+        const fillRule = svg.getAttribute('fill-rule');
+        const fill = svg.getAttribute('fill');
+
+        data.push({ type, transform, d, stroke, strokeWidth, strokeLinecap, fill, fillRule });
+      }
+      if (type === 'text') {
+        const pos = this.getPosText1(svg);
+        const textContent = svg.textContent;
+
+        const className = svg.getAttribute('class');
+
+        const classCss = document.querySelector(`.${className}`);
+        const style = getComputedStyle(classCss);
+
+        data.push({ type, pos, textContent, cssText: style.font, transform });
+      }
+      if (type === 'g') {
+        const fill = svg.getAttribute('fill');
+
+        data.push({ type, elems: [], fill, transform });
+
+        svg.childNodes.forEach((svgChild) => {
+          this.parserSvg({ svg: svgChild, data: data[data.length - 1].elems });
+        });
+      }
     }
 
     return data;
+  }
+
+  isSvg({ elem }) {
+    let isSvg = false;
+
+    const type = this.getSvgType(elem);
+    const types = ['g', 'line', 'circle', 'ellipse', 'polygon', 'path', 'text', 'rect', 'defs'];
+
+    for (let i = 0; i < types.length; i++) {
+      if (type === types[i]) {
+        isSvg = true;
+        break;
+      }
+    }
+
+    return isSvg;
   }
 }

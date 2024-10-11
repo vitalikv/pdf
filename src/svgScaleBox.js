@@ -14,10 +14,20 @@ export class IsometricSvgScaleBox {
   init({ containerSvg }) {
     this.containerSvg = containerSvg;
     this.groupObjs = isometricSvgElem.getSvgGroup({ tag: 'objs' });
+
+    document.addEventListener('keydown', this.onKeyDown);
   }
 
-  initSvgScaleBox({ svg }) {
+  onKeyDown = (event) => {
+    if (event.code === 'Escape') {
+      this.deleteScaleBox();
+    }
+  };
+
+  initSvgScaleBox({ svg, auto = true }) {
     this.toolScale = this.createSvgScaleBox({ svg });
+
+    if (auto) this.autoScale();
   }
 
   createSvgScaleBox({ svg }) {
@@ -68,6 +78,30 @@ export class IsometricSvgScaleBox {
     gScaleBox['userData'].points = svgPoints;
 
     return gScaleBox;
+  }
+
+  autoScale() {
+    if (!this.toolScale) return;
+
+    const svg = this.toolScale['userData'].svg;
+    const boundContainer = this.containerSvg.getBoundingClientRect();
+
+    const boundSvg = svg.getBoundingClientRect();
+
+    const scale = new THREE.Vector2();
+    scale.x = boundContainer.width / boundSvg.width;
+    scale.y = boundContainer.height / boundSvg.height;
+
+    if (scale.x > 1) return;
+
+    this.upScale(scale);
+    this.deleteScaleBox();
+    this.initSvgScaleBox({ svg, auto: false });
+
+    this.toolScale['userData'].bound.width = this.toolScale['userData'].bound.width / scale.x;
+    this.toolScale['userData'].bound.height = this.toolScale['userData'].bound.height / scale.y;
+
+    this.upScale();
   }
 
   onmousedown = (event) => {
@@ -202,15 +236,15 @@ export class IsometricSvgScaleBox {
   }
 
   // меняем масштаб загруженной svg
-  upScale() {
+  upScale(scale = null) {
     if (!this.toolScale) return;
 
     const svg = this.toolScale['userData'].svg;
     const boundDef = this.toolScale['userData'].bound;
     const boundAct = this.toolScale.getBoundingClientRect();
 
-    const scaleX = boundAct.width / boundDef.width;
-    const scaleY = boundAct.height / boundDef.height;
+    const scaleX = scale ? scale.x : boundAct.width / boundDef.width;
+    const scaleY = scale ? scale.y : boundAct.height / boundDef.height;
 
     const boundContainer = this.containerSvg.getBoundingClientRect();
     const startOffset = new THREE.Vector2(boundContainer.left, boundContainer.top);
@@ -255,5 +289,11 @@ export class IsometricSvgScaleBox {
   clearSelectedObj() {
     this.selectedObj.el = null;
     this.selectedObj.type = '';
+  }
+
+  deleteScaleBox() {
+    if (!this.toolScale) return;
+
+    this.toolScale.remove();
   }
 }
