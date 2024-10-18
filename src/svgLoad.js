@@ -238,20 +238,24 @@ export class IsometricSvgLoad {
   }
 
   setScheme(scheme) {
-    scheme.forEach((itemGroup) => {
-      const attributes = itemGroup.attributes ? itemGroup.attributes : undefined;
-      const group = isometricSvgFreeForm.createGroup({ attributes });
+    if (scheme.length === 1) {
+      isometricSvgFreeForm.crScheme({ elem: scheme[0] });
+    } else {
+      scheme.forEach((itemGroup) => {
+        const attributes = itemGroup.attributes ? itemGroup.attributes : undefined;
+        const group = isometricSvgFreeForm.createGroup({ attributes });
 
-      itemGroup.elems.forEach((elem) => {
-        if (elem.type === 'line') {
-          isometricSvgFreeForm.createLine({ pos: elem.pos, group });
-        }
-        if (elem.type === 'polygon') {
-          const data = { pos: elem.pos ? elem.pos : new THREE.Vector2(), points: elem.points };
-          isometricSvgFreeForm.createPolygon({ data, group });
-        }
+        itemGroup.elems.forEach((elem) => {
+          if (elem.type === 'line') {
+            isometricSvgFreeForm.createLine({ pos: elem.pos, group });
+          }
+          if (elem.type === 'polygon') {
+            const data = { pos: elem.pos ? elem.pos : new THREE.Vector2(), points: elem.points };
+            isometricSvgFreeForm.createPolygon({ data, group });
+          }
+        });
       });
-    });
+    }
   }
 
   setNotes(notes) {

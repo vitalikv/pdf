@@ -24,6 +24,68 @@ export class IsometricSvgFreeForm {
     this.groupObjs.append(this.toolPoint);
   }
 
+  crScheme({ elem, parent = null }) {
+    if (elem.type === 'line') {
+    }
+    if (elem.type === 'circle') {
+    }
+    if (elem.type === 'ellipse') {
+    }
+    if (elem.type === 'polygon') {
+      this.createPolygon({ data: { pos: elem.pos, points: elem.points }, group: parent });
+    }
+    if (elem.type === 'path') {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+      svg.setAttribute('transform', elem.transform);
+      svg.setAttribute('d', elem.d);
+      svg.setAttribute('stroke', elem.stroke);
+      svg.setAttribute('stroke-width', elem.strokeWidth);
+      svg.setAttribute('stroke-linecap', elem.strokeLinecap);
+      svg.setAttribute('fill-rule', elem.fillRule);
+      svg.setAttribute('fill', elem.fill);
+
+      if (!parent) {
+        this.groupObjs.append(svg);
+      } else {
+        parent.append(svg);
+      }
+    }
+    if (elem.type === 'text') {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+
+      svg.textContent = elem.textContent;
+
+      svg.setAttribute('x', elem.pos.x);
+      svg.setAttribute('y', elem.pos.y);
+      svg.setAttribute('transform', elem.transform);
+      svg.setAttribute('fill', '#000000');
+      svg.setAttribute('font', elem.cssText);
+
+      if (!parent) {
+        this.groupObjs.append(svg);
+      } else {
+        parent.append(svg);
+      }
+    }
+    if (elem.type === 'g') {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      svg.setAttribute('transform', elem.transform);
+      svg.setAttribute('fill', elem.fill);
+      //g['userData'] = { freeForm: true, attributes };
+
+      if (!parent) {
+        this.groupObjs.append(svg);
+      } else {
+        parent.append(svg);
+      }
+
+      elem.elems.forEach((child) => {
+        this.crScheme({ elem: child, parent: svg });
+      });
+    }
+  }
+
   createGroup({ attributes = { guid: '0' } }) {
     const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     g['userData'] = { freeForm: true, attributes };
