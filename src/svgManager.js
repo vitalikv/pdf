@@ -481,7 +481,7 @@ export class IsometricSvgManager {
   checkClick(event) {
     let result = null;
 
-    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
+    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg, recursion: true });
 
     elems.forEach((svg, ind) => {
       if (svg['userData'] && svg.contains(event.target)) {

@@ -21,14 +21,33 @@ export class IsometricSvgElem {
   }
 
   // получаем все svg изометрии
-  getSvgElems({ container }) {
+  getSvgElems({ container, recursion = false }) {
     const elems = [];
 
     const svgXmlns = this.getSvgXmlns({ container });
 
+    const recursionElems = ({ svg, elems = [] }) => {
+      svg.childNodes.forEach((svgChild) => {
+        elems.push(svgChild);
+      });
+
+      svg.childNodes.forEach((svgChild) => {
+        recursionElems({ svg: svgChild, elems });
+      });
+
+      return elems;
+    };
+
     svgXmlns.childNodes.forEach((svg) => {
-      if (svg.tagName === 'g' && svg.getAttribute('nameid')) elems.push(...svg.childNodes);
-      else elems.push(svg);
+      if (recursion) {
+        elems.push(...recursionElems({ svg }));
+      } else {
+        if (svg.tagName === 'g' && svg.getAttribute('nameid')) {
+          elems.push(...svg.childNodes);
+        } else {
+          elems.push(svg);
+        }
+      }
     });
 
     return elems;

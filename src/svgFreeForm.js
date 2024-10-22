@@ -45,6 +45,8 @@ export class IsometricSvgFreeForm {
       svg.setAttribute('fill-rule', elem.fillRule);
       svg.setAttribute('fill', elem.fill);
 
+      svg['userData'] = { freeForm: true, attributes: { guid: '0' } };
+
       if (!parent) {
         this.groupObjs.append(svg);
       } else {
@@ -607,7 +609,7 @@ export class IsometricSvgFreeForm {
       }
     }
     const elems = this.getElemsFromGroup({ svg });
-
+    console.log(svg, elems);
     let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
     if (!act && svg['userData'].color) {
       stroke = svg['userData'].color;

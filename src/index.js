@@ -219,7 +219,7 @@ function initServ() {
   isometricSvgUploader = new IsometricSvgUploader();
 
   isometricSvgManager.init();
-  //isometricSvgLoad.load();
+  isometricSvgLoad.load('img/isometry-vsdx.json');
   //initModel();
 }
 

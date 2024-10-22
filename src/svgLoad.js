@@ -24,8 +24,8 @@ export class IsometricSvgLoad {
     this.containerSvg = containerSvg;
   }
 
-  load() {
-    const p = this.xhrPromise_1({ url: 'img/isometry.json' });
+  load(url = 'img/isometry.json') {
+    const p = this.xhrPromise_1({ url });
 
     p.then((data) => {
       this.setIsometry(data);
