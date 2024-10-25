@@ -13,6 +13,7 @@ import {
   isometricNoteText,
   isometricStampLogo,
   isometricSheets,
+  isometricSvgPathConvert,
 } from './index';
 
 export class IsometricSvgLoad {
@@ -29,6 +30,8 @@ export class IsometricSvgLoad {
 
     p.then((data) => {
       this.setIsometry(data);
+
+      isometricSvgPathConvert.init();
     });
   }
 

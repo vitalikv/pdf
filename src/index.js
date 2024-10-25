@@ -46,6 +46,7 @@ import { IsometricSvgElementColor } from './front/svgElementColor';
 import { IsometricSvgJsonElement } from './svgJsonElement';
 import { IsometricSvgScaleBox } from './svgScaleBox';
 import { IsometricSvgUploader } from './svgUploader';
+import { IsometricSvgPathConvert } from './svgPathConvert';
 
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
@@ -89,7 +90,8 @@ export let isometricPanelUI,
   isometricSvgElementColor,
   isometricSvgJsonElement,
   isometricSvgScaleBox,
-  isometricSvgUploader;
+  isometricSvgUploader,
+  isometricSvgPathConvert;
 
 init();
 initServ();
@@ -217,9 +219,10 @@ function initServ() {
   isometricSvgJsonElement = new IsometricSvgJsonElement();
   isometricSvgScaleBox = new IsometricSvgScaleBox();
   isometricSvgUploader = new IsometricSvgUploader();
+  isometricSvgPathConvert = new IsometricSvgPathConvert();
 
   isometricSvgManager.init();
-  isometricSvgLoad.load('img/isometry-vsdx.json');
+  //isometricSvgLoad.load('img/isometry-vsdx.json');
   //initModel();
 }
 

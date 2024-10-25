@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgPathConvert } from './index';
 
 export class IsometricSvgScaleBox {
   containerSvg;
@@ -21,6 +21,7 @@ export class IsometricSvgScaleBox {
   onKeyDown = (event) => {
     if (event.code === 'Escape') {
       this.deleteScaleBox();
+      isometricSvgPathConvert.init();
     }
   };
 
@@ -251,6 +252,8 @@ export class IsometricSvgScaleBox {
     const offsetX = boundAct.x - startOffset.x;
     const offsetY = boundAct.y - startOffset.y;
 
+    const matrix = this.toolScale['userData'].svg.getCTM();
+
     svg.setAttribute('transform', `matrix(${scaleX},0,0,${scaleY},${offsetX},${offsetY})`);
   }
 
@@ -262,17 +265,9 @@ export class IsometricSvgScaleBox {
       this.svgOffset({ svg: svgChild, offsetX: offset.x, offsetY: offset.y });
     });
 
-    const boundDef = this.toolScale['userData'].bound;
-    const boundAct = this.toolScale.getBoundingClientRect();
-    const scaleX = boundAct.width / boundDef.width;
-    const scaleY = boundAct.height / boundDef.height;
+    const matrix = this.toolScale['userData'].svg.getCTM();
 
-    const boundContainer = this.containerSvg.getBoundingClientRect();
-    const startOffset = new THREE.Vector2(boundContainer.left, boundContainer.top);
-    const offsetX = boundAct.x - startOffset.x;
-    const offsetY = boundAct.y - startOffset.y;
-
-    this.toolScale['userData'].svg.setAttribute('transform', `matrix(${scaleX},0,0,${scaleY},${offsetX + offset.x},${offsetY + offset.y})`);
+    this.toolScale['userData'].svg.setAttribute('transform', `matrix(${matrix.a},0,0,${matrix.d},${matrix.e + offset.x},${matrix.f + offset.y})`);
   }
 
   getCoord(event) {
