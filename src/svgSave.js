@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets, isometricNoteText, isometricStampLogo } from './index';
+import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets, isometricNoteText, isometricStampLogo, isometricPdfToSvg } from './index';
 
 export class IsometricSvgSave {
   container;
@@ -25,6 +25,7 @@ export class IsometricSvgSave {
       stampslogo: [],
       camera: null,
       sheet: null,
+      substratePdf: null,
     };
 
     const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
@@ -233,6 +234,11 @@ export class IsometricSvgSave {
         isometry.scheme.push({ ...data[0], attributes });
       }
     });
+
+    if (isometricPdfToSvg.canvasPdf) {
+      const base64String = isometricPdfToSvg.canvasPdf.toDataURL('image/png');
+      isometry.substratePdf = base64String;
+    }
 
     isometry.sheet = { format: '', table1: [], table2: [] };
     isometry.sheet.format = isometricSheets.formatSheet;

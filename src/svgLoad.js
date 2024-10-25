@@ -14,6 +14,7 @@ import {
   isometricStampLogo,
   isometricSheets,
   isometricSvgPathConvert,
+  isometricPdfToSvg,
 } from './index';
 
 export class IsometricSvgLoad {
@@ -74,6 +75,7 @@ export class IsometricSvgLoad {
     const texts = data.texts;
     const stampslogo = data.stampslogo;
     const sheet = data.sheet;
+    const substratePdf = data.substratePdf;
 
     const svgXmlns = isometricSvgElem.getSvgXmlns({ container: this.containerSvg });
     const groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
@@ -165,6 +167,7 @@ export class IsometricSvgLoad {
     if (texts) this.setText(texts);
     if (stampslogo) this.setStampslogo(stampslogo);
     if (sheet) this.setSheet(sheet);
+    if (substratePdf) this.setSubstratePdf(substratePdf);
   }
 
   setObjs(objs) {
@@ -383,6 +386,15 @@ export class IsometricSvgLoad {
 
       isometricSheets.showHideSheet(sheet.format, table1, table2);
     }
+  }
+
+  setSubstratePdf(substratePdf) {
+    const context = isometricPdfToSvg.canvasPdf.getContext('2d');
+    const img = new Image();
+    img.onload = () => {
+      context.drawImage(img, 0, 0);
+    };
+    img.src = substratePdf;
   }
 
   clearIsometric() {
