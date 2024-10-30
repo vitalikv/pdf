@@ -341,7 +341,7 @@ export class IsometricSvgLine {
     return pos;
   }
 
-  onmousedown = (event) => {
+  onmousedown = (event, svg = null) => {
     if (!this.containerSvg) return;
 
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
@@ -349,17 +349,15 @@ export class IsometricSvgLine {
     this.isDown = false;
     this.isMove = false;
 
-    this.groupLines.childNodes.forEach((svg, ind) => {
-      if (svg['userData'] && svg['userData'].lineI && svg.contains(event.target)) {
-        this.isDown = true;
-        this.actElem(svg, true);
+    if (svg) {
+      this.isDown = true;
+      this.actElem(svg, true);
 
-        if (event.button === 2 && svg['userData'].tag === 'line') {
-          const attr = this.getAttributes(svg);
-          isometricSvgElementAttributes.getAttributes({ event, svg, attr });
-        }
+      if (event.button === 2 && svg['userData'].tag === 'line') {
+        const attr = this.getAttributes(svg);
+        isometricSvgElementAttributes.getAttributes({ event, svg, attr });
       }
-    });
+    }
 
     this.offset = this.getCoord(event);
 

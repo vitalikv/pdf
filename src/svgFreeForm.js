@@ -97,6 +97,7 @@ export class IsometricSvgFreeForm {
 
   createLine({ pos, group = null }) {
     const svg = isometricSvgElem.createSvgLine({ x1: pos[0].x, y1: pos[0].y, x2: pos[1].x, y2: pos[1].y });
+    svg['userData'] = { freeFormObj: true };
 
     if (!group) group = this.createGroup({});
 
@@ -112,6 +113,7 @@ export class IsometricSvgFreeForm {
     const points = data.points;
 
     const svg = isometricSvgElem.createPolygon({ x: pos.x, y: pos.y, points, fill: 'none' });
+    svg['userData'] = { freeFormObj: true };
 
     if (!group) group = this.createGroup({});
 

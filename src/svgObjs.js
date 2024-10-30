@@ -89,31 +89,29 @@ export class IsometricSvgObjs {
     return pos;
   }
 
-  onmousedown = (event) => {
+  onmousedown = (event, svg = null) => {
     if (this.selectedObj.el) this.actElem(this.selectedObj.el);
 
     this.isDown = false;
     this.isMove = false;
 
-    this.groupObjs.childNodes.forEach((svg, ind) => {
-      if (svg.contains(event.target)) {
-        isometricSvgListObjs.scaleObj(svg);
-        this.actElem(svg, true);
+    if (svg) {
+      isometricSvgListObjs.scaleObj(svg);
+      this.actElem(svg, true);
 
-        if (!svg['userData'].lock) {
-          this.isDown = true;
-        }
-
-        if (svg['userData'].tag === 'point' && event.button !== 0) {
-          this.setLockOnSvg(svg);
-        }
-
-        if (event.button === 2) {
-          const { svgPoint, attr } = this.getAttributes(svg);
-          isometricSvgElementAttributes.getAttributes({ event, svg: svgPoint, attr });
-        }
+      if (!svg['userData'].lock) {
+        this.isDown = true;
       }
-    });
+
+      if (svg['userData'].tag === 'point' && event.button !== 0) {
+        this.setLockOnSvg(svg);
+      }
+
+      if (event.button === 2) {
+        const { svgPoint, attr } = this.getAttributes(svg);
+        isometricSvgElementAttributes.getAttributes({ event, svg: svgPoint, attr });
+      }
+    }
 
     this.offset = this.getCoord(event);
 

@@ -33,7 +33,7 @@ export class IsometricSvgPathConvert {
           svg.remove();
 
           const points = this.parsePathData(d);
-          console.log(d, points);
+          //console.log(d, points);
           const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
           g['userData'] = { freeForm: true, attributes: { guid: '0' } };
           groupObjs.append(g);
@@ -64,6 +64,7 @@ export class IsometricSvgPathConvert {
               const p2 = arrPos[i + 1];
 
               const svgLine = isometricSvgElem.createSvgLine({ x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y });
+              svgLine['userData'] = { freeFormObj: true };
               g.append(svgLine);
             }
           }
@@ -74,6 +75,7 @@ export class IsometricSvgPathConvert {
             }
 
             const svgPolygo = isometricSvgElem.createPolygon({ x: 0, y: 0, points: strPoints, fill: 'none' });
+            svgPolygo['userData'] = { freeFormObj: true };
             g.append(svgPolygo);
           }
         }
