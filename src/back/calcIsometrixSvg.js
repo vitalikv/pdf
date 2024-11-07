@@ -40,6 +40,8 @@ export class CalcIsometrixSvg {
 
           if (geoGuids && geoGuids.length > 0) {
             mesh.userData.geoGuids = geoGuids;
+          } else {
+            mesh.userData.geoGuids = [mesh.name];
           }
         }
       }

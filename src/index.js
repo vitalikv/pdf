@@ -222,21 +222,38 @@ function initServ() {
   isometricSvgPathConvert = new IsometricSvgPathConvert();
 
   isometricSvgManager.init();
-  isometricSvgLoad.load('img/isometry-vsdx.json');
-  //initModel();
+  //isometricSvgLoad.load('img/isometry-vsdx.json');
+  initModel();
 }
 
 // построение изометрии из 3д модели
 export async function initModel() {
   const loaderModel = new LoaderModel({ scene });
-  const meshes = await loaderModel.loaderObj('0019.005-TH_02.osf');
-  listMeshes = meshes;
+
+  if (1 === 1) {
+    const meshes = await loaderModel.loaderObj('0019.005-TH_02.osf');
+    listMeshes = meshes;
+  } else {
+    const meshes = [];
+    let arrMesh = await loaderModel.loaderObj('f2fcc115-f889-e4b9-da3b-855c51ea5c1c');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('dc8877bb-15a3-3aa8-5f24-d1176b63cd13');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('e8b92397-a3bb-5536-a39f-248124c68b47');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('10d5ac9f-72f8-1066-9593-7730e67c3ca1');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('fa769376-eb4a-7bde-3589-94470ec40a83');
+    meshes.push(...arrMesh);
+
+    listMeshes = meshes;
+  }
   //fitCamera(meshes);
 
   //isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
-  const data = calcIsometrixSvg.getType({ meshes, scene, mapControlInit });
+  const data = calcIsometrixSvg.getType({ meshes: listMeshes, scene, mapControlInit });
 
   const isometrix = isometric3dto2d.init({ scene, mapControlInit, data });
   console.log('isometrix', isometrix);
