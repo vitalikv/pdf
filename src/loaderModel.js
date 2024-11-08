@@ -20,6 +20,8 @@ export class LoaderModel {
         'img/models/' + name + '.json',
 
         (obj) => {
+          obj.rotateX(-Math.PI / 2);
+
           if (this.offset.length() === 0) {
             this.offset = this.getBoundObject_1({ obj });
           }
@@ -134,11 +136,7 @@ export class LoaderModel {
       }
     }
 
-    let offset = new THREE.Vector3(
-      -((bound.max.x - bound.min.x) / 2 + bound.min.x),
-      -((bound.max.y - bound.min.y) / 2 + bound.min.y),
-      -((bound.max.z - bound.min.z) / 2 + bound.min.z)
-    );
+    let offset = new THREE.Vector3(-((bound.max.x - bound.min.x) / 2 + bound.min.x), -((bound.max.y - bound.min.y) / 2 + bound.min.y), -((bound.max.z - bound.min.z) / 2 + bound.min.z));
 
     return offset;
   }

@@ -230,27 +230,57 @@ function initServ() {
 export async function initModel() {
   const loaderModel = new LoaderModel({ scene });
 
-  if (1 === 1) {
+  if (1 === 2) {
     const meshes = await loaderModel.loaderObj('0019.005-TH_02.osf');
     listMeshes = meshes;
-  } else {
+  } else if (1 === 1) {
     const meshes = [];
-    let arrMesh = await loaderModel.loaderObj('f2fcc115-f889-e4b9-da3b-855c51ea5c1c');
+    let arrMesh = await loaderModel.loaderObj('1/6e3a80a5-9408-ac22-6618-771ff0bba953');
     meshes.push(...arrMesh);
-    arrMesh = await loaderModel.loaderObj('dc8877bb-15a3-3aa8-5f24-d1176b63cd13');
+    arrMesh = await loaderModel.loaderObj('1/278c7e02-5729-875b-583b-0e92a93faf71');
     meshes.push(...arrMesh);
-    arrMesh = await loaderModel.loaderObj('e8b92397-a3bb-5536-a39f-248124c68b47');
+    arrMesh = await loaderModel.loaderObj('1/f5aaf88d-1b09-bd8a-1a4e-9bcd958c34e5');
     meshes.push(...arrMesh);
-    arrMesh = await loaderModel.loaderObj('10d5ac9f-72f8-1066-9593-7730e67c3ca1');
+    arrMesh = await loaderModel.loaderObj('1/4e267b82-01c5-891f-c0e8-b54c811880a5');
     meshes.push(...arrMesh);
-    arrMesh = await loaderModel.loaderObj('fa769376-eb4a-7bde-3589-94470ec40a83');
+    arrMesh = await loaderModel.loaderObj('1/8370dc61-c4cf-bfd3-5877-593272847912');
     meshes.push(...arrMesh);
+
+    arrMesh = await loaderModel.loaderObj('1/82565674-6e5b-e307-7d05-ff7fb293e60d');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/e38181c1-0a44-dfef-46ae-08a5be97e573');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/e5c11088-c8d1-03cc-6706-af5a246ec55e');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/36c1aff0-e464-bd6d-a2d3-835af5bf6c7f');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/f798e46e-7d50-43ae-f446-e3ea364e5ead');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/f538982e-35cd-8cf1-8bc7-3d199eb8e4ca');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/82cbd306-a3f4-3f92-e3b5-33f1f6c985ef');
+    meshes.push(...arrMesh);
+
+    arrMesh = await loaderModel.loaderObj('1/0cb782a2-c7f8-66da-a720-ab7e3697677b');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/eb69daef-9c99-e228-1cb0-fc2a831c7e5b');
+    meshes.push(...arrMesh);
+    arrMesh = await loaderModel.loaderObj('1/bba4da77-87ce-353a-5cfc-14f47dc0612b');
+    meshes.push(...arrMesh);
+
+    meshes.forEach((meshe) => {
+      // let q_Offset = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -Math.PI / 2));
+      // meshe.position.applyQuaternion(q_Offset);
+      // meshe.quaternion.premultiply(q_Offset);
+      // meshe.updateMatrixWorld();
+    });
 
     listMeshes = meshes;
   }
+
   //fitCamera(meshes);
 
-  //isometricPdfToSvg.containerPdf.style.display = 'none';
+  isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
   const data = calcIsometrixSvg.getType({ meshes: listMeshes, scene, mapControlInit });

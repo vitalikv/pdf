@@ -6,6 +6,18 @@ export class Isometric3dto2d {
   init({ scene, mapControlInit, data }) {
     console.log('data', data);
 
+    // data.objs.forEach((obj) => {
+    //   for (let i = 0; i < obj.joints.length; i++) {
+    //     let pos = obj.joints[i].pos;
+    //     pos = new THREE.Vector3(pos.x, pos.y, pos.z);
+
+    //     let q_Offset = new THREE.Quaternion().setFromEuler(
+    //       new THREE.Euler(-Math.PI / 2, 0, 0)
+    //     );
+    //     obj.joints[i].pos = pos.applyQuaternion(q_Offset);
+    //   }
+    // });
+
     isometricSvgCalc.init({ scene, mapControlInit });
     isometricSvgCalc.fitCamera(data);
     const result = isometricSvgCalc.createSvgScheme({ data });
@@ -50,6 +62,11 @@ export class Isometric3dto2d {
       object.position.set(pos.x, pos.y, pos.z);
       object.rotation.set(rot.x, rot.y, rot.z);
       object.scale.set(scale, scale, scale);
+
+      // поворот стыков
+      // let q_Offset = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, -Math.PI / 2));
+      // object.position.applyQuaternion(q_Offset);
+      // object.quaternion.premultiply(q_Offset);
 
       scene.add(object);
     }

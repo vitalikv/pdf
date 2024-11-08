@@ -17,7 +17,7 @@ export class CalcIsometrixSvg {
   getType({ meshes, scene, mapControlInit, guids = [] }) {
     this.setId(meshes);
 
-    guids = this.mocksIsometry.listLine(); // выбираем объекты из дисциплины в ручную добавленые по id
+    //guids = this.mocksIsometry.listLine(); // выбираем объекты из дисциплины в ручную добавленые по id
     if (guids.length > 0) {
       meshes = this.getSelectedMeshes({ meshes, guids });
     }
