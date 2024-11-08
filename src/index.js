@@ -222,15 +222,15 @@ function initServ() {
   isometricSvgPathConvert = new IsometricSvgPathConvert();
 
   isometricSvgManager.init();
-  //isometricSvgLoad.load('img/isometry-vsdx.json');
-  initModel();
+  isometricSvgLoad.load('img/isometry-vsdx.json');
+  //initModel();
 }
 
 // построение изометрии из 3д модели
 export async function initModel() {
   const loaderModel = new LoaderModel({ scene });
 
-  if (1 === 2) {
+  if (1 === 1) {
     const meshes = await loaderModel.loaderObj('0019.005-TH_02.osf');
     listMeshes = meshes;
   } else if (1 === 1) {
@@ -280,7 +280,7 @@ export async function initModel() {
 
   //fitCamera(meshes);
 
-  isometricPdfToSvg.containerPdf.style.display = 'none';
+  //isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
   const data = calcIsometrixSvg.getType({ meshes: listMeshes, scene, mapControlInit });

@@ -20,7 +20,7 @@ export class LoaderModel {
         'img/models/' + name + '.json',
 
         (obj) => {
-          obj.rotateX(-Math.PI / 2);
+          //obj.rotateX(-Math.PI / 2);
 
           if (this.offset.length() === 0) {
             this.offset = this.getBoundObject_1({ obj });
