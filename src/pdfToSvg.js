@@ -15,16 +15,11 @@ import { isometricSvgElem, isometricSheets, isometricSvgLine, isometricNoteSvg, 
 export class IsometricPdfToSvg {
   container;
   containerSvg;
-  inputFile;
   containerPdf;
   canvasPdf;
   scalePdf = 1;
   cssText = 'position: absolute; top: 50%; left: 50%; width: 100%; height: 100%;';
   format = { size: 'a3', orientation: 'landscape' };
-
-  constructor() {
-    this.inputFile = this.createInputFile();
-  }
 
   init({ container, containerSvg }) {
     this.container = container;
@@ -57,37 +52,6 @@ export class IsometricPdfToSvg {
     const viewBox = '0 0 ' + bound.width + ' ' + bound.height;
     svgXmlns.setAttribute('viewBox', viewBox);
     console.log(viewBox);
-  }
-
-  createInputFile() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.pdf, .svg';
-    input.style.cssText = 'position: absolute; display: none;';
-
-    input.onchange = (e) => {
-      if (e.target['files'].length > 0) {
-        if (e.target['files'][0].type.indexOf('pdf') > -1) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            this.parsePdf({ file: reader.result });
-          };
-          reader.readAsDataURL(e.target['files'][0]);
-
-          input.value = '';
-        } else if (e.target['files'][0].type.indexOf('svg') > -1) {
-          const reader = new FileReader();
-          reader.onload = () => {
-            isometricSvgUploader.parseSvg({ file: reader.result });
-          };
-          reader.readAsText(e.target['files'][0]);
-
-          input.value = '';
-        }
-      }
-    };
-
-    return input;
   }
 
   setFormatSize(value) {

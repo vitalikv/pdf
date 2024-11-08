@@ -28,6 +28,7 @@ import {
   isometricSvgUndo,
   isometricSvgRedo,
   isometricSvgUploader,
+  isometricSvgParserFile,
   isometricSvgJsonElement,
   isometricSvgScaleBox,
 } from './index';
@@ -111,7 +112,8 @@ export class IsometricSvgManager {
 
     isometricSvgUndo.init({ isometricSvgManager: this });
     isometricSvgRedo.init({ isometricSvgManager: this });
-    isometricSvgUploader.init({ containerSvg });
+    isometricSvgUploader.init();
+    isometricSvgParserFile.init();
     isometricSvgScaleBox.init({ containerSvg });
   }
 

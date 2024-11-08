@@ -78,7 +78,7 @@ export class IsometricPanelUI {
     };
 
     this.btns$[0].onmousedown = () => {
-      isometricPdfToSvg.inputFile.click();
+      isometricSvgUploader.inputFile.click();
     };
 
     this.btns$[1].onmousedown = () => {

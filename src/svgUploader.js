@@ -1,71 +1,86 @@
-import * as THREE from 'three';
-
-import { isometricSvgElem, isometricMath, isometricSvgScaleBox } from './index';
+import { isometricPdfToSvg, isometricSvgParserFile } from './index';
 
 export class IsometricSvgUploader {
-  containerSvg;
-  groupObjs;
-  toolScale = null;
-  selectedObj = { el: null, type: '' };
-  isDown = false;
-  isMove = false;
-  offset = new THREE.Vector2();
+  inputFile;
 
-  init({ containerSvg }) {
-    this.containerSvg = containerSvg;
-    this.groupObjs = isometricSvgElem.getSvgGroup({ tag: 'objs' });
+  init() {
+    this.inputFile = this.createInputFile();
   }
 
-  parseSvg({ file }) {
-    const oDOM = new DOMParser().parseFromString(file, 'image/svg+xml');
-    const svg = oDOM.documentElement;
+  createInputFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf, .svg, .vsdx';
+    input.style.cssText = 'position: absolute; display: none;';
 
-    const elems = this.getElemsFromGroup({ svg });
-    const g = this.createGroup({ tag: '', guid: 0 });
+    input.onchange = (e) => {
+      if (e.target['files'].length > 0) {
+        if (e.target['files'][0].type.indexOf('pdf') > -1) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            isometricPdfToSvg.parsePdf({ file: reader.result });
+          };
+          reader.readAsDataURL(e.target['files'][0]);
 
-    elems.forEach((elem) => {
-      g.append(elem);
-      elem.setAttribute('transform', `translate(0, 0) rotate(0)`);
-    });
+          input.value = '';
+        } else if (e.target['files'][0].type.indexOf('svg') > -1) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            console.log(reader.result);
+            isometricSvgParserFile.parseSvg({ file: reader.result });
+          };
+          reader.readAsText(e.target['files'][0]);
+          console.log(e.target['files'][0]);
+          input.value = '';
+        } else if (/\.vsdx$/.test(e.target['files'][0].name)) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const uint8Array = new Uint8Array(reader.result);
+            const array = Array.from(uint8Array);
 
-    this.groupObjs.append(g);
+            const svg_buffer = {
+              type: 'Buffer',
+              data: array,
+            };
 
-    isometricSvgScaleBox.initSvgScaleBox({ svg: g });
-  }
+            const uint8Array2 = new Uint8Array(svg_buffer.data);
 
-  createGroup({ tag = '', guid = 0 }) {
-    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    g.setAttribute('fill', 'none');
-    g.setAttribute('transform', 'matrix(1,0,0,1,0,0)');
-    g['userData'] = { freeForm: true, tag, guid };
+            // Преобразуем Uint8Array в Blob
+            const blob = new Blob([uint8Array2], { type: 'application/octet-stream' });
+            console.log(blob);
+            // Создаем FileReader
+            const reader2 = new FileReader();
 
-    return g;
-  }
+            // Определяем обработчик события загрузки
+            reader2.onload = (event) => {
+              console.log('Содержимое файла:', event.target.result);
 
-  getElemsFromGroup({ svg }) {
-    const elems = [];
+              isometricSvgParserFile.parseSvg({ file: event.target.result });
+            };
 
-    svg.childNodes.forEach((elem) => {
-      if (this.isSvg({ elem })) elems.push(elem);
-      //if (elem.tagName) elems.push(elem);
-    });
+            // Читаем Blob как текст
+            reader2.readAsText(blob);
 
-    return elems;
-  }
+            return;
+            const data = 'data:application/csv;charset=utf-8,' + encodeURIComponent(reader.result);
+            console.log(data);
 
-  isSvg({ elem }) {
-    let isSvg = false;
+            let link = document.createElement('a');
+            link.style.display = 'none';
+            document.body.appendChild(link);
+            link.href = data;
+            link.download = 'vsdx-base64.txt';
+            link.click();
+            document.body.removeChild(link);
+          };
 
-    const type = isometricSvgElem.getSvgType(elem);
-    const types = ['g', 'line', 'circle', 'ellipse', 'polygon', 'path', 'text', 'rect', 'defs'];
+          reader.readAsArrayBuffer(e.target['files'][0]);
 
-    for (let i = 0; i < types.length; i++) {
-      if (type === types[i]) {
-        isSvg = true;
-        break;
+          input.value = '';
+        }
       }
-    }
+    };
 
-    return isSvg;
+    return input;
   }
 }
