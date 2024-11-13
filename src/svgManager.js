@@ -31,6 +31,7 @@ import {
   isometricSvgParserFile,
   isometricSvgJsonElement,
   isometricSvgScaleBox,
+  isometricSvgBlockingMode,
 } from './index';
 
 export class IsometricSvgManager {
@@ -115,6 +116,7 @@ export class IsometricSvgManager {
     isometricSvgUploader.init();
     isometricSvgParserFile.init();
     isometricSvgScaleBox.init({ containerSvg });
+    isometricSvgBlockingMode.init();
   }
 
   getContainer() {
@@ -288,6 +290,7 @@ export class IsometricSvgManager {
   };
 
   onmousemove = (event) => {
+    if (isometricSvgBlockingMode.getActLock()) return;
     //if (!this.isDown) return;
     this.isMove = true;
 
@@ -659,6 +662,7 @@ export class IsometricSvgManager {
   }
 
   deleteElem() {
+    if (isometricSvgBlockingMode.getActLock()) return;
     isometricSvgLine.deleteObj();
     isometricSvgObjs.deleteObj();
     isometricNoteSvg.deleteNote();

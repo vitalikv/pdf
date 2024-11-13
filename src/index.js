@@ -43,6 +43,7 @@ import { IsometricSvgActivateElem } from './svgActivateElem';
 import { IsometricActiveElement } from './koActivateElem';
 import { IsometricSvgElementAttributes } from './front/svgElementAttributes';
 import { IsometricSvgElementColor } from './front/svgElementColor';
+import { IsometricSvgBlockingMode } from './front/svgBlockingMode';
 import { IsometricSvgJsonElement } from './svgJsonElement';
 import { IsometricSvgScaleBox } from './svgScaleBox';
 import { IsometricSvgUploader } from './svgUploader';
@@ -89,6 +90,7 @@ export let isometricPanelUI,
   isometricActiveElement,
   isometricSvgElementAttributes,
   isometricSvgElementColor,
+  isometricSvgBlockingMode,
   isometricSvgJsonElement,
   isometricSvgScaleBox,
   isometricSvgUploader,
@@ -218,6 +220,7 @@ function initServ() {
   isometricActiveElement = new IsometricActiveElement();
   isometricSvgElementAttributes = new IsometricSvgElementAttributes();
   isometricSvgElementColor = new IsometricSvgElementColor();
+  isometricSvgBlockingMode = new IsometricSvgBlockingMode();
   isometricSvgJsonElement = new IsometricSvgJsonElement();
   isometricSvgScaleBox = new IsometricSvgScaleBox();
   isometricSvgUploader = new IsometricSvgUploader();
@@ -225,7 +228,7 @@ function initServ() {
   isometricSvgPathConvert = new IsometricSvgPathConvert();
 
   isometricSvgManager.init();
-  //isometricSvgLoad.load('img/isometry-vsdx.json');
+  isometricSvgLoad.load('img/isometry-vsdx.json');
   //initModel();
 }
 
