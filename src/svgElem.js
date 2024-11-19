@@ -14,7 +14,7 @@ export class IsometricSvgElem {
   }
 
   // получаем svg, где находтся все элементы изометрии
-  getSvgXmlns({ container }) {
+  getSvgXmlns({ container = this.containerSvg }) {
     const svgXmlns = container.children[0];
 
     return svgXmlns;
@@ -85,7 +85,7 @@ export class IsometricSvgElem {
   }
 
   // получаем значения viewBox
-  getSizeViewBox({ container }) {
+  getSizeViewBox({ container = this.containerSvg }) {
     const svgXmlns = this.getSvgXmlns({ container });
     const w = svgXmlns.viewBox.baseVal.width;
     const h = svgXmlns.viewBox.baseVal.height;

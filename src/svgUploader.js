@@ -26,11 +26,9 @@ export class IsometricSvgUploader {
         } else if (e.target['files'][0].type.indexOf('svg') > -1) {
           const reader = new FileReader();
           reader.onload = () => {
-            console.log(reader.result);
             isometricSvgParserFile.parseSvg({ file: reader.result });
           };
           reader.readAsText(e.target['files'][0]);
-          console.log(e.target['files'][0]);
           input.value = '';
         } else if (/\.vsdx$/.test(e.target['files'][0].name)) {
           const reader = new FileReader();

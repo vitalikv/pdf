@@ -228,7 +228,7 @@ function initServ() {
   isometricSvgPathConvert = new IsometricSvgPathConvert();
 
   isometricSvgManager.init();
-  isometricSvgLoad.load('img/isometry-vsdx.json');
+  //isometricSvgLoad.load('img/isometry-vsdx.json');
   //initModel();
 }
 

@@ -39,13 +39,34 @@ export class IsometricSvgScaleBox {
     gScaleBox['userData'] = { gScaleBox: true, svg, bound, lines: [], points: [] };
     this.groupObjs.append(gScaleBox);
 
-    const boundContainer = this.containerSvg.getBoundingClientRect();
-    const startOffset = new THREE.Vector2(boundContainer.left, boundContainer.top);
+    const boundSvgXmlns = isometricSvgElem.getSvgXmlns({}).getBoundingClientRect();
+    const startOffset = new THREE.Vector2(boundSvgXmlns.x, boundSvgXmlns.y);
 
     const pLeftTop = new THREE.Vector2(bound.x - startOffset.x, bound.y - startOffset.y);
     const pRightTop = new THREE.Vector2(bound.x + bound.width - startOffset.x, bound.y - startOffset.y);
     const pLeftBottom = new THREE.Vector2(bound.x - startOffset.x, bound.y + bound.height - startOffset.y);
     const pRightBottom = new THREE.Vector2(bound.x + bound.width - startOffset.x, bound.y + bound.height - startOffset.y);
+
+    const size = isometricSvgElem.getSizeViewBox({});
+    const ratioX = boundSvgXmlns.width / size.x;
+    const ratioY = boundSvgXmlns.height / size.y;
+
+    gScaleBox['userData'].x /= ratioX;
+    gScaleBox['userData'].y /= ratioY;
+    gScaleBox['userData'].width /= ratioX;
+    gScaleBox['userData'].height /= ratioY;
+
+    pLeftTop.x /= ratioX;
+    pLeftTop.y /= ratioX;
+
+    pRightTop.x /= ratioX;
+    pRightTop.y /= ratioX;
+
+    pLeftBottom.x /= ratioX;
+    pLeftBottom.y /= ratioX;
+
+    pRightBottom.x /= ratioX;
+    pRightBottom.y /= ratioX;
 
     const svgLines = [];
     svgLines[0] = isometricSvgElem.createSvgLine({ x1: pLeftTop.x, y1: pLeftTop.y, x2: pRightTop.x, y2: pLeftTop.y, stroke: '#ff0000', dasharray: '5,5' });
@@ -85,7 +106,7 @@ export class IsometricSvgScaleBox {
     if (!this.toolScale) return;
 
     const svg = this.toolScale['userData'].svg;
-    const boundContainer = this.containerSvg.getBoundingClientRect();
+    const boundContainer = isometricSvgElem.getSvgXmlns({}).getBoundingClientRect();
 
     const boundSvg = svg.getBoundingClientRect();
 
@@ -247,14 +268,23 @@ export class IsometricSvgScaleBox {
     const scaleX = scale ? scale.x : boundAct.width / boundDef.width;
     const scaleY = scale ? scale.y : boundAct.height / boundDef.height;
 
-    const boundContainer = this.containerSvg.getBoundingClientRect();
-    const startOffset = new THREE.Vector2(boundContainer.left, boundContainer.top);
-    const offsetX = boundAct.x - startOffset.x;
-    const offsetY = boundAct.y - startOffset.y;
+    let matrix = this.toolScale['userData'].svg.getCTM();
 
-    const matrix = this.toolScale['userData'].svg.getCTM();
+    const boundSvgXmlns = isometricSvgElem.getSvgXmlns({}).getBoundingClientRect();
+    const size = isometricSvgElem.getSizeViewBox({});
+    const ratioX = boundSvgXmlns.width / size.x;
 
-    svg.setAttribute('transform', `matrix(${scaleX},0,0,${scaleY},${offsetX},${offsetY})`);
+    svg.setAttribute('transform', `matrix(${scaleX},0,0,${scaleY},${matrix.e},${matrix.f})`);
+
+    const svgBound = svg.getBoundingClientRect();
+    let x = boundAct.x + boundAct.width / 2 - (svgBound.x + svgBound.width / 2);
+    let y = boundAct.y + boundAct.height / 2 - (svgBound.y + svgBound.height / 2);
+
+    x /= ratioX;
+    y /= ratioX;
+
+    matrix = this.toolScale['userData'].svg.getCTM();
+    svg.setAttribute('transform', `matrix(${matrix.a},0,0,${matrix.d},${matrix.e + x},${matrix.f + y})`);
   }
 
   // перетаскиваем ScaleBox
@@ -267,7 +297,12 @@ export class IsometricSvgScaleBox {
 
     const matrix = this.toolScale['userData'].svg.getCTM();
 
-    this.toolScale['userData'].svg.setAttribute('transform', `matrix(${matrix.a},0,0,${matrix.d},${matrix.e + offset.x},${matrix.f + offset.y})`);
+    const boundSvgXmlns = isometricSvgElem.getSvgXmlns({}).getBoundingClientRect();
+    const size = isometricSvgElem.getSizeViewBox({});
+    const ratioX = boundSvgXmlns.width / size.x;
+    const ratioY = boundSvgXmlns.height / size.y;
+
+    this.toolScale['userData'].svg.setAttribute('transform', `matrix(${matrix.a / ratioY},0,0,${matrix.d / ratioX},${matrix.e / ratioX + offset.x * ratioX},${matrix.f + offset.y})`);
   }
 
   getCoord(event) {

@@ -23,9 +23,19 @@ export class IsometricSvgParserFile {
 
     this.groupObjs.append(g);
 
+    const svgXmlns = isometricSvgElem.getSvgXmlns({});
+    const boundSvgXmlns = svgXmlns.getBoundingClientRect();
     const bound = g.getBoundingClientRect();
-    g.setAttribute('transform', `matrix(1,0,0,1,${-bound.x},${-bound.y})`);
-    console.log(g, bound);
+
+    let x = boundSvgXmlns.x + boundSvgXmlns.width / 2 - (bound.x + bound.width / 2);
+    let y = boundSvgXmlns.y + boundSvgXmlns.height / 2 - (bound.y + bound.height / 2);
+
+    const size = isometricSvgElem.getSizeViewBox({});
+    const ratioX = boundSvgXmlns.width / size.x;
+    const ratioY = boundSvgXmlns.height / size.y;
+    x /= ratioX;
+    y /= ratioY;
+    g.setAttribute('transform', `matrix(1,0,0,1,${x},${y})`);
 
     isometricSvgScaleBox.initSvgScaleBox({ svg: g });
   }
