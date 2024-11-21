@@ -469,6 +469,10 @@ export class IsometricSelectBox {
       }
     });
 
+    this.arrFreeForm.forEach((svg) => {
+      isometricSvgFreeForm.moveSvgObj({ svg, offset });
+    });
+
     arrPoints.forEach((p) => {
       p['userData'].move = false;
     });
@@ -514,6 +518,10 @@ export class IsometricSelectBox {
           }
         }
       }
+    });
+
+    this.arrFreeForm.forEach((svg) => {
+      isometricSvgFreeForm.deleteObj(svg);
     });
 
     this.clearSelected();

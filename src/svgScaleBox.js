@@ -268,23 +268,14 @@ export class IsometricSvgScaleBox {
     const scaleX = scale ? scale.x : boundAct.width / boundDef.width;
     const scaleY = scale ? scale.y : boundAct.height / boundDef.height;
 
-    let matrix = this.toolScale['userData'].svg.getCTM();
-
-    const boundSvgXmlns = isometricSvgElem.getSvgXmlns({}).getBoundingClientRect();
-    const size = isometricSvgElem.getSizeViewBox({});
-    const ratioX = boundSvgXmlns.width / size.x;
-
-    svg.setAttribute('transform', `matrix(${scaleX},0,0,${scaleY},${matrix.e},${matrix.f})`);
-
     const svgBound = svg.getBoundingClientRect();
     let x = boundAct.x + boundAct.width / 2 - (svgBound.x + svgBound.width / 2);
     let y = boundAct.y + boundAct.height / 2 - (svgBound.y + svgBound.height / 2);
 
-    x /= ratioX;
-    y /= ratioX;
+    const matrixString = this.toolScale['userData'].svg.getAttribute('transform');
+    const mt = matrixString.match(/-?\d+(\.\d+)?/g).map(Number);
 
-    matrix = this.toolScale['userData'].svg.getCTM();
-    svg.setAttribute('transform', `matrix(${matrix.a},0,0,${matrix.d},${matrix.e + x},${matrix.f + y})`);
+    this.toolScale['userData'].svg.setAttribute('transform', `matrix(${scaleX},0,0,${scaleY},${mt[4] + x},${mt[5] + y})`);
   }
 
   // перетаскиваем ScaleBox
@@ -295,14 +286,10 @@ export class IsometricSvgScaleBox {
       this.svgOffset({ svg: svgChild, offsetX: offset.x, offsetY: offset.y });
     });
 
-    const matrix = this.toolScale['userData'].svg.getCTM();
+    const matrixString = this.toolScale['userData'].svg.getAttribute('transform');
+    const mt = matrixString.match(/-?\d+(\.\d+)?/g).map(Number);
 
-    const boundSvgXmlns = isometricSvgElem.getSvgXmlns({}).getBoundingClientRect();
-    const size = isometricSvgElem.getSizeViewBox({});
-    const ratioX = boundSvgXmlns.width / size.x;
-    const ratioY = boundSvgXmlns.height / size.y;
-
-    this.toolScale['userData'].svg.setAttribute('transform', `matrix(${matrix.a / ratioY},0,0,${matrix.d / ratioX},${matrix.e / ratioX + offset.x * ratioX},${matrix.f + offset.y})`);
+    this.toolScale['userData'].svg.setAttribute('transform', `matrix(${mt[0]},0,0,${mt[3]},${mt[4] + offset.x},${mt[5] + offset.y})`);
   }
 
   getCoord(event) {
