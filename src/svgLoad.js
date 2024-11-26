@@ -248,7 +248,11 @@ export class IsometricSvgLoad {
       isometricSvgFreeForm.crScheme({ elem: scheme[0] });
     } else {
       scheme.forEach((itemGroup) => {
-        const attributes = itemGroup.attributes ? itemGroup.attributes : undefined;
+        let attributes = itemGroup.attributes ? itemGroup.attributes : undefined;
+
+        if (!attributes) {
+          attributes = { guid: itemGroup.guid };
+        }
         const group = isometricSvgFreeForm.createGroup({ attributes });
 
         itemGroup.elems.forEach((elem) => {
