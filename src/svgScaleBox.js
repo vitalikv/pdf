@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricMath, isometricSvgPathConvert } from './index';
+import { isometricSvgElem, isometricMath, isometricSvgPathConvert, isometricSvgComparison } from './index';
 
 export class IsometricSvgScaleBox {
   containerSvg;
@@ -20,8 +20,20 @@ export class IsometricSvgScaleBox {
 
   onKeyDown = (event) => {
     if (event.code === 'Escape') {
+      if (!this.toolScale) return;
       this.deleteScaleBox();
       isometricSvgPathConvert.init();
+      this.toolScale = null;
+    }
+
+    if (event.code === 'Enter') {
+      if (!this.toolScale) return;
+      this.deleteScaleBox();
+      const listElems = isometricSvgPathConvert.init(this.toolScale['userData'].svg);
+      console.log(listElems);
+      this.toolScale = null;
+
+      isometricSvgComparison.init({ elems: listElems });
     }
   };
 

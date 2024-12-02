@@ -82,7 +82,7 @@ export class IsometricSvgLoad {
 
     if (bound) {
       const viewBox = '0 0 ' + bound.w + ' ' + bound.h;
-      svgXmlns.setAttribute('viewBox', viewBox);
+      //svgXmlns.setAttribute('viewBox', viewBox);
     }
 
     const arrSvgLines = [];
