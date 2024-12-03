@@ -228,7 +228,7 @@ export class IsometricSvgSave {
 
     const groupObjs = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'objs' });
     groupObjs.childNodes.forEach((svg) => {
-      if (svg['userData'].freeForm) {
+      if (svg['userData'] && svg['userData'].freeForm) {
         const data = isometricSvgElem.parserSvg({ svg });
         const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
         isometry.scheme.push({ ...data[0], attributes });

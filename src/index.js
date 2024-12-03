@@ -49,6 +49,7 @@ import { IsometricSvgScaleBox } from './svgScaleBox';
 import { IsometricSvgUploader } from './svgUploader';
 import { IsometricSvgParserFile } from './svgParserFile';
 import { IsometricSvgPathConvert } from './svgPathConvert';
+import { IsometricSvgComparison } from './svgComparison';
 
 let renderer, camera, labelRenderer, controls;
 export let scene, mapControlInit;
@@ -95,7 +96,8 @@ export let isometricPanelUI,
   isometricSvgScaleBox,
   isometricSvgUploader,
   isometricSvgParserFile,
-  isometricSvgPathConvert;
+  isometricSvgPathConvert,
+  isometricSvgComparison;
 
 init();
 initServ();
@@ -226,9 +228,10 @@ function initServ() {
   isometricSvgUploader = new IsometricSvgUploader();
   isometricSvgParserFile = new IsometricSvgParserFile();
   isometricSvgPathConvert = new IsometricSvgPathConvert();
+  isometricSvgComparison = new IsometricSvgComparison();
 
   isometricSvgManager.init();
-  //isometricSvgLoad.load('img/isometry-vsdx.json');
+  isometricSvgLoad.load('img/test1.json');
   //initModel();
 }
 

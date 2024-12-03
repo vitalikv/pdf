@@ -20,6 +20,7 @@ import {
 export class IsometricSvgLoad {
   container;
   containerSvg;
+  viewBox = new THREE.Vector2();
 
   init({ container, containerSvg }) {
     this.container = container;
@@ -32,7 +33,7 @@ export class IsometricSvgLoad {
     p.then((data) => {
       this.setIsometry(data);
 
-      isometricSvgPathConvert.init();
+      //isometricSvgPathConvert.init();
     });
   }
 
@@ -83,14 +84,29 @@ export class IsometricSvgLoad {
     if (bound) {
       const viewBox = '0 0 ' + bound.w + ' ' + bound.h;
       //svgXmlns.setAttribute('viewBox', viewBox);
+
+      // let viewBoxString = 'viewBox="0 0 1747 1232.9833984375"';
+      // let numbers = viewBoxString.match(/[\d.-]+/g).map(Number);
+      // console.log();
+
+      const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+
+      this.viewBox.x = size.x / bound.w;
+      this.viewBox.y = size.y / bound.h;
+
+      console.log(this.viewBox);
     }
 
     const arrSvgLines = [];
     const arrSvgPoints = [];
 
     lines.forEach((line) => {
-      const { x: x1, y: y1 } = line.pos[0];
-      const { x: x2, y: y2 } = line.pos[1];
+      let { x: x1, y: y1 } = line.pos[0];
+      let { x: x2, y: y2 } = line.pos[1];
+      x1 *= this.viewBox.x;
+      y1 *= this.viewBox.y;
+      x2 *= this.viewBox.x;
+      y2 *= this.viewBox.y;
 
       const svg = isometricSvgElem.createSvgLine({ x1, y1, x2, y2 });
 
@@ -109,7 +125,9 @@ export class IsometricSvgLoad {
     });
 
     points.forEach((point) => {
-      const { x, y } = point.pos;
+      let { x, y } = point.pos;
+      x *= this.viewBox.x;
+      y *= this.viewBox.y;
       const ids = point.ids ? point.ids : [];
 
       const svg = isometricSvgElem.createSvgCircle({ x, y });
@@ -176,6 +194,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objBracket') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         const { svg3 } = isometricSvgListObjs.createObjBracket({ x: pos.x, y: pos.y, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg3 });
@@ -183,6 +203,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objValve') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         const scale = obj.scale ? obj.scale : 1;
         const { svg3 } = isometricSvgListObjs.createObjValve({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
@@ -191,6 +213,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objTee') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         const scale = obj.scale ? obj.scale : 1;
         const { svg3 } = isometricSvgListObjs.createObjTee({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
@@ -199,6 +223,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objFlap') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         const scale = obj.scale ? obj.scale : 1;
         const { svg3 } = isometricSvgListObjs.createObjFlap({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg3, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
@@ -207,6 +233,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objAdapter') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         const scale = obj.scale ? obj.scale : 1;
         const { svg2 } = isometricSvgListObjs.createObjAdapter({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
@@ -215,6 +243,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objBox') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         const scale = obj.scale ? obj.scale : 1;
         const { svg2 } = isometricSvgListObjs.createObjBox({ x: pos.x, y: pos.y, scale, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
@@ -223,6 +253,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objSplitter') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         const { svg2 } = isometricSvgListObjs.createObjSplitter({ x: pos.x, y: pos.y, attributes });
         isometricSvgObjs.addLink({ svgPoint: svg2, event: null, pos: new THREE.Vector2(pos.x, pos.y) });
         isometricSvgObjs.setRotObj({ svg: svg2 });
@@ -230,6 +262,8 @@ export class IsometricSvgLoad {
 
       if (obj.tag === 'objUndefined') {
         const pos = obj.pos;
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
         isometricSvgListObjs.createObjUndefined({ pos, attributes });
       }
     });
@@ -238,13 +272,22 @@ export class IsometricSvgLoad {
   setObjsBasic(objs) {
     objs.forEach((obj) => {
       const params = obj.params ? obj.params : null;
+
+      obj.pos.forEach((pos) => {
+        pos.x *= this.viewBox.x;
+        pos.y *= this.viewBox.y;
+      });
+      if (params && params.rx && params.ry) {
+        params.rx *= this.viewBox.x;
+        params.ry *= this.viewBox.y;
+      }
+
       isometricSvgBasicElements.addShape({ type: obj.tag, pos: obj.pos, params });
-      console.log(obj);
     });
   }
 
   setScheme(scheme) {
-    if (scheme.length === 1) {
+    if (scheme.length === 123123) {
       isometricSvgFreeForm.crScheme({ elem: scheme[0] });
     } else {
       scheme.forEach((itemGroup) => {
@@ -257,10 +300,28 @@ export class IsometricSvgLoad {
 
         itemGroup.elems.forEach((elem) => {
           if (elem.type === 'line') {
+            elem.pos.forEach((pos) => {
+              pos.x *= this.viewBox.x;
+              pos.y *= this.viewBox.y;
+            });
+
             isometricSvgFreeForm.createLine({ pos: elem.pos, group });
           }
           if (elem.type === 'polygon') {
-            const data = { pos: elem.pos ? elem.pos : new THREE.Vector2(), points: elem.points };
+            const pairs = elem.points.split(' ');
+            let arr = pairs.map((pair) => pair.split(',').map(Number));
+            if (arr.length > 0 && arr[0].length === 1) {
+              arr.shift();
+            }
+
+            arr.forEach((pos) => {
+              pos[0] *= this.viewBox.x;
+              pos[1] *= this.viewBox.y;
+            });
+
+            const strPoints = arr.map((item) => item.join(',')).join(' ');
+
+            const data = { pos: elem.pos ? elem.pos : new THREE.Vector2(), points: strPoints };
             isometricSvgFreeForm.createPolygon({ data, group });
           }
         });
@@ -281,15 +342,32 @@ export class IsometricSvgLoad {
         const txt1 = note.label.txt1;
         const txt2 = note.label.txt2;
 
+        note.line.pos[0].x *= this.viewBox.x;
+        note.line.pos[0].y *= this.viewBox.y;
+        note.line.pos[1].x *= this.viewBox.x;
+        note.line.pos[1].y *= this.viewBox.y;
+        note.point.pos.x *= this.viewBox.x;
+        note.point.pos.y *= this.viewBox.y;
+        circle.pos.x *= this.viewBox.x;
+        circle.pos.y *= this.viewBox.y;
+        line.pos[0].x *= this.viewBox.x;
+        line.pos[0].y *= this.viewBox.y;
+        line.pos[1].x *= this.viewBox.x;
+        line.pos[1].y *= this.viewBox.y;
+
         isometricSvgElem.setPosLine1(obj.line, note.line.pos[0].x, note.line.pos[0].y, note.line.pos[1].x, note.line.pos[1].y);
         isometricSvgElem.setPosCircle(obj.point, note.point.pos.x, note.point.pos.y);
         isometricSvgElem.setPosCircle(obj.labelEls.svgCircle, circle.pos.x, circle.pos.y);
         isometricSvgElem.setPosLine1(obj.labelEls.svgLine, line.pos[0].x, line.pos[0].y, line.pos[1].x, line.pos[1].y);
 
         if (obj.labelEls.svgText1 && txt1.pos) {
+          txt1.pos.x *= this.viewBox.x;
+          txt1.pos.y *= this.viewBox.y;
           isometricSvgElem.setPosText1(obj.labelEls.svgText1, txt1.pos.x, txt1.pos.y);
         }
         if (obj.labelEls.svgText2 && txt2.pos) {
+          txt2.pos.x *= this.viewBox.x;
+          txt2.pos.y *= this.viewBox.y;
           isometricSvgElem.setPosText1(obj.labelEls.svgText2, txt2.pos.x, txt2.pos.y);
         }
 
@@ -310,14 +388,29 @@ export class IsometricSvgLoad {
         const txt1 = note.label.txt1;
         const txt2 = note.label.txt2;
 
+        note.line.pos[0].x *= this.viewBox.x;
+        note.line.pos[0].y *= this.viewBox.y;
+        note.line.pos[1].x *= this.viewBox.x;
+        note.line.pos[1].y *= this.viewBox.y;
+        note.point.pos.x *= this.viewBox.x;
+        note.point.pos.y *= this.viewBox.y;
+        line.pos[0].x *= this.viewBox.x;
+        line.pos[0].y *= this.viewBox.y;
+        line.pos[1].x *= this.viewBox.x;
+        line.pos[1].y *= this.viewBox.y;
+
         isometricSvgElem.setPosLine1(obj.line, note.line.pos[0].x, note.line.pos[0].y, note.line.pos[1].x, note.line.pos[1].y);
         isometricSvgElem.setPosCircle(obj.point, note.point.pos.x, note.point.pos.y);
         isometricSvgElem.setPosLine1(obj.labelEls.svgLine, line.pos[0].x, line.pos[0].y, line.pos[1].x, line.pos[1].y);
 
         if (obj.labelEls.svgText1 && txt1.pos) {
+          txt1.pos.x *= this.viewBox.x;
+          txt1.pos.y *= this.viewBox.y;
           isometricSvgElem.setPosText1(obj.labelEls.svgText1, txt1.pos.x, txt1.pos.y);
         }
         if (obj.labelEls.svgText2 && txt2.pos) {
+          txt2.pos.x *= this.viewBox.x;
+          txt2.pos.y *= this.viewBox.y;
           isometricSvgElem.setPosText1(obj.labelEls.svgText2, txt2.pos.x, txt2.pos.y);
         }
 
@@ -335,6 +428,23 @@ export class IsometricSvgLoad {
       const { svg1, svg2, svg3 } = isometricSvgRuler.createElement({ btn: true, x: 0, y: 0 });
 
       const { line, p1, p2, p1line, p2line, pd1, pd2 } = isometricSvgRuler.getStructureNote(svg1);
+
+      ruler.line[0].x *= this.viewBox.x;
+      ruler.line[0].y *= this.viewBox.y;
+      ruler.line[1].x *= this.viewBox.x;
+      ruler.line[1].y *= this.viewBox.y;
+      ruler.p1.x *= this.viewBox.x;
+      ruler.p1.y *= this.viewBox.y;
+      ruler.p2.x *= this.viewBox.x;
+      ruler.p2.y *= this.viewBox.y;
+      ruler.p1line[0].x *= this.viewBox.x;
+      ruler.p1line[0].y *= this.viewBox.y;
+      ruler.p1line[1].x *= this.viewBox.x;
+      ruler.p1line[1].y *= this.viewBox.y;
+      ruler.p2line[0].x *= this.viewBox.x;
+      ruler.p2line[0].y *= this.viewBox.y;
+      ruler.p2line[1].x *= this.viewBox.x;
+      ruler.p2line[1].y *= this.viewBox.y;
 
       isometricSvgElem.setPosLine1(line, ruler.line[0].x, ruler.line[0].y, ruler.line[1].x, ruler.line[1].y);
       isometricSvgElem.setPosPolygon1(p1, ruler.p1.x, ruler.p1.y);
@@ -356,7 +466,40 @@ export class IsometricSvgLoad {
     if (!texts) return;
 
     texts.forEach((txt) => {
-      const { cssText, textContent } = txt;
+      let { cssText, textContent } = txt;
+
+      const match1 = cssText.match(/top:\s*(-?\d+(\.\d+)?)px/);
+      const match2 = cssText.match(/left:\s*(-?\d+(\.\d+)?)px/);
+      const match3 = cssText.match(/ width:\s*(-?\d+(\.\d+)?)px/);
+      const match4 = cssText.match(/left:\s*(-?\d+(\.\d+)?)px/);
+      const match5 = cssText.match(/font-size:\s*(-?\d+(\.\d+)?)px/);
+
+      if (match1) {
+        let value = parseFloat(match1[1]);
+        value *= this.viewBox.y;
+        cssText = cssText.replace(/top:\s*(-?\d+(\.\d+)?)px;/, 'top: ' + value + 'px;');
+      }
+      if (match2) {
+        let value = parseFloat(match2[1]);
+        value *= this.viewBox.x;
+        cssText = cssText.replace(/left:\s*(-?\d+(\.\d+)?)px;/, 'left: ' + value + 'px;');
+      }
+      if (match3) {
+        let value = parseFloat(match3[1]);
+        value *= this.viewBox.x;
+        cssText = cssText.replace(/ width:\s*(-?\d+(\.\d+)?)px;/, ' width: ' + value + 'px;');
+      }
+      if (match4) {
+        let value = parseFloat(match4[1]);
+        value *= this.viewBox.y;
+        cssText = cssText.replace(/ height:\s*(-?\d+(\.\d+)?)px;/, ' height: ' + value + 'px;');
+      }
+      if (match5) {
+        let value = parseFloat(match5[1]);
+        value *= this.viewBox.y;
+        cssText = cssText.replace(/font-size:\s*(-?\d+(\.\d+)?)px;/, 'font-size: ' + value + 'px;');
+      }
+
       isometricNoteText.addText2({ cssText, textContent });
     });
   }
