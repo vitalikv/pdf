@@ -1256,8 +1256,14 @@ export class IsometricSvgLine {
     const ld1 = line['userData'].ld1;
     const ld2 = line['userData'].ld2;
 
-    if (ld1) ld1['userData'].line = null;
-    if (ld2) ld2['userData'].line = null;
+    if (ld1) {
+      ld1['userData'].line = null;
+      this.deleteCorner(ld1);
+    }
+    if (ld2) {
+      ld2['userData'].line = null;
+      this.deleteCorner(ld2);
+    }
 
     let index = p1['userData'].lines.indexOf(line);
     if (index > -1) p1['userData'].lines.splice(index, 1);

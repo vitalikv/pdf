@@ -251,6 +251,10 @@ export class IsometricSvgManager {
     if (this.mode.type === 'line') {
       isometricSvgLine.deleteToolPoint();
     }
+    if (this.mode.type === 'nextLine') {
+      isometricSvgLine.stopLine();
+      isometricSvgLine.deleteToolPoint();
+    }
     if (isometricSvgListObjs.isObjByType(this.mode.type)) {
       isometricSvgObjs.deleteAddObj();
     }
@@ -338,7 +342,6 @@ export class IsometricSvgManager {
   // когда кликнули на сцену и если активирован какой то режим (например добавление линии, объекта), то выполняем действие
   checkMode(event) {
     if (this.mode.type === '') return false;
-
     if (this.mode.type === 'joint') {
       if (event.button === 2) {
         isometricSvgJoint.deletePoint();
@@ -362,8 +365,7 @@ export class IsometricSvgManager {
     } else if (this.mode.type === 'nextLine') {
       if (event.button === 2) {
         isometricSvgLine.stopLine();
-        isometricSvgLine.createToolPoint(event);
-        this.mode.type = 'line';
+        this.cleareMode();
       } else {
         const result = isometricSvgLine.addNextLine(event);
         if (result) {
@@ -418,7 +420,7 @@ export class IsometricSvgManager {
     } else if (this.mode.type === 'nextRuler') {
       if (event.button === 2) {
         isometricSvgRuler.deleteNote({ type: 'stopAddRuler' });
-        this.setMode({ type: 'addRuler' });
+        this.cleareMode();
       } else {
         const lastPoint = isometricSvgRuler.onmousedown(event);
         if (lastPoint) {

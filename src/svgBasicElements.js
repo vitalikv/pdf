@@ -534,6 +534,8 @@ export class IsometricSvgBasicElements {
   }
 
   actElem(svg, act = false) {
+    this.setColorElem(svg, this.selectedObj.type === 'create' ? false : act);
+
     if (act) {
       if (svg['userData'].objBasic) {
         this.selectedObj.el = svg;
@@ -549,6 +551,22 @@ export class IsometricSvgBasicElements {
       this.clearSelectedObj();
       this.hideHandlePoints();
     }
+  }
+
+  setColorElem(svg, act = false) {
+    if (svg['userData'].handlePoint) {
+      svg = svg['userData'].svgObj;
+    }
+    const elems = svg['userData'].elems;
+
+    let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
+    if (!act && svg['userData'].color) {
+      stroke = svg['userData'].color;
+    }
+
+    elems.forEach((elem) => {
+      elem.setAttribute('stroke', stroke);
+    });
   }
 
   clearMouse() {
