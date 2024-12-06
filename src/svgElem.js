@@ -161,11 +161,11 @@ export class IsometricSvgElem {
     return svg;
   }
 
-  createPolygon({ x, y, points, fill = 'rgb(0, 0, 0)', stroke = 'rgb(0, 0, 0)' }) {
+  createPolygon({ x, y, points, fill = 'rgb(0, 0, 0)', stroke = 'rgb(0, 0, 0)', strokeWidth = '2' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
 
     svg.setAttribute('points', points);
-    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-width', strokeWidth);
     svg.setAttribute('stroke', stroke);
     svg.setAttribute('fill', fill);
     svg.setAttribute('transform', `translate(${x}, ${y}) rotate(0)`);

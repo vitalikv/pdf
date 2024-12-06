@@ -181,7 +181,47 @@ export class IsometricSvgSave {
     });
 
     isometricNoteText.arrText.forEach((div) => {
-      const cssText = div.style.cssText;
+      const svgXmlns = isometricSvgElem.getSvgXmlns({ container: this.containerSvg });
+      const bound = svgXmlns.getBoundingClientRect();
+      const viewBox = new THREE.Vector2(bound.width, bound.height);
+      const aspect = new THREE.Vector2(isometry.bound.w / viewBox.x, isometry.bound.h / viewBox.y);
+
+      let cssText = div.style.cssText;
+
+      const match1 = cssText.match(/top:\s*(-?\d+(\.\d+)?)px/);
+      const match2 = cssText.match(/left:\s*(-?\d+(\.\d+)?)px/);
+      const match3 = cssText.match(/ width:\s*(-?\d+(\.\d+)?)px/);
+      const match4 = cssText.match(/ height:\s*(-?\d+(\.\d+)?)px/);
+      const match5 = cssText.match(/font-size:\s*(-?\d+(\.\d+)?)px/);
+
+      if (match1) {
+        let value = parseFloat(match1[1]);
+        value *= aspect.y;
+        cssText = cssText.replace(/top:\s*(-?\d+(\.\d+)?)px;/, 'top: ' + value + 'px;');
+      }
+      if (match2) {
+        let value = parseFloat(match2[1]);
+        value *= aspect.x;
+        cssText = cssText.replace(/left:\s*(-?\d+(\.\d+)?)px;/, 'left: ' + value + 'px;');
+      }
+      if (match3) {
+        let value = parseFloat(match3[1]);
+        value *= aspect.x;
+        cssText = cssText.replace(/ width:\s*(-?\d+(\.\d+)?)px;/, ' width: ' + value + 'px;');
+      }
+      if (match4) {
+        let value = parseFloat(match4[1]);
+        console.log(value);
+        value *= aspect.y;
+
+        cssText = cssText.replace(/ height:\s*(-?\d+(\.\d+)?)px;/, ' height: ' + value + 'px;');
+      }
+      if (match5) {
+        let value = parseFloat(match5[1]);
+        value *= aspect.y;
+        cssText = cssText.replace(/font-size:\s*(-?\d+(\.\d+)?)px;/, 'font-size: ' + value + 'px;');
+      }
+
       const textContent = div.children[0].textContent;
       isometry.texts.push({ cssText, textContent });
     });

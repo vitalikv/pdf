@@ -13,6 +13,7 @@ export class IsometricSvgListObjs {
   offset = new THREE.Vector2();
   selectedObj = null;
   pivot = { dir: new THREE.Vector2(), startPos: new THREE.Vector2() };
+  scaleScreen = 1;
 
   init({ container, containerSvg }) {
     this.container = container;
@@ -21,29 +22,35 @@ export class IsometricSvgListObjs {
     this.groupObjs = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'objs' });
 
     this.svgPointsScale = this.createPointsScale();
+
+    // const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+    // this.scaleScreen = size.x / 1747;
   }
 
   createSvgLine({ x1, y1, x2, y2, stroke = '#000000' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'line');
 
+    const strokeWidth = 2.5 * this.scaleScreen;
     svg.setAttribute('x1', x1);
     svg.setAttribute('y1', y1);
     svg.setAttribute('x2', x2);
     svg.setAttribute('y2', y2);
-    svg.setAttribute('stroke-width', '2.5px');
+    svg.setAttribute('stroke-width', strokeWidth + 'px');
     svg.setAttribute('stroke', stroke);
 
     return svg;
   }
 
-  createSvgCircle({ x, y, r = '4.2', fill = '#fff', display = 'none' }) {
+  createSvgCircle({ x, y, r = 4.2, fill = '#fff', display = 'none' }) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
 
     svg.setAttribute('cx', x);
     svg.setAttribute('cy', y);
 
-    svg.setAttribute('r', r);
-    svg.setAttribute('stroke-width', '2px');
+    r = r * this.scaleScreen;
+    const strokeWidth = 2 * this.scaleScreen;
+    svg.setAttribute('r', r + '');
+    svg.setAttribute('stroke-width', strokeWidth + 'px');
     svg.setAttribute('stroke', 'rgb(0, 0, 0)');
     svg.setAttribute('transform-origin', 'center');
 
@@ -168,8 +175,9 @@ export class IsometricSvgListObjs {
   }
 
   createObjBracket({ id = undefined, x, y, attributes = { guid: '0' } }) {
-    const svg1 = this.createSvgLine({ x1: x - 10, y1: y + 10, x2: x + 10, y2: y + 10 });
-    const svg2 = this.createSvgLine({ x1: x - 10, y1: y - 10, x2: x + 10, y2: y - 10 });
+    const dl = 10 * this.scaleScreen;
+    const svg1 = this.createSvgLine({ x1: x - dl, y1: y + dl, x2: x + dl, y2: y + dl });
+    const svg2 = this.createSvgLine({ x1: x - dl, y1: y - dl, x2: x + dl, y2: y - dl });
     const svg3 = this.createSvgCircle({ x, y });
 
     this.groupObjs.append(svg1);
@@ -189,11 +197,39 @@ export class IsometricSvgListObjs {
   }
 
   createObjValve({ id = undefined, x, y, scale = 1, attributes = { guid: '0' } }) {
-    const svg1 = isometricSvgElem.createPolygon({ x, y, points: '0,0 20,15 20,-15', fill: 'rgb(255, 255, 255)' });
-    const svg2 = isometricSvgElem.createPolygon({ x, y, points: '0,0 -20,15 -20,-15', fill: 'rgb(255, 255, 255)' });
+    const dl1 = 10 * this.scaleScreen;
+    const dl2 = 20 * this.scaleScreen;
+    const distDef = 20 * this.scaleScreen;
+    const strokeWidth = 2 * this.scaleScreen;
+    let ps1 = [
+      [0, 0],
+      [20, 15],
+      [20, -15],
+    ];
+    let ps2 = [
+      [0, 0],
+      [-20, 15],
+      [-20, -15],
+    ];
+
+    ps1.forEach((pos) => {
+      pos[0] *= this.scaleScreen;
+      pos[1] *= this.scaleScreen;
+    });
+
+    ps2.forEach((pos) => {
+      pos[0] *= this.scaleScreen;
+      pos[1] *= this.scaleScreen;
+    });
+
+    const pointsStr1 = ps1.map((item) => item.join(',')).join(' ');
+    const pointsStr2 = ps2.map((item) => item.join(',')).join(' ');
+
+    const svg1 = isometricSvgElem.createPolygon({ x, y, points: pointsStr1, fill: 'rgb(255, 255, 255)', strokeWidth: strokeWidth + '' });
+    const svg2 = isometricSvgElem.createPolygon({ x, y, points: pointsStr2, fill: 'rgb(255, 255, 255)', strokeWidth: strokeWidth + '' });
     const svg3 = this.createSvgCircle({ x, y });
-    const svg4 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y - 20 });
-    const svg5 = this.createSvgLine({ x1: x - 10, y1: y - 20, x2: x + 10, y2: y - 20 });
+    const svg4 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y - dl2 });
+    const svg5 = this.createSvgLine({ x1: x - dl1, y1: y - dl2, x2: x + dl1, y2: y - dl2 });
 
     this.groupObjs.append(svg1);
     this.groupObjs.append(svg2);
@@ -202,24 +238,12 @@ export class IsometricSvgListObjs {
     this.groupObjs.append(svg3);
 
     const profile = {
-      svg1: {
-        points: [
-          [0, 0],
-          [20, 15],
-          [20, -15],
-        ],
-      },
-      svg2: {
-        points: [
-          [0, 0],
-          [-20, 15],
-          [-20, -15],
-        ],
-      },
-      svg4: { x1: 0, y1: 0, x2: 0, y2: 0 - 20 },
-      svg5: { x1: 0 - 10, y1: 0 - 20, x2: 0 + 10, y2: 0 - 20 },
+      svg1: { points: ps1 },
+      svg2: { points: ps2 },
+      svg4: { x1: 0, y1: 0, x2: 0, y2: 0 - dl2 },
+      svg5: { x1: 0 - dl1, y1: 0 - dl2, x2: 0 + dl1, y2: 0 - dl2 },
       scale,
-      distDef: 20,
+      distDef,
     };
 
     if (id === undefined) {

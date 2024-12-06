@@ -20,7 +20,8 @@ import {
 export class IsometricSvgLoad {
   container;
   containerSvg;
-  viewBox = new THREE.Vector2();
+  viewBox = new THREE.Vector2(1, 1);
+  viewSize = new THREE.Vector2(1, 1);
 
   init({ container, containerSvg }) {
     this.container = container;
@@ -82,19 +83,21 @@ export class IsometricSvgLoad {
     const groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
 
     if (bound) {
+      let size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+      this.viewSize.x = size.x / bound.w;
+      this.viewSize.y = size.y / bound.h;
+
       const viewBox = '0 0 ' + bound.w + ' ' + bound.h;
-      //svgXmlns.setAttribute('viewBox', viewBox);
+      svgXmlns.setAttribute('viewBox', viewBox);
 
       // let viewBoxString = 'viewBox="0 0 1747 1232.9833984375"';
       // let numbers = viewBoxString.match(/[\d.-]+/g).map(Number);
       // console.log();
 
-      const size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
+      size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
 
       this.viewBox.x = size.x / bound.w;
       this.viewBox.y = size.y / bound.h;
-
-      console.log(this.viewBox);
     }
 
     const arrSvgLines = [];
@@ -471,32 +474,32 @@ export class IsometricSvgLoad {
       const match1 = cssText.match(/top:\s*(-?\d+(\.\d+)?)px/);
       const match2 = cssText.match(/left:\s*(-?\d+(\.\d+)?)px/);
       const match3 = cssText.match(/ width:\s*(-?\d+(\.\d+)?)px/);
-      const match4 = cssText.match(/left:\s*(-?\d+(\.\d+)?)px/);
+      const match4 = cssText.match(/ height:\s*(-?\d+(\.\d+)?)px/);
       const match5 = cssText.match(/font-size:\s*(-?\d+(\.\d+)?)px/);
 
       if (match1) {
         let value = parseFloat(match1[1]);
-        value *= this.viewBox.y;
+        value *= this.viewSize.y;
         cssText = cssText.replace(/top:\s*(-?\d+(\.\d+)?)px;/, 'top: ' + value + 'px;');
       }
       if (match2) {
         let value = parseFloat(match2[1]);
-        value *= this.viewBox.x;
+        value *= this.viewSize.x;
         cssText = cssText.replace(/left:\s*(-?\d+(\.\d+)?)px;/, 'left: ' + value + 'px;');
       }
       if (match3) {
         let value = parseFloat(match3[1]);
-        value *= this.viewBox.x;
+        value *= this.viewSize.x;
         cssText = cssText.replace(/ width:\s*(-?\d+(\.\d+)?)px;/, ' width: ' + value + 'px;');
       }
       if (match4) {
         let value = parseFloat(match4[1]);
-        value *= this.viewBox.y;
+        value *= this.viewSize.y;
         cssText = cssText.replace(/ height:\s*(-?\d+(\.\d+)?)px;/, ' height: ' + value + 'px;');
       }
       if (match5) {
         let value = parseFloat(match5[1]);
-        value *= this.viewBox.y;
+        value *= this.viewSize.y;
         cssText = cssText.replace(/font-size:\s*(-?\d+(\.\d+)?)px;/, 'font-size: ' + value + 'px;');
       }
 
