@@ -43,6 +43,7 @@ import { IsometricSvgActivateElem } from './svgActivateElem';
 import { IsometricActiveElement } from './koActivateElem';
 import { IsometricSvgElementAttributes } from './front/svgElementAttributes';
 import { IsometricSvgElementColor } from './front/svgElementColor';
+import { IsometricSvgLineType } from './front/svgLineType';
 import { IsometricSvgBlockingMode } from './front/svgBlockingMode';
 import { IsometricSvgJsonElement } from './svgJsonElement';
 import { IsometricSvgScaleBox } from './svgScaleBox';
@@ -91,6 +92,7 @@ export let isometricPanelUI,
   isometricActiveElement,
   isometricSvgElementAttributes,
   isometricSvgElementColor,
+  isometricSvgLineType,
   isometricSvgBlockingMode,
   isometricSvgJsonElement,
   isometricSvgScaleBox,
@@ -222,6 +224,7 @@ function initServ() {
   isometricActiveElement = new IsometricActiveElement();
   isometricSvgElementAttributes = new IsometricSvgElementAttributes();
   isometricSvgElementColor = new IsometricSvgElementColor();
+  isometricSvgLineType = new IsometricSvgLineType();
   isometricSvgBlockingMode = new IsometricSvgBlockingMode();
   isometricSvgJsonElement = new IsometricSvgJsonElement();
   isometricSvgScaleBox = new IsometricSvgScaleBox();
