@@ -18,4 +18,20 @@ export class IsometricSvgLineType {
   setLineThickness({ svg, value }) {
     svg.setAttribute('stroke-width', value + 'px');
   }
+
+  getLineType({ svg }) {
+    let stroke = 'stroke';
+
+    const type = isometricSvgElem.getSvgType(svg);
+
+    if (type === 'line') {
+      stroke = svg.getAttribute('stroke');
+    }
+
+    return stroke;
+  }
+
+  setLineType({ svg, stroke }) {
+    svg.setAttribute('stroke', stroke);
+  }
 }

@@ -140,6 +140,7 @@ export class IsometricSvgLoad {
       svg['userData'].move = false;
       svg['userData'].pds = [];
       svg['userData'].ids = ids;
+      svg['userData'].attributes = point.attributes ? point.attributes : { guid: 0 };
       if (point.pdDist) svg['userData'].pdDist = point.pdDist;
 
       groupLines.append(svg);

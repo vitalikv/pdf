@@ -45,6 +45,7 @@ export class IsometricSvgSave {
           if (svg['userData'].tag === 'point') {
             const data = {};
             data['pos'] = isometricSvgElem.getPosCircle(svg);
+            data['attributes'] = svg['userData'].attributes ? svg['userData'].attributes : {};
             if (svg['userData'].pdDist) data['pdDist'] = svg['userData'].pdDist;
 
             isometry.points.push(data);

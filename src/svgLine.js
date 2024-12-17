@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgLineSegments, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath, isometricSvgUndoRedo, isometricSvgElementAttributes } from './index';
+import { isometricSvgLineSegments, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath, isometricSvgUndoRedo, isometricSvgElementAttributes, isometricSvgLineType } from './index';
 
 export class IsometricSvgLine {
   container;
@@ -356,7 +356,15 @@ export class IsometricSvgLine {
       if (event.button === 2 && svg['userData'].tag === 'line') {
         const attr = this.getAttributes(svg);
         isometricSvgElementAttributes.getAttributes({ event, svg, attr });
+        isometricSvgLineType.getLineThickness({ svg });
+        isometricSvgLineType.getLineType({ svg });
       }
+      if (event.button === 2 && (svg['userData'].tag === 'point' || svg['userData'].tag === 'dpoint')) {
+        const attr = this.getAttributes(svg);
+        isometricSvgElementAttributes.getAttributes({ event, svg, attr });
+      }
+
+      console.log(svg, svg['userData']);
     }
 
     this.offset = this.getCoord(event);
