@@ -111,7 +111,11 @@ export class IsometricSvgLoad {
       x2 *= this.viewBox.x;
       y2 *= this.viewBox.y;
 
-      const svg = isometricSvgElem.createSvgLine({ x1, y1, x2, y2 });
+      const params = { x1, y1, x2, y2 };
+      if (line.strokeWidth) params['strokeWidth'] = line.strokeWidth;
+      if (line.dasharray) params['dasharray'] = line.dasharray;
+
+      const svg = isometricSvgElem.createSvgLine(params);
 
       svg['userData'] = { lineI: true, tag: 'line', lock: false, p1: null, p2: null };
       svg['userData'].pd1 = null;

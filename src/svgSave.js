@@ -38,14 +38,17 @@ export class IsometricSvgSave {
       if (svg['userData']) {
         if (svg['userData'].lineI) {
           if (svg['userData'].tag === 'line') {
-            const pos = isometricSvgElem.getPosLine1(svg);
-            const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-            isometry.lines.push({ pos, attributes });
+            const data = {};
+            data['pos'] = isometricSvgElem.getPosLine1(svg);
+            data['strokeWidth'] = svg.getAttribute('stroke-width');
+            data['dasharray'] = svg.getAttribute('stroke-dasharray');
+            if (svg['userData'].attributes) data['attributes'] = svg['userData'].attributes;
+            isometry.lines.push(data);
           }
           if (svg['userData'].tag === 'point') {
             const data = {};
             data['pos'] = isometricSvgElem.getPosCircle(svg);
-            data['attributes'] = svg['userData'].attributes ? svg['userData'].attributes : {};
+            if (svg['userData'].attributes) data['attributes'] = svg['userData'].attributes;
             if (svg['userData'].pdDist) data['pdDist'] = svg['userData'].pdDist;
 
             isometry.points.push(data);

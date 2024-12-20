@@ -20,7 +20,7 @@ export class IsometricSvgLineType {
   }
 
   getLineType({ svg }) {
-    let stroke = 'stroke';
+    let stroke = '';
 
     const type = isometricSvgElem.getSvgType(svg);
 
@@ -31,7 +31,7 @@ export class IsometricSvgLineType {
     return stroke;
   }
 
-  setLineType({ svg, stroke }) {
-    svg.setAttribute('stroke', stroke);
+  setLineType({ svg, type }) {
+    svg.setAttribute('stroke-dasharray', type);
   }
 }
