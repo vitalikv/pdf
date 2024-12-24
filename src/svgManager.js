@@ -484,121 +484,86 @@ export class IsometricSvgManager {
     return true;
   }
 
-  isSvg({ elem }) {
-    let isSvg = false;
-
-    const type = isometricSvgElem.getSvgType(elem);
-    const types = ['line', 'circle', 'ellipse', 'polygon', 'path', 'rect'];
-
-    for (let i = 0; i < types.length; i++) {
-      if (type === types[i]) {
-        isSvg = true;
-        break;
-      }
-    }
-
-    return isSvg;
-  }
-
   // проверяем кликнули на какой то объект или нет
   checkClick(event) {
     let result = null;
 
-    const pos = isometricSvgElem.getCoordMouse({ event, container: this.containerSvg });
     const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg, recursion: true });
 
-    let nearestShape = null;
-    let minDistance = 15;
-    let projectionCoords = null;
-
     elems.forEach((svg) => {
-      if (svg['userData'] && this.isSvg({ elem: svg })) {
-        const length = svg.tagName !== 'circle' ? svg.getTotalLength() : 2 * Math.PI * Number(svg.getAttribute('r'));
-        let closestPoint = null;
-        let minShapeDistance = 15;
-
-        for (let i = 0; i <= length; i += 1) {
-          const pointOnPath = svg.getPointAtLength(i);
-
-          const dx = pos.x - pointOnPath.x;
-          const dy = pos.y - pointOnPath.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          // Обновляем ближайшую точку на границе фигуры
-          if (distance < minShapeDistance) {
-            minShapeDistance = distance;
-            closestPoint = pointOnPath;
-          }
+      if (svg['userData'] && svg.contains(event.target)) {
+        if (svg['userData'].lineI) {
+          result = isometricSvgLine.onmousedown(event, svg);
         }
 
-        // Если текущая фигура ближе, обновляем минимальное расстояние и ближайшую фигуру
-        if (minShapeDistance < minDistance) {
-          minDistance = minShapeDistance;
-          nearestShape = svg;
-          projectionCoords = closestPoint;
+        if (isometricSvgListObjs.isObjBySvg(svg)) {
+          result = isometricSvgObjs.onmousedown(event, svg);
+        } else if (svg['userData'].freeFormObj) {
+          const g = svg.parentNode;
+          isometricSvgFreeForm.onmousedown({ event, svg: g });
+          result = true;
+        } else if (svg['userData'].freeFormPoint) {
+          isometricSvgFreeForm.onmousedown({ event, svg });
+          result = true;
+        }
+
+        if (svg['userData'].handlePoint) {
+          isometricSvgBasicElements.onmousedown(event);
+        } else if (svg['userData'].objBasic) {
+          result = isometricSvgBasicElements.onmousedown(event);
+        }
+
+        if (svg['userData'].jointI) {
+          result = isometricSvgJoint.onmousedown(event);
+        }
+        if (svg['userData'].pointScale) {
+          isometricSvgListObjs.onmousedown(event);
+        }
+        if (svg['userData'].note1) {
+          result = isometricNoteSvg.onmousedown(event);
+        }
+
+        if (svg['userData'].note2) {
+          result = isometricNoteSvg2.onmousedown(event);
+        }
+
+        if (svg['userData'].ruler) {
+          result = isometricSvgRuler.onmousedown(event);
+        }
+
+        if (svg['userData'].gScaleBox) {
+          result = isometricSvgScaleBox.onmousedown(event);
         }
       }
     });
 
-    if (nearestShape) {
-      console.log('Ближайшая фигура:', nearestShape, nearestShape['userData']);
-      console.log('Координаты проекции точки клика на фигуру:', projectionCoords);
-      console.log('Расстояние до ближайшей фигуры:', minDistance);
-    } else {
-      console.log('Фигуры внутри SVG не найдены.');
-    }
-
-    if (nearestShape) {
-      const svg = nearestShape;
-
-      if (svg['userData'].lineI) {
-        result = isometricSvgLine.onmousedown(event, svg);
-      }
-
-      if (isometricSvgListObjs.isObjBySvg(svg)) {
-        result = isometricSvgObjs.onmousedown(event, svg);
-      } else if (svg['userData'].freeFormObj) {
-        const g = svg.parentNode;
-        isometricSvgFreeForm.onmousedown({ event, svg: g });
-        result = true;
-      } else if (svg['userData'].freeFormPoint) {
-        isometricSvgFreeForm.onmousedown({ event, svg });
-        result = true;
-      }
-
-      if (svg['userData'].handlePoint) {
-        isometricSvgBasicElements.onmousedown(event);
-      } else if (svg['userData'].objBasic) {
-        result = isometricSvgBasicElements.onmousedown(event);
-      }
-    }
-
     if (!result) {
-      elems.forEach((svg) => {
-        if (svg['userData'] && svg.contains(event.target)) {
-          if (svg['userData'].jointI) {
-            result = isometricSvgJoint.onmousedown(event);
-          }
-          if (svg['userData'].pointScale) {
-            isometricSvgListObjs.onmousedown(event);
-          }
-          if (svg['userData'].note1) {
-            result = isometricNoteSvg.onmousedown(event);
-          }
+      const nearestShape = isometricSvgElem.findClosestElem({ event, elems });
 
-          if (svg['userData'].note2) {
-            result = isometricNoteSvg2.onmousedown(event);
-          }
+      if (nearestShape) {
+        const svg = nearestShape;
 
-          if (svg['userData'].ruler) {
-            result = isometricSvgRuler.onmousedown(event);
-          }
-
-          if (svg['userData'].gScaleBox) {
-            result = isometricSvgScaleBox.onmousedown(event);
-          }
+        if (svg['userData'].lineI) {
+          result = isometricSvgLine.onmousedown(event, svg);
         }
-      });
+
+        if (isometricSvgListObjs.isObjBySvg(svg)) {
+          result = isometricSvgObjs.onmousedown(event, svg);
+        } else if (svg['userData'].freeFormObj) {
+          const g = svg.parentNode;
+          isometricSvgFreeForm.onmousedown({ event, svg: g });
+          result = true;
+        } else if (svg['userData'].freeFormPoint) {
+          isometricSvgFreeForm.onmousedown({ event, svg });
+          result = true;
+        }
+
+        if (svg['userData'].handlePoint) {
+          isometricSvgBasicElements.onmousedown(event);
+        } else if (svg['userData'].objBasic) {
+          result = isometricSvgBasicElements.onmousedown(event);
+        }
+      }
     }
 
     return result;

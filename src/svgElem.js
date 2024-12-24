@@ -423,4 +423,68 @@ export class IsometricSvgElem {
 
     return isSvg;
   }
+
+  // по координатам находим ближайший svg
+  findClosestElem({ event, elems }) {
+    const pos = this.getCoordMouse({ event, container: this.containerSvg });
+
+    let nearestShape = null;
+    let minDistance = 15;
+    let projectionCoords = null;
+
+    elems.forEach((svg) => {
+      const isSvg = ({ elem }) => {
+        let isSvg = false;
+
+        const type = this.getSvgType(elem);
+        const types = ['line', 'circle', 'ellipse', 'polygon', 'path', 'rect'];
+
+        for (let i = 0; i < types.length; i++) {
+          if (type === types[i]) {
+            isSvg = true;
+            break;
+          }
+        }
+
+        return isSvg;
+      };
+
+      if (svg['userData'] && isSvg({ elem: svg })) {
+        const length = svg.tagName !== 'circle' ? svg.getTotalLength() : 2 * Math.PI * Number(svg.getAttribute('r'));
+        let closestPoint = null;
+        let minShapeDistance = 15;
+
+        for (let i = 0; i <= length; i += 1) {
+          const pointOnPath = svg.getPointAtLength(i);
+
+          const dx = pos.x - pointOnPath.x;
+          const dy = pos.y - pointOnPath.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          // Обновляем ближайшую точку на границе фигуры
+          if (distance < minShapeDistance) {
+            minShapeDistance = distance;
+            closestPoint = pointOnPath;
+          }
+        }
+
+        // Если текущая фигура ближе, обновляем минимальное расстояние и ближайшую фигуру
+        if (minShapeDistance < minDistance) {
+          minDistance = minShapeDistance;
+          nearestShape = svg;
+          projectionCoords = closestPoint;
+        }
+      }
+    });
+
+    if (nearestShape) {
+      console.log('Ближайшая фигура:', nearestShape, nearestShape['userData']);
+      console.log('Координаты проекции точки клика на фигуру:', projectionCoords);
+      console.log('Расстояние до ближайшей фигуры:', minDistance);
+    } else {
+      console.log('Фигуры внутри SVG не найдены.');
+    }
+
+    return nearestShape;
+  }
 }

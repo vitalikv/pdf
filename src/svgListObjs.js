@@ -263,8 +263,34 @@ export class IsometricSvgListObjs {
   }
 
   createObjFlap({ id = undefined, x, y, scale = 1, attributes = { guid: '0' } }) {
-    const svg1 = isometricSvgElem.createPolygon({ x, y, points: '0,0 20,15 20,-15', fill: 'rgb(255, 255, 255)' });
-    const svg2 = isometricSvgElem.createPolygon({ x, y, points: '0,0 -20,15 -20,-15', fill: 'rgb(0, 0, 0)' });
+    const distDef = 20 * this.scaleScreen;
+    const strokeWidth = 2 * this.scaleScreen;
+    let ps1 = [
+      [0, 0],
+      [20, 15],
+      [20, -15],
+    ];
+    let ps2 = [
+      [0, 0],
+      [-20, 15],
+      [-20, -15],
+    ];
+
+    ps1.forEach((pos) => {
+      pos[0] *= this.scaleScreen;
+      pos[1] *= this.scaleScreen;
+    });
+
+    ps2.forEach((pos) => {
+      pos[0] *= this.scaleScreen;
+      pos[1] *= this.scaleScreen;
+    });
+
+    const pointsStr1 = ps1.map((item) => item.join(',')).join(' ');
+    const pointsStr2 = ps2.map((item) => item.join(',')).join(' ');
+
+    const svg1 = isometricSvgElem.createPolygon({ x, y, points: pointsStr1, fill: 'rgb(255, 255, 255)', strokeWidth: strokeWidth + '' });
+    const svg2 = isometricSvgElem.createPolygon({ x, y, points: pointsStr2, fill: 'rgb(0, 0, 0)', strokeWidth: strokeWidth + '' });
     const svg3 = this.createSvgCircle({ x, y });
 
     this.groupObjs.append(svg1);
@@ -272,22 +298,10 @@ export class IsometricSvgListObjs {
     this.groupObjs.append(svg3);
 
     const profile = {
-      svg1: {
-        points: [
-          [0, 0],
-          [20, 15],
-          [20, -15],
-        ],
-      },
-      svg2: {
-        points: [
-          [0, 0],
-          [-20, 15],
-          [-20, -15],
-        ],
-      },
+      svg1: { points: ps1 },
+      svg2: { points: ps2 },
       scale,
-      distDef: 20,
+      distDef,
     };
 
     if (id === undefined) {
