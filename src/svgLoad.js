@@ -136,6 +136,7 @@ export class IsometricSvgLoad {
       x *= this.viewBox.x;
       y *= this.viewBox.y;
       const ids = point.ids ? point.ids : [];
+      if (!point.attributes) point.attributes = { guid: ids.join(' :: ') };
 
       const svg = isometricSvgElem.createSvgCircle({ x, y });
 

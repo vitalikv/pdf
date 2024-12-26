@@ -3,9 +3,10 @@ import * as THREE from 'three';
 import { isometricSvgCalc } from './index';
 
 export class Isometric3dto2d {
-  init({ scene, mapControlInit, data }) {
+  getIsometry({ scene, mapControlInit, data }) {
     console.log('data', data);
 
+    // кусок кода нужен чтобы повернуть изометрию, в gis работает, здесь комичен, потому что там неправильно повернута дисциплина
     // data.objs.forEach((obj) => {
     //   for (let i = 0; i < obj.joints.length; i++) {
     //     let pos = obj.joints[i].pos;

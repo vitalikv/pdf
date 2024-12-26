@@ -234,7 +234,7 @@ function initServ() {
   isometricSvgComparison = new IsometricSvgComparison();
 
   isometricSvgManager.init();
-  isometricSvgLoad.load('img/isometry.json');
+  isometricSvgLoad.load('img/Untitled-1.json');
   //initModel();
 }
 
@@ -296,8 +296,7 @@ export async function initModel() {
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
   const data = calcIsometrixSvg.getType({ meshes: listMeshes, scene, mapControlInit });
-
-  const isometrix = isometric3dto2d.init({ scene, mapControlInit, data });
+  const isometrix = isometric3dto2d.getIsometry({ scene, mapControlInit, data });
   console.log('isometrix', isometrix);
   isometricSvgLoad.setIsometry(isometrix);
 
