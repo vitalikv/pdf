@@ -48,7 +48,7 @@ export class IsometricNoteSvg {
   }
 
   // создать выноску
-  createElement({ btn = false, x, y, data }) {
+  createElement({ btn = false, x, y, data, attributes = undefined }) {
     let x1 = 600;
     let y1 = 600;
     let x2 = 400;
@@ -76,7 +76,7 @@ export class IsometricNoteSvg {
     this.groupNotes.append(svg3);
 
     svg1['userData'] = { note1: true, tag: 'line', lock: false, line: svg1, point: svg2, label: svg3 };
-    svg2['userData'] = { note1: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3, crossOffset: false, link: null };
+    svg2['userData'] = { note1: true, tag: 'point', lock: false, line: svg1, point: svg2, label: svg3, crossOffset: false, link: null, attributes };
     svg3['userData'] = { note1: true, tag: 'label', lock: false, line: svg1, point: svg2, label: svg3, ...svg3['userData'] };
 
     return { svg1, svg2, svg3 };

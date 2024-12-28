@@ -340,9 +340,12 @@ export class IsometricSvgLoad {
 
   setNotes(notes) {
     notes.forEach((note) => {
+      const attributes = note.attributes ? note.attributes : undefined;
+
+      console.log(attributes);
       if (note.tag === 'note1') {
         const info = { text: [note.label.txt1.text, note.label.txt2.text], passport: { id: note.passportId } };
-        const { svg1, svg2, svg3 } = isometricNoteSvg.createElement({ btn: true, x: 0, y: 0, data: info });
+        const { svg1, svg2, svg3 } = isometricNoteSvg.createElement({ btn: true, x: 0, y: 0, data: info, attributes });
 
         const obj = isometricNoteSvg.getStructureNote(svg1);
 
@@ -389,7 +392,7 @@ export class IsometricSvgLoad {
 
       if (note.tag === 'note2') {
         const info = { text: [note.label.txt1.text, note.label.txt2.text], passport: { id: note.passportId } };
-        const { svg1, svg2, svg3 } = isometricNoteSvg2.createElement({ btn: true, x: 0, y: 0, data: info });
+        const { svg1, svg2, svg3 } = isometricNoteSvg2.createElement({ btn: true, x: 0, y: 0, data: info, attributes });
 
         const obj = isometricNoteSvg2.getStructureNote(svg1);
 
