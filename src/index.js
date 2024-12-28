@@ -234,7 +234,7 @@ function initServ() {
   isometricSvgComparison = new IsometricSvgComparison();
 
   isometricSvgManager.init();
-  isometricSvgLoad.load('img/Untitled-1.json');
+  isometricSvgLoad.load('img/test1.json');
   //initModel();
 }
 

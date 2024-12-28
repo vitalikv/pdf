@@ -293,7 +293,13 @@ export class IsometricSvgSave {
 
     console.log('isometry2', isometry);
 
-    const str = JSON.stringify(isometry);
+    //this.saveFileInTxt({ file: isometry });
+    this.saveFileInDir({ file: isometry });
+  }
+
+  // сохранение файла на комп через браузер
+  saveFileInTxt({ file }) {
+    const str = JSON.stringify({ file });
 
     const data = 'data:application/csv;charset=utf-8,' + encodeURIComponent(str);
 
@@ -304,5 +310,19 @@ export class IsometricSvgSave {
     link.download = 'isometry.json';
     link.click();
     document.body.removeChild(link);
+  }
+
+  // сохранение в папку через php
+  async saveFileInDir({ file }) {
+    const url = '	http://cs/pdf/src/php/saveJson.php';
+    const str = JSON.stringify(file);
+
+    const response = await fetch(url, {
+      method: 'POST',
+      body: 'myarray=' + encodeURIComponent(str) + '&nameFile=test1.json',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+    });
+    const data = await response.json();
+    console.log(data);
   }
 }
