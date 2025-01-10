@@ -508,7 +508,7 @@ export class IsometricSvgManager {
         }
 
         if (svg['userData'].handlePoint) {
-          isometricSvgBasicElements.onmousedown(event);
+          result = isometricSvgBasicElements.onmousedown(event);
         } else if (svg['userData'].objBasic) {
           result = isometricSvgBasicElements.onmousedown(event);
         }
@@ -559,7 +559,7 @@ export class IsometricSvgManager {
         }
 
         if (svg['userData'].handlePoint) {
-          isometricSvgBasicElements.onmousedown(event);
+          result = isometricSvgBasicElements.onmousedown(event);
         } else if (svg['userData'].objBasic) {
           result = isometricSvgBasicElements.onmousedown(event);
         }

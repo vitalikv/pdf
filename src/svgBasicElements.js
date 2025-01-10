@@ -460,7 +460,8 @@ export class IsometricSvgBasicElements {
 
   // авто установка стрелки(треугольника) по направлению линии
   rotateArrow(svg) {
-    const pos = isometricSvgElem.getPosLine2(svg);
+    const elem1 = svg['userData'].elems[0];
+    const pos = isometricSvgElem.getPosLine2(elem1);
 
     const dir = pos[1].sub(pos[0]);
 
