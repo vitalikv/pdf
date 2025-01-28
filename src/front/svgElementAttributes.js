@@ -133,6 +133,16 @@ export class IsometricSvgElementAttributes {
     return divModal;
   }
 
+  deleteModalDiv() {
+    const containerSvg = isometricSvgElem.getContainerSvg();
+    const containerTexts = containerSvg.querySelector('[nameId="notesText"]');
+    const divModal = containerTexts.querySelector('[nameId="modalWindAttr"]');
+
+    if (!divModal) return;
+
+    divModal.remove();
+  }
+
   //---
 
   zoom({ svg }) {

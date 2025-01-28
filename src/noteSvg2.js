@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricSvgUndoRedo } from './index';
+import { isometricSvgElem, isometricSvgUndoRedo, isometricSvgElementAttributes, isometricActiveElement } from './index';
 
 export class IsometricNoteSvg2 {
   container;
@@ -178,6 +178,14 @@ export class IsometricNoteSvg2 {
         } else {
           this.isDown = true;
           this.actElem(svg, true);
+
+          if (event.button === 2) {
+            const { svgPoint, attr } = this.getAttributes(svg);
+            isometricSvgElementAttributes.getAttributes({ event, svg: svgPoint, attr });
+          } else {
+            const guid = this.getGuidFromElement(svg);
+            isometricActiveElement.selectElementByGuid(guid);
+          }
         }
       }
     });
@@ -746,5 +754,37 @@ export class IsometricNoteSvg2 {
       svg['userData'].color = color;
       elems[elem].setAttribute('stroke', svg['userData'].color);
     }
+  }
+
+  getStructureObj(svg) {
+    const elems = {
+      line: svg['userData'].line,
+      point: svg['userData'].point,
+      svgLine: svg['userData'].label['userData'].svgLine,
+    };
+
+    return elems;
+  }
+
+  // получение attr по клику на объект
+  getAttributes(svg) {
+    let attr = {};
+    const { point } = this.getStructureObj(svg);
+
+    if (point['userData'].attributes) {
+      attr = point['userData'].attributes;
+    }
+
+    return { svgPoint: point, attr };
+  }
+
+  // получение guid по клику на объект
+  getGuidFromElement(svg) {
+    let guid = '';
+
+    const { attr } = this.getAttributes(svg);
+    if (attr['guid']) guid = attr['guid'];
+
+    return guid;
   }
 }

@@ -32,6 +32,8 @@ import {
   isometricSvgJsonElement,
   isometricSvgScaleBox,
   isometricSvgBlockingMode,
+  isometricSvgElementAttributes,
+  isometricActiveElement,
 } from './index';
 
 export class IsometricSvgManager {
@@ -573,14 +575,15 @@ export class IsometricSvgManager {
   unselectAllNotes(event = null) {
     if (event) isometricSvgRuler.deleteInput(event.target);
 
-    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg });
+    const elems = isometricSvgElem.getSvgElems({ container: this.containerSvg, recursion: true });
 
     elems.forEach((svg, ind) => {
       if (svg['userData']) {
         if (isometricSvgLine.selectedObj.el && svg['userData'].lineI) {
           if (isometricSvgLine.selectedObj.el === svg) {
             isometricSvgLine.actElem(svg, false);
-            isometricSvgFreeForm.deleteModalDiv();
+            isometricSvgElementAttributes.deleteModalDiv();
+            isometricActiveElement.selectElementByGuid('');
           }
         }
 
@@ -589,19 +592,22 @@ export class IsometricSvgManager {
             if (event && event.button === 0) isometricSvgObjs.addObjUR();
             if (event && event.button === 2) isometricSvgObjs.deleteAddObj();
             isometricSvgObjs.actElem(svg, false);
-            isometricSvgFreeForm.deleteModalDiv();
+            isometricSvgElementAttributes.deleteModalDiv();
+            isometricActiveElement.selectElementByGuid('');
           }
         } else if (isometricSvgFreeForm.selectedObj.el && svg['userData'].freeForm) {
           if (isometricSvgFreeForm.selectedObj.el === svg) {
             if (event && event.target['userData'] && event.target['userData'].freeFormPoint) return;
             isometricSvgFreeForm.actElem(svg, false);
-            isometricSvgFreeForm.deleteModalDiv();
+            isometricSvgElementAttributes.deleteModalDiv();
+            isometricActiveElement.selectElementByGuid('');
           }
         } else if (isometricSvgFreeForm.selectedObj.el && svg['userData'].freeFormPoint) {
           if (isometricSvgFreeForm.selectedObj.el === svg) {
             if (event && event.target['userData'] && event.target['userData'].freeFormPoint) return;
             isometricSvgFreeForm.actElem(svg, false);
-            isometricSvgFreeForm.deleteModalDiv();
+            isometricSvgElementAttributes.deleteModalDiv();
+            isometricActiveElement.selectElementByGuid('');
           }
         }
 
@@ -609,11 +615,19 @@ export class IsometricSvgManager {
           isometricSvgListObjs.deActPointsScale();
         }
 
-        if (svg['userData'].note1) {
-          isometricNoteSvg.actElem(svg, false);
+        if (isometricNoteSvg.selectedObj && svg['userData'].note1) {
+          if (isometricNoteSvg.selectedObj.el === svg) {
+            isometricNoteSvg.actElem(svg, false);
+            isometricSvgElementAttributes.deleteModalDiv();
+            isometricActiveElement.selectElementByGuid('');
+          }
         }
-        if (svg['userData'].note2) {
-          isometricNoteSvg2.actElem(svg, false);
+        if (isometricNoteSvg2.selectedObj && svg['userData'].note2) {
+          if (isometricNoteSvg2.selectedObj.el === svg) {
+            isometricNoteSvg2.actElem(svg, false);
+            isometricSvgElementAttributes.deleteModalDiv();
+            isometricActiveElement.selectElementByGuid('');
+          }
         }
         if (isometricSvgRuler.selectedObj.el && svg['userData'].ruler) {
           if (isometricSvgRuler.selectedObj.el === svg) {

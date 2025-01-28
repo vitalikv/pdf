@@ -173,6 +173,45 @@ export class IsometricSvgElem {
     return svg;
   }
 
+  // получаем угол на который повернут svg
+  getAngleSvg({ svg }) {
+    // Получаем матрицу трансформации элемента
+    const ctm = svg.getCTM();
+
+    // Вычисляем угол поворота из матрицы
+    const angle = Math.atan2(ctm.b, ctm.a) * (180 / Math.PI);
+
+    return angle;
+  }
+
+  // получаем положение boundingBox относительно текущего окна и с учетом поворота svg
+  getRelativeBBox({ svg }) {
+    const arrPosBox = [];
+
+    const bbox = svg.getBBox();
+    const matrix = svg.getCTM();
+
+    const arrPos = [];
+    arrPos.push(new THREE.Vector2(bbox.x, bbox.y)); // верхний левый угол
+    arrPos.push(new THREE.Vector2(bbox.x, bbox.y + bbox.height)); // нижний левый угол
+    arrPos.push(new THREE.Vector2(bbox.x + bbox.width, bbox.y + bbox.height)); // нижний правый угол
+    arrPos.push(new THREE.Vector2(bbox.x + bbox.width, bbox.y)); // верхний правый угол
+
+    for (let i = 0; i < arrPos.length; i++) {
+      const { x, y } = arrPos[i];
+
+      const svgP = document.querySelector('svg');
+      const point = svgP.createSVGPoint();
+      point.x = x;
+      point.y = y;
+      const pos = point.matrixTransform(matrix);
+
+      arrPosBox.push(new THREE.Vector2(pos.x, pos.y));
+    }
+
+    return arrPosBox;
+  }
+
   // координаты линии через 2 точки привязанные к линии
   getPosLine1(svg) {
     const p1 = this.getPosCircle(svg['userData'].p1);
@@ -274,6 +313,32 @@ export class IsometricSvgElem {
     const y = svg.transform.baseVal[0].matrix.f;
 
     svg.setAttribute('transform', `translate(${x}, ${y}) rotate(${rot})`);
+  }
+
+  setRotPolygon2({ svg, rot }) {
+    // Получаем координаты вершин полигона
+    const points = svg
+      .getAttribute('points')
+      .split(' ')
+      .map((p) => p.split(',').map(Number));
+
+    // Находим среднее значение координат (центр полигона)
+    const centerX = points.reduce((sum, point) => sum + point[0], 0) / points.length;
+    const centerY = points.reduce((sum, point) => sum + point[1], 0) / points.length;
+
+    // Получаем текущую трансформацию
+    const transform = svg.getAttribute('transform');
+    const translateMatch = transform.match(/translate\(([-\d.]+), ([-\d.]+)\)/);
+
+    let translateX = 0,
+      translateY = 0;
+    if (translateMatch) {
+      translateX = parseFloat(translateMatch[1]);
+      translateY = parseFloat(translateMatch[2]);
+    }
+
+    // Применяем поворот относительно нового центра
+    svg.setAttribute('transform', `translate(${translateX}, ${translateY}) rotate(${rot} ${centerX} ${centerY})`);
   }
 
   // смещение точки

@@ -12,6 +12,8 @@ export class IsometricSvgActivateElem {
   };
 
   selectByGuid({ guid }) {
+    if (guid === '') return;
+
     if (isometricSvgLine.selectedObj.el) {
       isometricSvgLine.actElem(isometricSvgLine.selectedObj.el, false);
     }

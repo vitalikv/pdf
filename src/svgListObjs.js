@@ -231,11 +231,15 @@ export class IsometricSvgListObjs {
     const svg4 = this.createSvgLine({ x1: x, y1: y, x2: x, y2: y - dl2 });
     const svg5 = this.createSvgLine({ x1: x - dl1, y1: y - dl2, x2: x + dl1, y2: y - dl2 });
 
-    this.groupObjs.append(svg1);
-    this.groupObjs.append(svg2);
-    this.groupObjs.append(svg4);
-    this.groupObjs.append(svg5);
-    this.groupObjs.append(svg3);
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g['userData'] = { tag: 'objElem' };
+
+    g.append(svg1);
+    g.append(svg2);
+    g.append(svg4);
+    g.append(svg5);
+    g.append(svg3);
+    this.groupObjs.append(g);
 
     const profile = {
       svg1: { points: ps1 },
@@ -464,16 +468,19 @@ export class IsometricSvgListObjs {
     const svgP1 = isometricSvgElem.createSvgCircle({ x: -999999, y: -999999, r: '4.2', fill: '#ffffff', display: 'none' });
     const svgP2 = isometricSvgElem.createSvgCircle({ x: -999999, y: -999999, r: '4.2', fill: '#ffffff', display: 'none' });
     const svgP3 = isometricSvgElem.createSvgCircle({ x: -999999, y: -999999, r: '4.2', fill: '#ffffff', display: 'none' });
+    const svgP4 = isometricSvgElem.createSvgCircle({ x: -999999, y: -999999, r: '4.2', fill: '#ffffff', display: 'none' });
 
     svgP1['userData'] = { pointScale: true, id: 0, elems: [svgP1, svgP2], svgObj: null };
     svgP2['userData'] = { pointScale: true, id: 1, elems: [svgP1, svgP2], svgObj: null };
     svgP3['userData'] = { pointScale: true, id: 2, elems: [svgP1, svgP2], svgObj: null };
+    svgP4['userData'] = { pointScale: true, id: 3, elems: [svgP1, svgP2], svgObj: null };
 
     this.groupObjs.append(svgP1);
     this.groupObjs.append(svgP2);
     this.groupObjs.append(svgP3);
+    this.groupObjs.append(svgP4);
 
-    return { p1: svgP1, p2: svgP2, p3: svgP3 };
+    return { p1: svgP1, p2: svgP2, p3: svgP3, p4: svgP4 };
   }
 
   actPointsScale({ point, p1 = false, p2 = false, offsetX }) {
@@ -481,8 +488,8 @@ export class IsometricSvgListObjs {
 
     this.groupObjs.append(svgP);
     const posC = isometricSvgElem.getPosCircle(point);
-    const rotY1 = point['userData'].rotY1;
-    if (!rotY1) return;
+    let rotY1 = point['userData'].rotY1;
+    if (!rotY1) rotY1 = 0;
 
     isometricSvgElem.setRotCircle_1({ svg: svgP, centerPos: posC, deg: rotY1, offsetX });
 
@@ -490,6 +497,8 @@ export class IsometricSvgListObjs {
     svgP['userData'].svgObj = point;
 
     if (point['userData'].objValve) this.actPointsScale3({ point });
+
+    this.actPointsScale4({ point, rotY1 });
   }
 
   actPointsScale3({ point }) {
@@ -509,10 +518,28 @@ export class IsometricSvgListObjs {
     this.groupObjs.append(svgP3);
   }
 
+  actPointsScale4({ point, rotY1 }) {
+    const svgP3 = this.svgPointsScale.p4;
+
+    const posC = isometricSvgElem.getPosCircle(point);
+    //const rotY1 = point['userData'].rotY1;
+
+    const rad = THREE.MathUtils.degToRad(rotY1 - 0);
+    const cx = 0 * Math.cos(rad) - 28 * Math.sin(rad);
+    const cy = 0 * Math.sin(rad) + 28 * Math.cos(rad);
+    isometricSvgElem.setPosCircle(svgP3, posC.x + cx, posC.y + cy);
+
+    svgP3.setAttribute('display', '');
+    svgP3['userData'].svgObj = point;
+
+    this.groupObjs.append(svgP3);
+  }
+
   deActPointsScale() {
     this.svgPointsScale.p1.setAttribute('display', 'none');
     this.svgPointsScale.p2.setAttribute('display', 'none');
     this.svgPointsScale.p3.setAttribute('display', 'none');
+    this.svgPointsScale.p4.setAttribute('display', 'none');
   }
 
   scaleObj(svg, scale = null) {
@@ -796,6 +823,26 @@ export class IsometricSvgListObjs {
       profile.scale = scale;
     }
 
+    if (this.selectedObj === this.svgPointsScale.p4) {
+      const svgObj = this.selectedObj['userData'].svgObj;
+      const posC = isometricSvgElem.getPosCircle(svgObj);
+      const dir = new THREE.Vector2(pos.x, pos.y).sub(posC).normalize();
+
+      const pos2 = posC.clone().add(new THREE.Vector2().addScaledVector(dir, 30));
+
+      const rad = Math.atan2(dir.y, dir.x) - Math.PI / 2;
+      const angle = THREE.MathUtils.radToDeg(rad);
+
+      this.selectedObj.setAttribute('cx', Number(pos2.x));
+      this.selectedObj.setAttribute('cy', Number(pos2.y));
+
+      svgObj['userData'].rotY1 = angle;
+
+      this.setRotObj({ svg: svgObj });
+
+      this.scaleObj(svgObj);
+    }
+
     this.pivot.startPos = this.getCoord(event);
   };
 
@@ -827,6 +874,46 @@ export class IsometricSvgListObjs {
       if (type === 'circle') continue;
 
       elems[elem].setAttribute('stroke', color);
+    }
+  }
+
+  setRotObj({ svg }) {
+    let point = null;
+
+    for (let item in svg['userData'].elems) {
+      if (svg['userData'].elems[item]['userData'].tag === 'point') {
+        point = svg['userData'].elems[item];
+        break;
+      }
+    }
+
+    if (!point) return;
+
+    const elems = svg['userData'].elems;
+
+    const rotY1 = point['userData'].rotY1;
+    const pos2 = isometricSvgElem.getPosCircle(point);
+
+    for (let item in elems) {
+      if (elems[item]['userData'].tag === 'point') {
+        continue;
+      }
+
+      const type = isometricSvgElem.getSvgType(elems[item]);
+
+      if (type === 'circle') {
+        isometricSvgElem.setRotCircle_2({ point: elems[item], centerPoint: point, deg: 0 });
+        isometricSvgElem.setRotCircle_2({ point: elems[item], centerPoint: point, deg: rotY1 - point['userData'].rotY1 });
+      }
+      if (type === 'line') {
+        elems[item].setAttribute('transform', 'rotate(' + rotY1 + ', ' + pos2.x + ',' + pos2.y + ')');
+      }
+      if (type === 'ellipse') {
+        //isometricSvgElem.setOffsetEllipse(elems[item], offset.x, offset.y);
+      }
+      if (type === 'polygon') {
+        isometricSvgElem.setRotPolygon1(elems[item], rotY1);
+      }
     }
   }
 }

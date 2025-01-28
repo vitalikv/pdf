@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgLineSegments, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath, isometricSvgUndoRedo, isometricSvgElementAttributes, isometricSvgLineType } from './index';
+import { isometricSvgLineSegments, isometricSvgObjs, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSvgElem, isometricMath, isometricSvgUndoRedo, isometricSvgElementAttributes, isometricSvgLineType, isometricActiveElement } from './index';
 
 export class IsometricSvgLine {
   container;
@@ -353,15 +353,25 @@ export class IsometricSvgLine {
       this.isDown = true;
       this.actElem(svg, true);
 
-      if (event.button === 2 && svg['userData'].tag === 'line') {
-        const attr = this.getAttributes(svg);
-        isometricSvgElementAttributes.getAttributes({ event, svg, attr });
-        isometricSvgLineType.getLineThickness({ svg });
-        isometricSvgLineType.getLineType({ svg });
+      if (svg['userData'].tag === 'line') {
+        if (event.button === 2) {
+          const attr = this.getAttributes(svg);
+          isometricSvgElementAttributes.getAttributes({ event, svg, attr });
+          isometricSvgLineType.getLineThickness({ svg });
+          isometricSvgLineType.getLineType({ svg });
+        } else {
+          const guid = this.getGuidFromElement(svg);
+          isometricActiveElement.selectElementByGuid(guid);
+        }
       }
-      if (event.button === 2 && (svg['userData'].tag === 'point' || svg['userData'].tag === 'dpoint')) {
-        const attr = this.getAttributes(svg);
-        isometricSvgElementAttributes.getAttributes({ event, svg, attr });
+      if (svg['userData'].tag === 'point' || svg['userData'].tag === 'dpoint') {
+        if (event.button === 2) {
+          const attr = this.getAttributes(svg);
+          isometricSvgElementAttributes.getAttributes({ event, svg, attr });
+        } else {
+          const guid = this.getGuidFromElement(svg);
+          isometricActiveElement.selectElementByGuid(guid);
+        }
       }
 
       console.log(svg, svg['userData']);
@@ -928,6 +938,16 @@ export class IsometricSvgLine {
     }
 
     return attr;
+  }
+
+  // получение guid по клику на объект
+  getGuidFromElement(svg) {
+    let guid = '';
+
+    const attr = this.getAttributes(svg);
+    if (attr['guid']) guid = attr['guid'];
+
+    return guid;
   }
 
   // получаем элементы угла

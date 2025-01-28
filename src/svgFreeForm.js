@@ -293,16 +293,6 @@ export class IsometricSvgFreeForm {
     return mode;
   }
 
-  deleteModalDiv() {
-    const containerSvg = isometricSvgElem.getContainerSvg();
-    const containerTexts = containerSvg.querySelector('[nameId="notesText"]');
-    const divModal = containerTexts.querySelector('[nameId="modalWindAttr"]');
-
-    if (!divModal) return;
-
-    divModal.remove();
-  }
-
   // получем массив координат точек у линий принадлежащие одной group
   getPointsFromLines({ group, format = 'v2' }) {
     const points = [];
