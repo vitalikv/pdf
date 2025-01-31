@@ -11,6 +11,7 @@ export class IsometricSvgObjs {
   isMove = false;
   offset = new THREE.Vector2();
   selectedObj = { el: null, type: '', mode: '' };
+  cloneSvg = null;
 
   init({ container, containerSvg }) {
     this.container = container;
@@ -746,5 +747,83 @@ export class IsometricSvgObjs {
     isometricSvgListObjs.removeObj(elems.point);
 
     this.clearSelectedObj();
+  }
+
+  // копирование в память элемента
+  cloneSave() {
+    if (!this.selectedObj.el) return;
+
+    const svg = this.selectedObj.el.parentElement;
+
+    if (!(svg['userData'] && svg['userData'].tag && svg['userData'].tag === 'objElem')) return;
+
+    const originalSvg = svg;
+
+    const userDataMap = new Map();
+
+    Array.from(originalSvg.children).forEach((child) => {
+      if (child['userData']) {
+        userDataMap.set(child, child['userData']);
+      }
+    });
+
+    const clonedSvg = originalSvg.cloneNode(true);
+
+    Array.from(clonedSvg.children).forEach((clonedChild, index) => {
+      const originalChild = originalSvg.children[index];
+
+      if (userDataMap.has(originalChild)) {
+        //clonedChild['userData'] = this.deepCloneWithJSON(userDataMap.get(originalChild));
+        clonedChild['userData'] = { ...userDataMap.get(originalChild) };
+      }
+    });
+
+    Array.from(clonedSvg.children).forEach((child) => {
+      if (child['userData'] && child['userData'].elems) {
+        child['userData'].elems = Array.from(clonedSvg.children);
+      }
+    });
+
+    this.cloneSvg = clonedSvg;
+    this.cloneSvg['userData'] = { ...svg['userData'] };
+  }
+
+  // вставка скопрированного элемента из памяти
+  clonePaste() {
+    if (!this.cloneSvg) return;
+
+    if (this.selectedObj.el) this.actElem(this.selectedObj.el, false);
+
+    this.groupObjs.append(this.cloneSvg);
+
+    this.actElem(this.cloneSvg, true);
+
+    this.cloneSvg = null;
+  }
+
+  deepCloneWithJSON(obj) {
+    // Проверка, является ли объект простым объектом или массивом
+    if (obj === null || typeof obj !== 'object' || obj instanceof SVGElement) {
+      return null; // Если это не объект, возвращаем его как есть (примитивный тип)
+    }
+    console.log(obj);
+    // Если это массив или объект, пытаемся клонировать через JSON методы
+    try {
+      //return JSON.parse(JSON.stringify(obj));
+    } catch (e) {
+      // В случае ошибки (например, если объект содержит циклические ссылки),
+      // используем рекурсивное копирование
+      if (Array.isArray(obj)) {
+        return obj.map((item) => this.deepCloneWithJSON(item));
+      } else {
+        const copy = {};
+        for (let key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            copy[key] = this.deepCloneWithJSON(obj[key]);
+          }
+        }
+        return copy;
+      }
+    }
   }
 }

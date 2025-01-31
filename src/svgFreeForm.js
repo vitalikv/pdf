@@ -725,16 +725,39 @@ export class IsometricSvgFreeForm {
     const svg = this.selectedObj.el;
     if (!svg['userData'].freeForm) return;
 
-    this.cloneSvg = svg.cloneNode(true);
+    const originalSvg = svg;
 
-    this.cloneSvg['userData'] = svg['userData'];
+    const userDataMap = new Map();
+
+    Array.from(originalSvg.children).forEach((child) => {
+      if (child['userData']) {
+        userDataMap.set(child, child['userData']);
+      }
+    });
+
+    const clonedSvg = originalSvg.cloneNode(true);
+
+    Array.from(clonedSvg.children).forEach((clonedChild, index) => {
+      const originalChild = originalSvg.children[index];
+
+      if (userDataMap.has(originalChild)) {
+        clonedChild['userData'] = userDataMap.get(originalChild);
+      }
+    });
+
+    this.cloneSvg = clonedSvg;
+    this.cloneSvg['userData'] = { ...svg['userData'] };
   }
 
   // вставка скопрированного элемента из памяти
   clonePaste() {
     if (!this.cloneSvg) return;
 
+    if (this.selectedObj.el) this.actElem(this.selectedObj.el, false);
+
     this.groupObjs.append(this.cloneSvg);
+
+    this.actElem(this.cloneSvg, true);
 
     this.cloneSvg = null;
   }

@@ -65,12 +65,14 @@ export class IsometricSvgManager {
 
     if (this.lastKeyCode === 'ControlLeft' && event.code === 'KeyC' && !event.repeat) {
       isometricSvgFreeForm.cloneSave();
+      isometricSvgObjs.cloneSave();
       this.lastKeyCode = 'ControlLeft';
       return;
     }
 
     if (this.lastKeyCode === 'ControlLeft' && event.code === 'KeyV' && !event.repeat) {
       isometricSvgFreeForm.clonePaste();
+      isometricSvgObjs.clonePaste();
       this.lastKeyCode = 'ControlLeft';
       return;
     }
