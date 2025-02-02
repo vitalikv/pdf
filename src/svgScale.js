@@ -285,8 +285,8 @@ export class IsometricSvgScale {
     const svgArr = [];
 
     this.groupObjs.childNodes.forEach((svg) => {
-      if (svg['userData'] && isometricSvgListObjs.isObjBySvg(svg)) {
-        svgArr.push(svg);
+      if (svg['userData'] && svg['userData'].tag === 'objElem') {
+        svgArr.push(...svg.childNodes);
       }
     });
 
