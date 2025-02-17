@@ -18,7 +18,10 @@ module.exports = {
       filename: 'index.html',
     }),
     new CopyPlugin({
-      patterns: [{ from: './src/img', to: './img' }],
+      patterns: [
+        { from: './src/img', to: './img' },
+        { from: 'src/php/*.php', to: 'php/[name][ext]' },
+      ],
     }),
   ],
   module: {
@@ -34,5 +37,13 @@ module.exports = {
   },
   devServer: {
     port: 3400,
+    proxy: {
+      '/php': {
+        target: 'http://cs', // Адрес PHP-сервера
+        changeOrigin: true,
+        pathRewrite: { '^/php': '/pdf/src/php' }, // Перенаправляем /php на /pdf/src/php
+        logLevel: 'debug', // Показывает логи прокси в консоли
+      },
+    },
   },
 };

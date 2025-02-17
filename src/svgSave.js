@@ -314,12 +314,14 @@ export class IsometricSvgSave {
 
   // сохранение в папку через php
   async saveFileInDir({ file }) {
-    const url = '	http://cs/pdf/src/php/saveJson.php';
-    const str = JSON.stringify(file);
+    const url = '/php/saveJson.php';
+    const body = new URLSearchParams();
+    body.append('myarray', JSON.stringify(file));
+    body.append('nameFile', 'test1.json');
 
     const response = await fetch(url, {
       method: 'POST',
-      body: 'myarray=' + encodeURIComponent(str) + '&nameFile=test1.json',
+      body: body,
       headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
     });
     const data = await response.json();
