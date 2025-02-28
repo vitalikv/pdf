@@ -362,6 +362,7 @@ export class IsometricNoteText {
       div.style.left = div.offsetLeft * scale + 'px';
       div.style.width = div.clientWidth * scale + 'px';
       div.style.height = div.clientHeight * scale + 'px';
+      div.style.fontSize = parseFloat(div.style.fontSize) * scale + 'px';
     });
 
     //this.setPosArrSvgCircle();

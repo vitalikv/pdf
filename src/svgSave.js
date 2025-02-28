@@ -55,50 +55,10 @@ export class IsometricSvgSave {
           }
         }
 
-        if (svg['userData'].objBracket && svg['userData'].tag === 'point') {
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-          isometry.objs.push({ tag: 'objBracket', pos, attributes });
-        }
-
-        if (svg['userData'].objValve && svg['userData'].tag === 'point') {
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const scale = svg['userData'].profile.scale;
-          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-          isometry.objs.push({ tag: 'objValve', pos, scale, attributes });
-        }
-
-        if (svg['userData'].objTee && svg['userData'].tag === 'point') {
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-          isometry.objs.push({ tag: 'objTee', pos, attributes });
-        }
-
-        if (svg['userData'].objFlap && svg['userData'].tag === 'point') {
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const scale = svg['userData'].profile.scale;
-          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-          isometry.objs.push({ tag: 'objFlap', pos, scale, attributes });
-        }
-
-        if (svg['userData'].objAdapter && svg['userData'].tag === 'point') {
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const scale = svg['userData'].profile.scale;
-          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-          isometry.objs.push({ tag: 'objAdapter', pos, scale, attributes });
-        }
-
-        if (svg['userData'].objBox && svg['userData'].tag === 'point') {
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const scale = svg['userData'].profile.scale;
-          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-          isometry.objs.push({ tag: 'objBox', pos, scale, attributes });
-        }
-
-        if (svg['userData'].objSplitter && svg['userData'].tag === 'point') {
-          const pos = isometricSvgElem.getPosCircle(svg);
-          const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
-          isometry.objs.push({ tag: 'objSplitter', pos, attributes });
+        if (svg['userData'].tag === 'objElem') {
+          svg.childNodes.forEach((child) => {
+            this.addListObjs({ svg: child, isometry });
+          });
         }
 
         if (svg['userData'].note1 && svg['userData'].tag === 'line') {
@@ -295,6 +255,54 @@ export class IsometricSvgSave {
 
     //this.saveFileInTxt({ file: isometry });
     this.saveFileInDir({ file: isometry });
+  }
+
+  addListObjs({ svg, isometry }) {
+    if (svg['userData'].objBracket && svg['userData'].tag === 'point') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+      isometry.objs.push({ tag: 'objBracket', pos, attributes });
+    }
+
+    if (svg['userData'].objValve && svg['userData'].tag === 'point') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const scale = svg['userData'].profile.scale;
+      const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+      isometry.objs.push({ tag: 'objValve', pos, scale, attributes });
+    }
+
+    if (svg['userData'].objTee && svg['userData'].tag === 'point') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+      isometry.objs.push({ tag: 'objTee', pos, attributes });
+    }
+
+    if (svg['userData'].objFlap && svg['userData'].tag === 'point') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const scale = svg['userData'].profile.scale;
+      const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+      isometry.objs.push({ tag: 'objFlap', pos, scale, attributes });
+    }
+
+    if (svg['userData'].objAdapter && svg['userData'].tag === 'point') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const scale = svg['userData'].profile.scale;
+      const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+      isometry.objs.push({ tag: 'objAdapter', pos, scale, attributes });
+    }
+
+    if (svg['userData'].objBox && svg['userData'].tag === 'point') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const scale = svg['userData'].profile.scale;
+      const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+      isometry.objs.push({ tag: 'objBox', pos, scale, attributes });
+    }
+
+    if (svg['userData'].objSplitter && svg['userData'].tag === 'point') {
+      const pos = isometricSvgElem.getPosCircle(svg);
+      const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
+      isometry.objs.push({ tag: 'objSplitter', pos, attributes });
+    }
   }
 
   // сохранение файла на комп через браузер

@@ -713,8 +713,14 @@ export class IsometricSvgListObjs {
   removeObj(svg) {
     const elems = this.getStructureObj(svg);
 
-    for (let key in elems) {
-      elems[key].remove();
+    const svgG = svg.parentElement;
+
+    if (svgG['userData'] && svgG['userData'].tag && svgG['userData'].tag === 'objElem') {
+      svgG.remove();
+    } else {
+      for (let key in elems) {
+        elems[key].remove();
+      }
     }
   }
 
