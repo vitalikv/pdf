@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets, isometricNoteText, isometricStampLogo, isometricPdfToSvg } from './index';
+import { isometricSvgElem, isometricNoteSvg, isometricNoteSvg2, isometricSvgRuler, isometricSheets, isometricNoteText, isometricSvgText, isometricStampLogo, isometricPdfToSvg } from './index';
 
 export class IsometricSvgSave {
   container;
@@ -190,6 +190,8 @@ export class IsometricSvgSave {
       isometry.texts.push({ cssText, textContent });
     });
 
+    this.addListTexts({ isometry });
+
     isometricStampLogo.arrStamp.forEach((div) => {
       const cssText = div.style.cssText;
       const url = div['userData'].url;
@@ -303,6 +305,12 @@ export class IsometricSvgSave {
       const attributes = svg['userData'].attributes ? svg['userData'].attributes : {};
       isometry.objs.push({ tag: 'objSplitter', pos, attributes });
     }
+  }
+
+  addListTexts({ isometry }) {
+    const result = isometricSvgText.getListTexts();
+
+    if (result.length > 0) isometry.texts.push(...result);
   }
 
   // сохранение файла на комп через браузер

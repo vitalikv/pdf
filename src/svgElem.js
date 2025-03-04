@@ -84,6 +84,48 @@ export class IsometricSvgElem {
     return svgElem;
   }
 
+  // Преобразуем локальные координаты в глобальные
+  getTest({ svg }) {
+    const svgXmlns = this.getSvgXmlns({ container: this.containerSvg });
+    const viewBox = svgXmlns.getAttribute('viewBox');
+    const viewBoxValues = viewBox.split(' ').map(Number);
+    const viewBoxWidth = viewBoxValues[2];
+    const viewBoxHeight = viewBoxValues[3];
+
+    const rectGl = svgXmlns.getBoundingClientRect();
+
+    // Масштабные коэффициенты
+    const scaleX = viewBoxWidth / rectGl.width;
+    const scaleY = viewBoxHeight / rectGl.height;
+
+    const gBBox = svg.getBBox(); // Получаем bounding box текста в локальной системе координат
+    const gCTM = svg.getCTM(); // Получаем текущую матрицу трансформации текста
+
+    // Преобразуем локальные координаты в глобальные
+    let globalX = gBBox.x * gCTM.a + gBBox.y * gCTM.c + gCTM.e;
+    let globalY = gBBox.x * gCTM.b + gBBox.y * gCTM.d + gCTM.f;
+    globalX *= scaleX;
+    globalY *= scaleY;
+
+    return { x: globalX, y: globalY };
+  }
+
+  getScaleViewBox() {
+    const svgXmlns = this.getSvgXmlns({ container: this.containerSvg });
+    const viewBox = svgXmlns.getAttribute('viewBox');
+    const viewBoxValues = viewBox.split(' ').map(Number);
+    const viewBoxWidth = viewBoxValues[2];
+    const viewBoxHeight = viewBoxValues[3];
+
+    const rectGl = svgXmlns.getBoundingClientRect();
+
+    // Масштабные коэффициенты
+    const scaleX = viewBoxWidth / rectGl.width;
+    const scaleY = viewBoxHeight / rectGl.height;
+
+    return { x: scaleX, y: scaleY };
+  }
+
   // получаем значения viewBox
   getSizeViewBox({ container = this.containerSvg }) {
     const svgXmlns = this.getSvgXmlns({ container });
@@ -169,6 +211,20 @@ export class IsometricSvgElem {
     svg.setAttribute('stroke', stroke);
     svg.setAttribute('fill', fill);
     svg.setAttribute('transform', `translate(${x}, ${y}) rotate(0)`);
+
+    return svg;
+  }
+
+  createRect({ x, y, width, height, fill = 'rgb(0, 0, 0)', stroke = 'rgb(0, 0, 0)', opacity = '1', strokeWidth = '2' }) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    svg.setAttribute('x', x);
+    svg.setAttribute('y', y);
+    svg.setAttribute('width', width);
+    svg.setAttribute('height', height);
+    svg.setAttribute('fill', fill);
+    svg.setAttribute('stroke', stroke);
+    svg.setAttribute('stroke-width', strokeWidth);
+    svg.setAttribute('opacity', opacity);
 
     return svg;
   }

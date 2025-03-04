@@ -53,20 +53,21 @@ export class IsometricPanelUI {
     this.btns$[18] = this.crBtn({ txt: 'РО' });
     this.btns$[19] = this.crBtn({ txt: 'Разделитель' });
     this.btns$[20] = this.crBtn({ txt: 'Текст' });
+    this.btns$[21] = this.crBtn({ txt: 'svg Текст' });
 
-    this.btns$[21] = this.crBtn({ txt: 'Линия' });
-    this.btns$[22] = this.crBtn({ txt: 'Стрелка' });
-    this.btns$[23] = this.crBtn({ txt: 'Прямоугольник' });
-    this.btns$[24] = this.crBtn({ txt: 'Круг' });
-    this.btns$[25] = this.crBtn({ txt: 'Треугольник' });
+    this.btns$[22] = this.crBtn({ txt: 'Линия' });
+    this.btns$[23] = this.crBtn({ txt: 'Стрелка' });
+    this.btns$[24] = this.crBtn({ txt: 'Прямоугольник' });
+    this.btns$[25] = this.crBtn({ txt: 'Круг' });
+    this.btns$[26] = this.crBtn({ txt: 'Треугольник' });
 
-    this.btns$[26] = this.crBtn({ txt: 'Цвет' });
+    this.btns$[27] = this.crBtn({ txt: 'Цвет' });
 
-    this.btns$[27] = this.crBtn({ txt: 'Сохранить' });
-    this.btns$[28] = this.crBtn({ txt: 'Загрузить' });
-    this.btns$[29] = this.crListSheets();
-    this.btns$[30] = this.crBtn({ txt: 'из 3D в 2D' });
-    this.btns$[31] = this.crBtn({ txt: 'json svg' });
+    this.btns$[28] = this.crBtn({ txt: 'Сохранить' });
+    this.btns$[29] = this.crBtn({ txt: 'Загрузить' });
+    this.btns$[30] = this.crListSheets();
+    this.btns$[31] = this.crBtn({ txt: 'из 3D в 2D' });
+    this.btns$[32] = this.crBtn({ txt: 'json svg' });
 
     this.initEvent();
   }
@@ -170,46 +171,50 @@ export class IsometricPanelUI {
     };
 
     this.btns$[21].onmousedown = (e) => {
-      this.activateType({ type: 'shapeLine', e });
+      this.activateType({ type: 'addSvgText', e });
     };
 
     this.btns$[22].onmousedown = (e) => {
-      this.activateType({ type: 'shapeArrow', e });
+      this.activateType({ type: 'shapeLine', e });
     };
 
     this.btns$[23].onmousedown = (e) => {
-      this.activateType({ type: 'shapeRectangle', e });
+      this.activateType({ type: 'shapeArrow', e });
     };
 
     this.btns$[24].onmousedown = (e) => {
-      this.activateType({ type: 'shapeEllipse', e });
+      this.activateType({ type: 'shapeRectangle', e });
     };
 
     this.btns$[25].onmousedown = (e) => {
-      this.activateType({ type: 'shapeTriangle', e });
+      this.activateType({ type: 'shapeEllipse', e });
     };
 
     this.btns$[26].onmousedown = (e) => {
-      isometricSvgElementColor.setColor({ color: '#0000ff' });
+      this.activateType({ type: 'shapeTriangle', e });
     };
 
     this.btns$[27].onmousedown = (e) => {
-      isometricSvgSave.save();
+      isometricSvgElementColor.setColor({ color: '#0000ff' });
     };
 
     this.btns$[28].onmousedown = (e) => {
+      isometricSvgSave.save();
+    };
+
+    this.btns$[29].onmousedown = (e) => {
       isometricSvgLoad.load();
     };
 
-    this.btns$[29].onchange = (e) => {
+    this.btns$[30].onchange = (e) => {
       isometricSheets.showHideSheet(e.target.value, undefined, undefined, true);
     };
 
-    this.btns$[30].onmousedown = (e) => {
+    this.btns$[31].onmousedown = (e) => {
       initModel();
     };
 
-    this.btns$[31].onmousedown = (e) => {
+    this.btns$[32].onmousedown = (e) => {
       this.activateType({ type: 'shapeJson', e });
     };
   }
@@ -317,6 +322,7 @@ export class IsometricPanelUI {
     else if (type === 'objBox') isometricSvgManager.setMode({ type });
     else if (type === 'objSplitter') isometricSvgManager.setMode({ type });
     else if (type === 'addText') isometricSvgManager.setMode({ type });
+    else if (type === 'addSvgText') isometricSvgManager.setMode({ type });
     else if (type === 'shapeLine') isometricSvgManager.setMode({ type });
     else if (type === 'shapeArrow') isometricSvgManager.setMode({ type });
     else if (type === 'shapeRectangle') isometricSvgManager.setMode({ type });

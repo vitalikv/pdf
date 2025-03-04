@@ -11,6 +11,7 @@ import {
   isometricSvgBasicElements,
   isometricSvgFreeForm,
   isometricNoteText,
+  isometricSvgText,
   isometricStampLogo,
   isometricSheets,
   isometricSvgPathConvert,
@@ -478,41 +479,45 @@ export class IsometricSvgLoad {
     if (!texts) return;
 
     texts.forEach((txt) => {
-      let { cssText, textContent } = txt;
+      if (txt.tag && txt.tag === 'svgTxt') {
+        isometricSvgText.createText({ params: txt });
+      } else {
+        let { cssText, textContent } = txt;
 
-      const match1 = cssText.match(/top:\s*(-?\d+(\.\d+)?)px/);
-      const match2 = cssText.match(/left:\s*(-?\d+(\.\d+)?)px/);
-      const match3 = cssText.match(/ width:\s*(-?\d+(\.\d+)?)px/);
-      const match4 = cssText.match(/ height:\s*(-?\d+(\.\d+)?)px/);
-      const match5 = cssText.match(/font-size:\s*(-?\d+(\.\d+)?)px/);
+        const match1 = cssText.match(/top:\s*(-?\d+(\.\d+)?)px/);
+        const match2 = cssText.match(/left:\s*(-?\d+(\.\d+)?)px/);
+        const match3 = cssText.match(/ width:\s*(-?\d+(\.\d+)?)px/);
+        const match4 = cssText.match(/ height:\s*(-?\d+(\.\d+)?)px/);
+        const match5 = cssText.match(/font-size:\s*(-?\d+(\.\d+)?)px/);
 
-      if (match1) {
-        let value = parseFloat(match1[1]);
-        value *= this.viewSize.y;
-        cssText = cssText.replace(/top:\s*(-?\d+(\.\d+)?)px;/, 'top: ' + value + 'px;');
-      }
-      if (match2) {
-        let value = parseFloat(match2[1]);
-        value *= this.viewSize.x;
-        cssText = cssText.replace(/left:\s*(-?\d+(\.\d+)?)px;/, 'left: ' + value + 'px;');
-      }
-      if (match3) {
-        let value = parseFloat(match3[1]);
-        value *= this.viewSize.x;
-        cssText = cssText.replace(/ width:\s*(-?\d+(\.\d+)?)px;/, ' width: ' + value + 'px;');
-      }
-      if (match4) {
-        let value = parseFloat(match4[1]);
-        value *= this.viewSize.y;
-        cssText = cssText.replace(/ height:\s*(-?\d+(\.\d+)?)px;/, ' height: ' + value + 'px;');
-      }
-      if (match5) {
-        let value = parseFloat(match5[1]);
-        value *= this.viewSize.y;
-        cssText = cssText.replace(/font-size:\s*(-?\d+(\.\d+)?)px;/, 'font-size: ' + value + 'px;');
-      }
+        if (match1) {
+          let value = parseFloat(match1[1]);
+          value *= this.viewSize.y;
+          cssText = cssText.replace(/top:\s*(-?\d+(\.\d+)?)px;/, 'top: ' + value + 'px;');
+        }
+        if (match2) {
+          let value = parseFloat(match2[1]);
+          value *= this.viewSize.x;
+          cssText = cssText.replace(/left:\s*(-?\d+(\.\d+)?)px;/, 'left: ' + value + 'px;');
+        }
+        if (match3) {
+          let value = parseFloat(match3[1]);
+          value *= this.viewSize.x;
+          cssText = cssText.replace(/ width:\s*(-?\d+(\.\d+)?)px;/, ' width: ' + value + 'px;');
+        }
+        if (match4) {
+          let value = parseFloat(match4[1]);
+          value *= this.viewSize.y;
+          cssText = cssText.replace(/ height:\s*(-?\d+(\.\d+)?)px;/, ' height: ' + value + 'px;');
+        }
+        if (match5) {
+          let value = parseFloat(match5[1]);
+          value *= this.viewSize.y;
+          cssText = cssText.replace(/font-size:\s*(-?\d+(\.\d+)?)px;/, 'font-size: ' + value + 'px;');
+        }
 
-      isometricNoteText.addText2({ cssText, textContent });
+        isometricNoteText.addText2({ cssText, textContent });
+      }
     });
   }
 

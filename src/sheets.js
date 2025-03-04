@@ -153,6 +153,8 @@ export class IsometricSheets {
     this.elInputs.push({ svgRect: newRect, svgText: elem, tableId, id });
 
     this.initEventTxtInput({ svgRect: newRect, svgText: elem });
+
+    this.fontSvgSizeAutoAdjustToFit({ svgRect: newRect, svgText: elem });
   }
 
   // событие по Rect (input)
@@ -183,14 +185,18 @@ export class IsometricSheets {
       elem2.style.fontFamily = 'Gostcadkk';
       elem2.style.boxSizing = 'border-box';
 
+      const scale = isometricSvgElem.getScaleViewBox();
+      const svgFontSizeNumber = parseFloat(svgText.getAttribute('font-size')) / scale.x;
+      elem2.style.fontSize = svgFontSizeNumber.toFixed(2) + 'px';
+
       this.containerSvg.append(elem2);
 
       elem2.focus();
 
-      this.fontHtmlSizeAutoAdjustToFit({ input: elem2 });
+      //this.fontHtmlSizeAutoAdjustToFit({ input: elem2 });
 
       elem2.onkeydown = (e2) => {
-        this.fontHtmlSizeAutoAdjustToFit({ input: elem2 });
+        //this.fontHtmlSizeAutoAdjustToFit({ input: elem2 });
 
         if (e2.code === 'Enter' && this.lastKeyCode !== 'ShiftLeft') {
           this.deleteInput();

@@ -22,6 +22,7 @@ import { IsometricNoteSvg } from './noteSvg';
 import { IsometricNoteSvg2 } from './noteSvg2';
 import { IsometricSvgRuler } from './svgRuler';
 import { IsometricNoteText } from './noteText';
+import { IsometricSvgText } from './svgText';
 import { IsometricSvgBasicElements } from './svgBasicElements';
 import { IsometricSvgFreeForm } from './svgFreeForm';
 import { IsometricStampLogo } from './stampLogo';
@@ -72,6 +73,7 @@ export let isometricPanelUI,
   isometricNoteSvg2,
   isometricSvgRuler,
   isometricNoteText,
+  isometricSvgText,
   isometricSvgBasicElements,
   isometricSvgFreeForm,
   isometricStampLogo,
@@ -204,6 +206,7 @@ function initServ() {
   isometricNoteSvg2 = new IsometricNoteSvg2();
   isometricSvgRuler = new IsometricSvgRuler();
   isometricNoteText = new IsometricNoteText();
+  isometricSvgText = new IsometricSvgText();
   isometricSvgBasicElements = new IsometricSvgBasicElements();
   isometricSvgFreeForm = new IsometricSvgFreeForm();
   isometricStampLogo = new IsometricStampLogo();
