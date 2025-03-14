@@ -47,11 +47,7 @@ export class IsometricSvgCalc {
       }
     }
 
-    const center = new THREE.Vector3(
-      (bound.max.x - bound.min.x) / 2 + bound.min.x,
-      (bound.max.y - bound.min.y) / 2 + bound.min.y,
-      (bound.max.z - bound.min.z) / 2 + bound.min.z
-    );
+    const center = new THREE.Vector3((bound.max.x - bound.min.x) / 2 + bound.min.x, (bound.max.y - bound.min.y) / 2 + bound.min.y, (bound.max.z - bound.min.z) / 2 + bound.min.z);
 
     const points = [];
     points.push(new THREE.Vector2(bound.min.x, bound.min.z));
@@ -136,10 +132,7 @@ export class IsometricSvgCalc {
 
         const ids = [joints[i2].id, joints[i2 + 1].id];
 
-        const pos = [
-          new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
-          new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
-        ];
+        const pos = [new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld), new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld)];
 
         arrData.line.push({ pos, ids });
       }
@@ -156,10 +149,7 @@ export class IsometricSvgCalc {
 
       const ids = [joints[0].id, joints[1].id];
 
-      const pos = [
-        new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
-        new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
-      ];
+      const pos = [new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld), new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld)];
 
       arrData.line.push({ pos, ids });
 
@@ -176,10 +166,7 @@ export class IsometricSvgCalc {
 
       const ids = [joints[0].id, joints[1].id, joints[2].id, []];
 
-      const pos = [
-        new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
-        new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld),
-      ];
+      const pos = [new THREE.Vector3(p1.x, p1.y, p1.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld), new THREE.Vector3(p2.x, p2.y, p2.z).applyMatrix4(this.modelsContainerInit.control.matrixWorld)];
 
       arrData.line.push({ pos: [pos[0].clone(), pos[1].clone()], ids });
 

@@ -206,8 +206,6 @@ export class IsometricSvgLine {
       // создаем 2 точки перед углом
       const pd2 = this.createSvgCircle({ ind: 0, x: res1.pos.x, y: res1.pos.y, stroke });
       const pd1 = this.createSvgCircle({ ind: 0, x: res2.pos.x, y: res2.pos.y, stroke });
-      this.groupLines.append(pd1);
-      this.groupLines.append(pd2);
 
       // создаем 2 линии для угла
       const x = Number(pCenter.getAttribute('cx'));
@@ -216,6 +214,9 @@ export class IsometricSvgLine {
       const ld1 = this.createSvgLine({ x1: res2.pos.x, y1: res2.pos.y, x2: x, y2: y, stroke });
       this.groupLines.append(ld1);
       this.groupLines.append(ld2);
+
+      this.groupLines.append(pd1);
+      this.groupLines.append(pd2);
 
       if (res1.ind === 2) {
         line1['userData'].pd2 = pd2;
@@ -257,6 +258,7 @@ export class IsometricSvgLine {
       line2.setAttribute('x' + res2.ind, res2.pos.x);
       line2.setAttribute('y' + res2.ind, res2.pos.y);
 
+      this.groupLines.append(pCenter);
       pCenter.setAttribute('display', 'none');
     }
   }
@@ -896,36 +898,29 @@ export class IsometricSvgLine {
   }
 
   actCorner(svg, act = false) {
-    let stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
-    let stroke2 = stroke;
+    const stroke = !act ? 'rgb(0, 0, 0)' : '#ff0000';
 
-    if (!act && svg['userData'].color) {
-      stroke2 = svg['userData'].color;
-    }
-
-    const { ld1, ld2, pd1, pd2, pCenter } = this.getElemsCorner(svg);
+    const { pd1, pd2, pCenter } = this.getElemsCorner(svg);
 
     svg.setAttribute('stroke', stroke);
+    svg.setAttribute('fill', stroke);
 
-    if (pd1) {
-      pd1.setAttribute('stroke', stroke);
-      pd1.setAttribute('fill', stroke);
-    }
-    if (pd2) {
-      pd2.setAttribute('stroke', stroke);
-      pd2.setAttribute('fill', stroke);
-    }
     if (pCenter) {
       const display = act ? '' : 'none';
       pCenter.setAttribute('display', display);
-      pCenter.setAttribute('stroke', stroke);
-      pCenter.setAttribute('fill', stroke);
+      pCenter.setAttribute('stroke', 'rgb(0, 0, 0)');
+      pCenter.setAttribute('fill', 'rgb(0, 0, 0)');
     }
-    if (ld1) {
-      ld1.setAttribute('stroke', stroke2);
-    }
-    if (ld2) {
-      ld2.setAttribute('stroke', stroke2);
+
+    if (!act) {
+      if (pd1) {
+        pd1.setAttribute('stroke', stroke);
+        pd1.setAttribute('fill', stroke);
+      }
+      if (pd2) {
+        pd2.setAttribute('stroke', stroke);
+        pd2.setAttribute('fill', stroke);
+      }
     }
   }
 

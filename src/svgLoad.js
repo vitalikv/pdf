@@ -81,7 +81,6 @@ export class IsometricSvgLoad {
     const substratePdf = data.substratePdf;
 
     const svgXmlns = isometricSvgElem.getSvgXmlns({ container: this.containerSvg });
-    const groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
 
     if (bound) {
       let size = isometricSvgElem.getSizeViewBox({ container: this.containerSvg });
@@ -100,6 +99,21 @@ export class IsometricSvgLoad {
       this.viewBox.x = size.x / bound.w;
       this.viewBox.y = size.y / bound.h;
     }
+
+    if (lines && lines.length > 0) this.setLines({ lines, points });
+    if (objs && objs.length > 0) this.setObjs(objs);
+    if (rulers) this.setRulers(rulers);
+    if (objsBasic) this.setObjsBasic(objsBasic);
+    if (scheme) this.setScheme(scheme);
+    if (notes) this.setNotes(notes);
+    if (texts) this.setText(texts);
+    if (stampslogo) this.setStampslogo(stampslogo);
+    if (sheet) this.setSheet(sheet);
+    if (substratePdf) this.setSubstratePdf(substratePdf);
+  }
+
+  setLines({ lines, points }) {
+    const groupLines = isometricSvgElem.getSvgGroup({ container: this.containerSvg, tag: 'lines' });
 
     const arrSvgLines = [];
     const arrSvgPoints = [];
@@ -185,17 +199,6 @@ export class IsometricSvgLoad {
         isometricSvgLine.addCorner({ line1: lines[0], line2: lines[1], pCenter: point });
       }
     }
-
-    if (objs && objs.length > 0) this.setObjs(objs);
-
-    if (rulers) this.setRulers(rulers);
-    if (objsBasic) this.setObjsBasic(objsBasic);
-    if (scheme) this.setScheme(scheme);
-    if (notes) this.setNotes(notes);
-    if (texts) this.setText(texts);
-    if (stampslogo) this.setStampslogo(stampslogo);
-    if (sheet) this.setSheet(sheet);
-    if (substratePdf) this.setSubstratePdf(substratePdf);
   }
 
   setObjs(objs) {

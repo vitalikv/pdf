@@ -237,8 +237,8 @@ function initServ() {
   isometricSvgComparison = new IsometricSvgComparison();
 
   isometricSvgManager.init();
-  isometricSvgLoad.load('img/test1.json');
-  //initModel();
+  //isometricSvgLoad.load('img/test1.json');
+  initModel();
 }
 
 // построение изометрии из 3д модели
@@ -251,35 +251,21 @@ export async function initModel() {
   } else if (1 === 1) {
     const meshes = [];
     let arrMesh = await loaderModel.loaderObj('1/6e3a80a5-9408-ac22-6618-771ff0bba953');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/278c7e02-5729-875b-583b-0e92a93faf71');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/f5aaf88d-1b09-bd8a-1a4e-9bcd958c34e5');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/4e267b82-01c5-891f-c0e8-b54c811880a5');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/8370dc61-c4cf-bfd3-5877-593272847912');
-    meshes.push(...arrMesh);
 
     arrMesh = await loaderModel.loaderObj('1/82565674-6e5b-e307-7d05-ff7fb293e60d');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/e38181c1-0a44-dfef-46ae-08a5be97e573');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/e5c11088-c8d1-03cc-6706-af5a246ec55e');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/36c1aff0-e464-bd6d-a2d3-835af5bf6c7f');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/f798e46e-7d50-43ae-f446-e3ea364e5ead');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/f538982e-35cd-8cf1-8bc7-3d199eb8e4ca');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/82cbd306-a3f4-3f92-e3b5-33f1f6c985ef');
-    meshes.push(...arrMesh);
 
     arrMesh = await loaderModel.loaderObj('1/0cb782a2-c7f8-66da-a720-ab7e3697677b');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/eb69daef-9c99-e228-1cb0-fc2a831c7e5b');
-    meshes.push(...arrMesh);
     arrMesh = await loaderModel.loaderObj('1/bba4da77-87ce-353a-5cfc-14f47dc0612b');
     meshes.push(...arrMesh);
 
@@ -293,92 +279,15 @@ export async function initModel() {
     listMeshes = meshes;
   }
 
-  //fitCamera(meshes);
-
   //isometricPdfToSvg.containerPdf.style.display = 'none';
 
   const calcIsometrixSvg = new CalcIsometrixSvg();
-  const data = calcIsometrixSvg.getType({ meshes: listMeshes, scene, mapControlInit });
+  const data = calcIsometrixSvg.getType({ meshes: listMeshes });
   const isometrix = isometric3dto2d.getIsometry({ scene, mapControlInit, data });
   console.log('isometrix', isometrix);
   isometricSvgLoad.setIsometry(isometrix);
 
   //isometricSetCalcNotes.setNotes();
-}
-
-function fitCamera(meshes) {
-  const bound = { min: { x: Infinity, y: Infinity, z: Infinity }, max: { x: -Infinity, y: -Infinity, z: -Infinity } };
-
-  for (let i = 0; i < meshes.length; i++) {
-    meshes[i].updateMatrixWorld();
-    const v = meshes[i].getWorldPosition(new THREE.Vector3());
-    if (v.x < bound.min.x) {
-      bound.min.x = v.x;
-    }
-    if (v.x > bound.max.x) {
-      bound.max.x = v.x;
-    }
-    if (v.y < bound.min.y) {
-      bound.min.y = v.y;
-    }
-    if (v.y > bound.max.y) {
-      bound.max.y = v.y;
-    }
-    if (v.z < bound.min.z) {
-      bound.min.z = v.z;
-    }
-    if (v.z > bound.max.z) {
-      bound.max.z = v.z;
-    }
-  }
-
-  const center = new THREE.Vector3((bound.max.x - bound.min.x) / 2 + bound.min.x, (bound.max.y - bound.min.y) / 2 + bound.min.y, (bound.max.z - bound.min.z) / 2 + bound.min.z);
-
-  const points = [];
-  points.push(new THREE.Vector2(bound.min.x, bound.min.z));
-  points.push(new THREE.Vector2(bound.max.x, bound.min.z));
-  points.push(new THREE.Vector2(bound.max.x, bound.max.z));
-  points.push(new THREE.Vector2(bound.min.x, bound.max.z));
-
-  const camera = mapControlInit.control.object;
-  let aspect = (bound.max.x - bound.min.x) / (bound.max.z - bound.min.z);
-
-  if (aspect > 1.0) {
-    // определяем что больше ширина или высота
-    let x = bound.max.x - bound.min.x < 0.1 ? 0.1 : bound.max.x - bound.min.x;
-    camera.zoom = camera.right / (x / 2);
-  } else {
-    let z = bound.max.z - bound.min.z < 0.1 ? 0.1 : bound.max.z - bound.min.z;
-    camera.zoom = camera.top / (z / 2);
-  }
-  console.log(camera, camera.rotation.x, camera.rotation.y, camera.rotation.z);
-
-  const pos = new THREE.Vector3(20, 20, -20);
-  camera.position.copy(pos);
-  camera.updateMatrixWorld();
-  camera.updateProjectionMatrix();
-  mapControlInit.control.target.copy(center);
-  camera.updateMatrixWorld();
-  camera.updateProjectionMatrix();
-  mapControlInit.control.update();
-
-  // визуализация boundBox изометрии
-  const helpVisual = true;
-  if (helpVisual) {
-    const shape = new THREE.Shape(points);
-    const material = new THREE.MeshStandardMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
-    const geometry = new THREE.ExtrudeGeometry(shape, { bevelEnabled: false, depth: -(bound.max.y - bound.min.y) });
-    geometry.rotateX(Math.PI / 2);
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.y = bound.min.y;
-    scene.add(cube);
-
-    const geometry2 = new THREE.BoxGeometry(1, 1, 1);
-    const material2 = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-    const cube2 = new THREE.Mesh(geometry2, material2);
-    cube2.position.copy(center);
-    scene.add(cube2);
-  }
 }
 
 function render() {
